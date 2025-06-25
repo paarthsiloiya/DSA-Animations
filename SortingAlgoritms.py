@@ -1,6 +1,4 @@
 from manim import *
-from manim.utils.unit import Percent, Pixels
-from manim import CurvedArrow
 
 # manim -ql -p SortingAlgoritms.py SelectionSort
 config.frame_width = 16
@@ -14,6 +12,14 @@ SORTCOL = ManimColor.from_hex("#4a2a90")
 
 FSIZE = 40
 FONT = 'JetBrains Mono'
+
+SWAP_FONT_SIZE = 38         # For "Swap!" and similar action texts
+EXPLANATORY_FONT_SIZE = 40  # For step-by-step explanations
+POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
+
+POINTER_FONT_COLOR = SORTCOL
+SWAP_FONT_COLOR = SORTCOL
+EXPLANATORY_FONT_COLOR = TEXTCOL
 
 class ListElement():
     def __init__(self, value : str):
@@ -48,41 +54,12 @@ class BubbleSort(Scene):
         list_elements = [ListElement(str(i)) for i in values]
         visuals = VGroup(*[el.getListElement() for el in list_elements])
         visuals.arrange(RIGHT, buff=0.5)
-        # visuals.shift(DOWN)
-        # itext = Text("i = 0", font="Courier New", font_size=FSIZE)
-        # jtext = Text("j = 0", font="Courier New", font_size=FSIZE)
-
-        # itext.to_corner(UR)
-        # jtext.next_to(itext, DOWN, buff=0.3)
-
-        # code_lines = [
-        #     "| for i in range(n):",
-        #     "|    for j in range(n - i - 1):",
-        #     "|        if arr[j] > arr[j+1]:",
-        #     "|            swap(arr[j], arr[j+1])"
-        # ]
-        # code_text = VGroup(*[Text(line, font="Courier New", font_size=FSIZE) for line in code_lines])
-        # code_text.arrange(DOWN, aligned_edge=LEFT, buff=0.3).to_corner(UL)
-
-        # highlight_box = SurroundingRectangle(code_text[3], color=YELLOW, buff=0.2)
-        # highlight_box.move_to(code_text[0], aligned_edge=LEFT)
-        self.add(visuals)#, itext, jtext, code_text, highlight_box)
+        self.add(visuals)
         
         n = len(list_elements)
 
         for i in range(n):
-            # new_text_i = Text(f"i = {i}", font="Courier New", font_size=FSIZE).to_corner(UR)
-            # self.play(highlight_box.animate.move_to(code_text[0], aligned_edge=LEFT), run_time=0.2)
-            # self.play(Transform(itext, new_text_i), run_time=0.2)
-            # self.wait(0.3)
             for j in range(n - i - 1):
-                # self.play(highlight_box.animate.move_to(code_text[1], aligned_edge=LEFT), run_time=0.2)
-                # new_text_j = Text(f"j = {j}", font="Courier New", font_size=FSIZE).next_to(itext, DOWN, buff=0.3)
-                # self.play(Transform(jtext, new_text_j), run_time=0.2)
-                # # Select both elements
-                # self.wait(0.3)
-                # self.play(highlight_box.animate.move_to(code_text[2], aligned_edge=LEFT), run_time=0.2)
-
                 self.play(
                     list_elements[j].SelectElement(),
                     list_elements[j + 1].SelectElement(),
@@ -93,19 +70,20 @@ class BubbleSort(Scene):
                 val1 = list_elements[j].value
                 val2 = list_elements[j + 1].value
 
+                # Show comparison text
+                compare_text = Text(f"{val1} {'>' if val1 > val2 else '<='} {val2}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).scale(1.3).next_to(visuals, DOWN, buff=1.9)
+                self.play(Write(compare_text), run_time=0.2)
+
                 if val1 > val2:
-                    # self.wait(0.2)
-                    # self.play(highlight_box.animate.move_to(code_text[3], aligned_edge=LEFT), run_time=0.2)
                     self.wait(0.2)
                     # Swap visuals
                     pos1 = list_elements[j].getListElement().get_center() + DOWN
                     pos2 = list_elements[j + 1].getListElement().get_center() + DOWN
                     
-                    arrow1 = CurvedArrow(pos1, pos2, angle=PI / 2, color=SORTCOL)
-                    arrow2 = CurvedArrow(pos2, pos1, angle=-PI / 2, color=SORTCOL)
-                    swapText = Text("Swap!", color=SORTCOL, font=FONT).next_to(arrow1, DOWN)
+                    arrow = CurvedDoubleArrow(pos1, pos2, angle=PI / 2, color=SORTCOL)
+                    swapText = Text("Swap!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(arrow, DOWN)
 
-                    self.play(Create(arrow1), Create(arrow2), run_time=0.3)
+                    self.play(Create(arrow), run_time=0.3)
                     self.play(Write(swapText), run_time=0.4)
 
                     self.play(
@@ -115,9 +93,13 @@ class BubbleSort(Scene):
                     )
                     # Swap data in the list
                     list_elements[j], list_elements[j + 1] = list_elements[j + 1], list_elements[j]
-                    self.play(FadeOut(arrow1), FadeOut(arrow2), FadeOut(swapText), run_time=0.2)
+                    self.play(FadeOut(arrow), FadeOut(swapText), run_time=0.2)
                 else:
                     self.wait(0.2)
+
+                # Fade out comparison text
+                self.play(FadeOut(compare_text), run_time=0.2)
+
                 # Deselect both elements
                 self.play(
                     list_elements[j].ClearSelection(),
@@ -128,8 +110,6 @@ class BubbleSort(Scene):
 
             self.play(*(list_elements[n - i - 1].MarkSorted()), run_time=0.3)
 
-        # self.wait(0.2)
-        # self.play(FadeOut(highlight_box), run_time=0.2)
         self.wait(1)
 
 
@@ -137,41 +117,12 @@ class InsertionSort(Scene):
     def construct(self):
         values = [5, 2, 4, 6, 3, 1]
         list_elements = [ListElement(str(v)) for v in values]
-        visuals = VGroup(*[el.getListElement() for el in list_elements]).arrange(RIGHT, buff=0.5)#.move_to(DOWN * 1.5)
-        # itext = Text("i = 0", font="Courier New", font_size=FSIZE)
-        # jtext = Text("j = 0", font="Courier New", font_size=FSIZE)
-
-        # itext.to_corner(UR)
-        # jtext.next_to(itext, DOWN, buff=0.3)
-
-        # code_lines = [
-        #     "| for i in range(1, n):",
-        #     "| insert_index = i",
-        #     "| current_value = my_array[i]",
-        #     "| for j in range(i - 1, -1, -1):",
-        #     "|     if my_array[j] > current_value:",
-        #     "|         my_array[j + 1] = my_array[j]",
-        #     "|         insert_index = j",
-        #     "|     else:",
-        #     "|         break",
-        #     "| my_array[insert_index] = current_value"
-        # ]
-
-        # code_text = VGroup(*[Text(line, font="Courier New", font_size=FSIZE-17) for line in code_lines])
-        # code_text.arrange(DOWN, aligned_edge=LEFT, buff=0.15).to_corner(UL)
-
-        # highlight_box = SurroundingRectangle(code_text[5], color=YELLOW, buff=0.05)
-        # highlight_box.move_to(code_text[0], aligned_edge=LEFT)
-
-        self.add(visuals)#, itext, jtext, code_text, highlight_box)
+        visuals = VGroup(*[el.getListElement() for el in list_elements]).arrange(RIGHT, buff=0.5)
+        self.add(visuals)
 
         self.play(*(list_elements[0].MarkSorted()))
 
         for i in range(1, len(list_elements)):
-            # new_text_i = Text(f"i = {i}", font="Courier New", font_size=FSIZE).to_corner(UR)
-            # self.play(highlight_box.animate.move_to(code_text[0], aligned_edge=LEFT), run_time=0.2)
-            # self.play(Transform(itext, new_text_i), run_time=0.2)
-            # self.wait(0.3)
             current = list_elements[i]
             current_value = current.value
             current_pos = current.getListElement().get_center()
@@ -184,25 +135,27 @@ class InsertionSort(Scene):
             backToPos = True
 
             while j >= 0 and list_elements[j].value > current_value:
-                # self.play(highlight_box.animate.move_to(code_text[1], aligned_edge=LEFT), run_time=0.2)
-                # new_text_j = Text(f"j = {j}", font="Courier New", font_size=FSIZE).next_to(itext, DOWN, buff=0.3)
-                # self.play(Transform(jtext, new_text_j), run_time=0.2)
-                # Select both elements
-                # self.play(highlight_box.animate.move_to(code_text[2], aligned_edge=LEFT), run_time=0.2)
-                self.wait(0.3)
+                # Show comparison text
+                val1 = list_elements[j].value
+                val2 = current_value
 
                 backToPos = False
                 self.play(list_elements[j].SelectElement(), run_time=0.2)
 
+                self.wait(0.3)
+                compare_text = Text(f"{val1} > {val2}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(visuals, DOWN, buff=1.7)
+                self.play(Write(compare_text), run_time=0.2)
+                self.wait(0.3)
+                
                 shiftArrow = CurvedArrow(list_elements[j].getListElement().get_center() + DOWN, list_elements[j].getListElement().get_center() + DOWN + (RIGHT * 1.3), angle=PI / 2, color=SORTCOL)
-                shiftText = Text("Shift", color=SORTCOL, font=FONT).next_to(shiftArrow, DOWN)
+                shiftText = Text("Shift", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(shiftArrow, DOWN)
                 self.play(Create(shiftArrow), run_time=0.3)
                 self.play(Write(shiftText), run_time=0.2)
 
                 # Move element to the right
                 self.play(list_elements[j].getListElement().animate.shift(RIGHT * 2.1), run_time=0.3)
 
-                self.play(FadeOut(shiftArrow), FadeOut(shiftText), run_time=0.2)
+                self.play(FadeOut(shiftArrow), FadeOut(shiftText), FadeOut(compare_text), run_time=0.2)
 
                 self.play(list_elements[j].ClearSelection(), run_time=0.2)
                 # Shift in list
@@ -217,7 +170,6 @@ class InsertionSort(Scene):
                 target_pos = current_pos
                 self.wait(0.5)
 
-            
             self.play(current.elementGroup.animate.move_to(target_pos), run_time=0.4)
             list_elements[insert_index] = current
 
@@ -235,53 +187,84 @@ class SelectionSort(Scene):
         self.add(visuals)
 
         def make_arrow(idx, label):
-            arrow = Arrow(start=list_elements[idx].getListElement().get_center() + (UP * 2),
-                          end=list_elements[idx].getListElement().get_center() + UP,
-                          max_stroke_width_to_length_ratio=5,
-                          color=SORTCOL)
-            text = Text(label, color=SORTCOL, font=FONT).scale(0.5).next_to(arrow, UP, buff=0.1)
+            arrow = Arrow(
+                start=list_elements[idx].getListElement().get_center() + (UP * 2),
+                end=list_elements[idx].getListElement().get_center() + UP,
+                max_stroke_width_to_length_ratio=5,
+                color=SORTCOL
+            )
+            text = Text(
+                label,
+                color=POINTER_FONT_COLOR,
+                font=FONT,
+                font_size=POINTER_FONT_SIZE
+            ).next_to(arrow, UP, buff=0.1)
             return VGroup(arrow, text)
+
+        def get_arrow_position(idx, label, i_idx, min_idx):
+            base = list_elements[idx].getListElement().get_center() + (UP * 1.7)
+            if i_idx == min_idx:
+                if label == "i":
+                    return base + LEFT * 0.3
+                elif label == "Min":
+                    return base + RIGHT * 0.3
+            return base
 
         for i in range(len(values)):
             min_index = i
-            min_index_group = make_arrow(min_index, "Min Value")
-            self.play(Create(min_index_group))            
+            i_index_group = make_arrow(i, "i").move_to(get_arrow_position(i, "i", i, min_index))
+            min_index_group = make_arrow(min_index, "Min").move_to(get_arrow_position(min_index, "Min", i, min_index))
+            self.play(Create(min_index_group), Create(i_index_group))           
             for j in range(i + 1, len(values)):
                 self.play(list_elements[j].SelectElement(), run_time=0.2)
                 if values[j] < values[min_index]:
                     min_index = j
                     self.wait(0.3)
-                    self.play(min_index_group.animate.move_to(list_elements[min_index].getListElement().get_center() + (UP * 1.7)), run_time=0.3)
+                    # Move "Min" arrow, check for overlap with "i"
+                    self.play(min_index_group.animate.move_to(get_arrow_position(min_index, "Min", i, min_index)), i_index_group.animate.move_to(get_arrow_position(i, "i", i, min_index)), run_time=0.3)
                 self.wait(0.2)
                 self.play(list_elements[j].ClearSelection(), run_time=0.2)
                 self.wait(0.1)
-            self.play(FadeOut(min_index_group), run_time=0.2)
 
+            self.play(FadeOut(min_index_group), FadeOut(i_index_group), run_time=0.2)
 
-            pos1 = list_elements[i].getListElement().get_center() + DOWN
-            pos2 = list_elements[min_index].getListElement().get_center() + DOWN
+            if min_index != i:
+                pos1 = list_elements[i].getListElement().get_center() + DOWN
+                pos2 = list_elements[min_index].getListElement().get_center() + DOWN
+                
+                arrow = CurvedDoubleArrow(pos1, pos2, angle=PI / 2, color=SORTCOL)
+                swapText = Text("Swap!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(arrow, DOWN)
+
+                self.play(Create(arrow), run_time=0.3)
+                self.play(Write(swapText), run_time=0.4)
+                self.wait(0.2)
+                self.play(
+                    list_elements[i].getListElement().animate.move_to(list_elements[min_index].getListElement().get_center()),
+                    list_elements[min_index].getListElement().animate.move_to(list_elements[i].getListElement().get_center()),
+                    run_time=0.3
+                )
+                # Swap data in the list
+                list_elements[i], list_elements[min_index] = list_elements[min_index], list_elements[i]
+
+                self.wait(0.1)
+                self.play(FadeOut(arrow), FadeOut(swapText), run_time=0.2)
+
+                values[i], values[min_index] = values[min_index], values[i]
+            else:
+                pos1 = list_elements[i].getListElement().get_center() + DOWN + (LEFT * 0.3)
+                pos2 = list_elements[i].getListElement().get_center() + DOWN + (RIGHT * 0.3)
             
-            arrow1 = CurvedArrow(pos1, pos2, angle=PI / 2, color=SORTCOL)
-            arrow2 = CurvedArrow(pos2, pos1, angle=-PI / 2, color=SORTCOL)
-            swapText = Text("Swap!", color=SORTCOL, font=FONT).next_to(arrow1, DOWN)
+                arrow = CurvedDoubleArrow(pos1, pos2, angle=PI, color=SORTCOL)
 
-            self.play(Create(arrow1), Create(arrow2), run_time=0.3)
-            self.play(Write(swapText), run_time=0.4)
-            self.wait(0.2)
-            self.play(
-                list_elements[i].getListElement().animate.move_to(list_elements[min_index].getListElement().get_center()),
-                list_elements[min_index].getListElement().animate.move_to(list_elements[i].getListElement().get_center()),
-                run_time=0.3
-            )
-            # Swap data in the list
-            list_elements[i], list_elements[min_index] = list_elements[min_index], list_elements[i]
+                swapText = Text("Swap!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(arrow, DOWN)
 
-            self.wait(0.1)
-            self.play(FadeOut(arrow1), FadeOut(arrow2), FadeOut(swapText), run_time=0.2)
+                self.play(Create(arrow), run_time=0.3)
+                self.play(Write(swapText), run_time=0.4)
+                self.wait(0.2)
+                self.play(FadeOut(arrow), FadeOut(swapText), run_time=0.2)
 
             self.play(*(list_elements[i].MarkSorted()), run_time=0.2)
-
-            values[i], values[min_index] = values[min_index], values[i]
+            self.wait(0.3)
 
         self.wait(1)
 
@@ -339,14 +322,14 @@ class MergeSort(Scene):
             self.wait(0.2)
             if left_vals[i] <= right_vals[j]:
                 merged.append((left_group[i], left_vals[i]))
-                explanatoryText = Text(f"{left_vals[i]} <= {right_vals[j]}", color=SORTCOL, font_size=60, font=FONT).shift(DOWN * 2.5)
+                explanatoryText = Text(f"{left_vals[i]} <= {right_vals[j]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)
                 i += 1
             else:
                 merged.append((right_group[j], right_vals[j]))
-                explanatoryText = Text(f"{left_vals[i]} >= {right_vals[j]}", color=SORTCOL, font_size=60, font=FONT).shift(DOWN * 2.5)
+                explanatoryText = Text(f"{left_vals[i]} >= {right_vals[j]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)
@@ -410,26 +393,51 @@ class QuickSort(Scene):
         visuals.arrange(RIGHT, buff=0.6)
         self.add(visuals)
         self.wait(0.5)
-        self.quickSort(list_elements, 0, len(values) - 1)
+        self.quickSort(list_elements, 0, len(values) - 1, 0.35)
         self.wait(1)
     
 
-    def quickSort(self, arr : list[ListElement], low : int, high : int):
+    def quickSort(self, arr : list[ListElement], low : int, high : int, buff_adj : int):
         if low < high:
             pi = self.partition(arr, low, high)
-            self.quickSort(arr, low, pi - 1)
-            self.quickSort(arr, pi + 1, high)
+
+            if pi != low:
+                surr = [arr[i].getListElement() for i in range(low, pi)]
+            else:
+                surr = [arr[low].getListElement()]
+            rect = SurroundingRectangle(VGroup(*surr), color=SORTCOL, buff=buff_adj, corner_radius=0.3, stroke_width=0.5)
+            self.play(Create(rect), run_time=0.3)
+            self.quickSort(arr, low, pi - 1, buff_adj-0.12)
+            self.play(FadeOut(rect), run_time=0.3)
+            self.wait(0.2)
+            if pi + 1 != high:
+                surr = [arr[i].getListElement() for i in range(min(pi+1, high), high+1)]
+            else:
+                surr = [arr[pi + 1].getListElement()]
+            rect = SurroundingRectangle(VGroup(*surr), color=SORTCOL, buff=buff_adj, corner_radius=0.3, stroke_width=0.5)
+            self.play(Create(rect), run_time=0.3)
+            self.quickSort(arr, pi + 1, high, buff_adj-0.12)
+            self.play(FadeOut(rect), run_time=0.3)
+           
         else:
+            self.wait(0.4)
             self.play(*(arr[low].MarkSorted()), run_time=0.2)
             self.wait(0.4)
 
     def partition(self, arr : list[ListElement], low : int, high : int):
         def make_arrow(idx:int, label:str):
-            arrow = Arrow(start=arr[idx].getListElement().get_center() + (UP * 2),
-                          end=arr[idx].getListElement().get_center() + UP,
-                          max_stroke_width_to_length_ratio=5,
-                          color=SORTCOL)
-            text = Text(label, color=SORTCOL, font=FONT).scale(0.5).next_to(arrow, UP, buff=0.1)
+            arrow = Arrow(
+                start=arr[idx].getListElement().get_center() + (UP * 2),
+                end=arr[idx].getListElement().get_center() + UP,
+                max_stroke_width_to_length_ratio=5,
+                color=SORTCOL
+            )
+            text = Text(
+                label,
+                color=POINTER_FONT_COLOR,
+                font=FONT,
+                font_size=POINTER_FONT_SIZE
+            ).next_to(arrow, UP, buff=0.1)
             return VGroup(arrow, text)
         
         array = [(el.value) for el in arr]
@@ -453,8 +461,10 @@ class QuickSort(Scene):
             else:
                 self.play(j_group.animate.move_to(arr[j].getListElement().get_center() + (UP * 1.7)), run_time=0.3)
             self.wait(0.2)
-            if array[j] < pivot:
-                explanatoryText = Text(f"{array[j]}<={pivot} : i++", color=SORTCOL, font_size=60, font=FONT).shift(DOWN * 3)
+            if array[j] <= pivot:
+                explanatoryText1 = Text(f"{array[j]} <= {pivot} :", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
+                explanatoryText2 = Text("i++ => Swap i and j", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
+                explanatoryText = VGroup(explanatoryText1, explanatoryText2).arrange(DOWN, buff=0.3).shift(DOWN * 3)
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)
@@ -466,10 +476,13 @@ class QuickSort(Scene):
                 else:
                     self.play(i_group.animate.move_to(arr[i].getListElement().get_center() + (UP * 1.7)), run_time=0.3)
                 
-                self.swap(arr, i, j, "Swap i and j")
+                self.swap(arr, i, j, "Swap")
+                array[i], array[j] = array[j], array[i]
                 self.wait(0.1)
             else:
-                explanatoryText = Text(f"{array[j]}>={pivot}", color=SORTCOL, font_size=60, font=FONT).shift(DOWN * 3)
+                explanatoryText1 = Text(f"{array[j]} > {pivot} :", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
+                explanatoryText2 = Text("No Swap", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
+                explanatoryText = VGroup(explanatoryText1, explanatoryText2).arrange(DOWN, buff=0.3).shift(DOWN * 3)
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)
@@ -477,14 +490,15 @@ class QuickSort(Scene):
         
         self.play(FadeOut(j_group), run_time=0.2)
 
-        explanatoryText = Text("Increment i", color=SORTCOL, font_size=40, font=FONT).shift(DOWN * 3)
+        explanatoryText = Text("Increment i", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 3)
         self.play(Write(explanatoryText), run_time=0.3)
         self.wait(0.6)
         self.play(FadeOut(explanatoryText), run_time=0.2)
         self.wait(0.1)
 
         self.play(i_group.animate.move_to(arr[i + 1].getListElement().get_center() + (UP * 1.7)), run_time=0.3)
-        self.swap(arr, i + 1, high, "Swap i and pivot")
+        self.swap(arr, i + 1, high, "Swap i with pivot")
+        array[i + 1], array[high] = array[high], array[i + 1]
         self.wait(0.2)
 
         self.play(*(arr[i+1].MarkSorted()))
@@ -497,14 +511,19 @@ class QuickSort(Scene):
         return i + 1
 
     def swap(self, arr : list[ListElement], i : int, j : int, text_for_swap : str):
-        pos1 = arr[i].getListElement().get_center() + DOWN
-        pos2 = arr[j].getListElement().get_center() + DOWN
+        if i != j:
+            pos1 = arr[i].getListElement().get_center() + DOWN
+            pos2 = arr[j].getListElement().get_center() + DOWN
+            angle = PI/2
+        else:
+            pos1 = arr[i].getListElement().get_center() + DOWN + (LEFT * 0.3)
+            pos2 = arr[i].getListElement().get_center() + DOWN + (RIGHT * 0.3)
+            angle = PI
         
-        arrow1 = CurvedArrow(pos1, pos2, angle=PI / 2, color=SORTCOL)
-        arrow2 = CurvedArrow(pos2, pos1, angle=-PI / 2, color=SORTCOL)
-        swapText = Text(text_for_swap, color=SORTCOL, font=FONT).next_to(arrow1, DOWN)
+        arrow = CurvedDoubleArrow(pos1, pos2, angle=angle, color=SORTCOL)
+        swapText = Text(text_for_swap, color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(arrow, DOWN)
 
-        self.play(Create(arrow1), Create(arrow2), run_time=0.3)
+        self.play(Create(arrow), run_time=0.3)
         self.play(Write(swapText), run_time=0.4)
 
         self.play(
@@ -514,8 +533,8 @@ class QuickSort(Scene):
         )
 
         self.wait(0.1)
-        self.play(FadeOut(arrow1), FadeOut(arrow2), FadeOut(swapText), run_time=0.2)
+        self.play(FadeOut(arrow), FadeOut(swapText), run_time=0.2)
 
         arr[i], arr[j] = arr[j], arr[i]
-    
+
 

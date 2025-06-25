@@ -1,6 +1,5 @@
 from manim import *
 from manim.utils.unit import Percent, Pixels
-from manim import CurvedArrow
 import random
 
 config.frame_width = 16
@@ -16,6 +15,14 @@ FSIZE = 40
 FONT = 'JetBrains Mono'
 
 random.seed(32)
+
+SWAP_FONT_SIZE = 38         # For "Insert!", "Delete!", etc.
+EXPLANATORY_FONT_SIZE = 40  # For step-by-step explanations
+POINTER_FONT_SIZE = 28      # For pointer labels (if any)
+
+SWAP_FONT_COLOR = SORTCOL
+EXPLANATORY_FONT_COLOR = TEXTCOL
+POINTER_FONT_COLOR = SORTCOL
 
 class Node():
     def __init__(self, value : int):
@@ -114,7 +121,7 @@ class NodeExplanation(Scene):
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(node1.getElement(), buff=0.4, corner_radius=0.2, color=SORTCOL), num_dashes=30)
         self.play(Create(surroundingRectangleNode))
-        explanatoryText = Text("NODE", color=TEXTCOL, font=FONT, font_size=30).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
+        explanatoryText = Text("NODE", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=surroundingRectangleNode.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=4, max_tip_length_to_length_ratio=0.2)
@@ -127,7 +134,7 @@ class NodeExplanation(Scene):
 
         explanatoryTextGroup = VGroup()
 
-        explanatoryText = Text("Address of\nthis node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.selfAddressGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Address of\nthis node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.selfAddressGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.selfAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -136,7 +143,7 @@ class NodeExplanation(Scene):
         explanatoryTextGroup.add(explanatoryText)
 
 
-        explanatoryText = Text("Value of\nthis node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.valueTextGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Value of\nthis node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.valueTextGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.valueTextGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -145,7 +152,7 @@ class NodeExplanation(Scene):
         explanatoryTextGroup.add(explanatoryText)
 
 
-        explanatoryText = Text("Address of\nnext node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.nextAddressGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Address of\nnext node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.nextAddressGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.nextAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -255,7 +262,7 @@ class CreateLinkedList(Scene):
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(nodeGroup.submobjects[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
         self.play(Create(surroundingRectangleNode))
-        explanatorText = Text("Head", color=TEXTCOL, font=FONT, font_size=40).next_to(nodeGroup.submobjects[0], UP, buff=0.6)
+        explanatorText = Text("Head", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeGroup.submobjects[0], UP, buff=0.6)
         self.play(Write(explanatorText))
         self.wait(0.3)
         self.play(FadeOut(surroundingRectangleNode), FadeOut(explanatorText))
@@ -264,7 +271,7 @@ class CreateLinkedList(Scene):
         
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(nodeGroup.submobjects[-1], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
         self.play(Create(surroundingRectangleNode))
-        explanatorText = Text("Tail", color=TEXTCOL, font=FONT, font_size=40).next_to(nodeGroup.submobjects[-1], UP, buff=0.6)
+        explanatorText = Text("Tail", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeGroup.submobjects[-1], UP, buff=0.6)
         self.play(Write(explanatorText))
         self.wait(0.3)
         self.play(FadeOut(surroundingRectangleNode), FadeOut(explanatorText))
@@ -421,7 +428,7 @@ class Insertion(Scene):
         tempRect = DashedVMobject(SurroundingRectangle(newNode.getElement(), color=SORTCOL, buff=0.2, corner_radius=0.2), 30)
         self.play(Create(tempRect))
         self.wait(0.1)
-        tempText = Text("New\nNode", font=FONT, font_size=20, color=SORTCOL).next_to(tempRect, LEFT, 0.2)
+        tempText = Text("New\nNode", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(tempRect, LEFT, 0.2)
         self.play(Write(tempText))
         self.wait(0.5)
         self.play(FadeOut(tempRect), FadeOut(tempText))
@@ -515,7 +522,6 @@ class Deletion(Scene):
                 control2 = end + LEFT
                 curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
             return updater
-        
 
         def make_arrowhead_updater(bezier_curve, offset=0.01):
             def updater(arrowhead):
@@ -524,7 +530,6 @@ class Deletion(Scene):
                 arrowhead.move_to(end_point)
                 arrowhead.set_angle(angle_of_vector(direction))
             return updater
-
 
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
@@ -576,23 +581,28 @@ class Deletion(Scene):
         self.wait(0.5)
 
         pos = 2
+        delNode = nodeGroup.submobjects[pos]
+
+        # Add a label for the node being deleted
+        deleteLabel = Text("Delete", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(delNode, UP, buff=0.4)
+        self.play(Write(deleteLabel))
+        self.wait(0.3)
 
         for i in range(1, pos + 1):
             self.play(itterationRectangle.animate.move_to(nodeGroup.submobjects[i]))
             self.wait(0.2)
 
-        delNode = nodeGroup.submobjects[pos]
 
         self.play(itterationRectangle.animate.move_to(delNode))
         tempRectangle = DashedVMobject(SurroundingRectangle(nodes[pos + 1].getElement(), color=SORTCOL, buff=0.2, corner_radius=0.2), 30)
-        tempText = Text("Temporary", font=FONT, font_size=20, color=SORTCOL).next_to(tempRectangle, UP, 0.2)
+        tempText = Text("Temporary", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(tempRectangle, UP, 0.2)
         self.play(Create(tempRectangle), Write(tempText))
         self.wait(0.2)
         self.play(Uncreate(arrows.submobjects[pos]))        
         self.wait(0.2)
         self.play(Uncreate(arrows.submobjects[pos-1]))
 
-        self.play(FadeOut(delNode), FadeOut(itterationRectangle))
+        self.play(FadeOut(delNode), FadeOut(itterationRectangle), FadeOut(deleteLabel))
         nodeGroup.remove(nodeGroup.submobjects[pos])
         nodes.remove(nodes[pos])
 
@@ -612,6 +622,11 @@ class Deletion(Scene):
         self.play(FadeOut(tempRectangle), FadeOut(tempText))
         self.wait(0.2)
 
+        old_self_text = nodes[pos - 1].nextAddressText
+        new_next_text = Text(nodes[pos].selfAddress, font_size=25, color=TEXTCOL, font=FONT)
+        new_next_text.move_to(old_self_text)
+        self.play(ReplacementTransform(old_self_text, new_next_text))
+        self.wait(0.4)
 
         self.play(nodeGroup.animate.arrange(RIGHT, 1))
         self.wait(1)
@@ -628,7 +643,6 @@ class ListRotation(Scene):
                 control2 = end + LEFT
                 curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
             return updater
-        
 
         def make_arrowhead_updater(bezier_curve, offset=0.01):
             def updater(arrowhead):
@@ -637,7 +651,6 @@ class ListRotation(Scene):
                 arrowhead.move_to(end_point)
                 arrowhead.set_angle(angle_of_vector(direction))
             return updater
-
 
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
@@ -661,60 +674,83 @@ class ListRotation(Scene):
             node.setValues()
 
         nodeGroup = VGroup(*[node.getElement() for node in nodes])
-        # nodeGroup.arrange(RIGHT, 1)
-        angles = np.linspace(0, 2 * np.pi, len(nodes), endpoint=False)
-        points = [Circle(radius=3).point_at_angle(angle) for angle in angles]
-        arrange_in_circle = []
-        for i, mobject in enumerate(nodeGroup):
-            arrange_in_circle.append(mobject.animate.move_to(points[i]))
+        nodeGroup.arrange(RIGHT, 1)
 
-        arrows = VGroup()
-        curves = VGroup()
-        for i in range(len(nodes) - 1): 
-            start = nodes[i].nextAddressGroup.get_right()
-            end = nodes[i + 1].selfAddressGroup.get_left() + (LEFT * 0.1)
-            arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
-            arrowCurve.add_updater(make_dynamic_bezier_updater(nodes[i].nextAddressGroup, nodes[i + 1].selfAddressGroup, 0, LEFT * 0.1))
-            arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
-            arrowhead.move_to(end)
-            arrowhead.rotate(angle_of_vector(RIGHT))
-            arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
+        def create_arrows(nodes):
+            arrows = VGroup()
+            for i in range(len(nodes) - 1):
+                start = nodes[i].nextAddressGroup.get_right()
+                end = nodes[i + 1].selfAddressGroup.get_left() + (LEFT * 0.1)
+                arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
+                arrowCurve.add_updater(make_dynamic_bezier_updater(nodes[i].nextAddressGroup, nodes[i + 1].selfAddressGroup, 0, LEFT * 0.1))
+                arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
+                arrowhead.move_to(end)
+                arrowhead.rotate(angle_of_vector(RIGHT))
+                arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
+                arrow = VGroup(arrowCurve, arrowhead)
+                arrows.add(arrow)
+            return arrows
 
-            arrow = VGroup(arrowCurve, arrowhead)
-            curves.add(arrowCurve)
-            arrows.add(arrow)
-
-        # self.play(FadeIn(nodeGroup))
-        self.add(nodeGroup)
-        self.play(*arrange_in_circle, run_time=3)
+        arrows = create_arrows(nodes)
+        self.play(FadeIn(nodeGroup))
         self.play(Create(arrows), run_time=1.5)
+        self.wait(0.7)
 
-        # self.wait(0.5)
+        # Highlight the current head
+        head_rect = DashedVMobject(SurroundingRectangle(nodeGroup[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        self.play(Create(head_rect))
+        head_label = Text("Head", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeGroup[0], UP, buff=0.6)
+        self.play(Write(head_label))
+        self.wait(0.5)
 
-        # itterationRectangle = DashedVMobject(SurroundingRectangle(head.getElement(), color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
-        # self.play(Create(itterationRectangle))
-        # self.wait(0.5)
+        # --- Animate k-rotation ---
+        k = 2  # Number of rotations
+        for step in range(k):
+            # Animate traversal to the last node
+            for i in range(len(nodeGroup)-1):
+                self.play(head_rect.animate.move_to(nodeGroup[i]), run_time=0.2)
+            self.wait(0.2)
 
-        # k = 2
+            # Animate moving the head node to the tail
+            old_head_node = nodes.pop(0)
+            nodes.append(old_head_node)
+            old_head_visual = nodeGroup.submobjects.pop(0)
+            nodeGroup.submobjects.append(old_head_visual)
 
-        # for _ in range(k):
-        #     curr = head
-        #     while curr.next is not None:
-        #         self.play(itterationRectangle.animate.move_to(curr.getElement()))
-        #         curr = curr.next
+            # Rearrange the visuals
+            self.play(nodeGroup.animate.arrange(RIGHT, 1), run_time=0.7)
+            self.wait(0.2)
+
+            # Update next pointers and visuals in data
+            for i in range(len(nodes)-1):
+                nodes[i].next = nodes[i+1]
+            nodes[-1].next = Node(-1)
+            nodes[-1].next.selfAddress = "NULL"
             
-        #     # self.play(itterationRectangle.animate.move_to(curr.getElement()))
-        #     # Move the first node to the last
-        #     nodes.insert(-1, nodes.pop(0))
-        #     # nodeGroup.insert(-1, nodeGroup.remove(nodeGroup.submobjects[0]))
-        #     curr.next = head
-        #     curr = curr.next
-        #     head = head.next
-        #     curr.next = None
-        
-    
-        # nodeGroup.arrange(RIGHT, 1)
+            for node in nodes:
+                node.setValues()
+
+            # Remove old arrows and create new ones
+            self.play(FadeOut(arrows))
+            arrows = create_arrows(nodes)
+            self.play(Create(arrows), run_time=1.0)
+            self.wait(0.2)
+
+        # Highlight new head and tail
+        self.play(FadeOut(head_rect), FadeOut(head_label))
+        new_head_rect = DashedVMobject(SurroundingRectangle(nodeGroup[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        new_head_label = Text("Head", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeGroup[0], UP, buff=0.6)
+        self.play(Create(new_head_rect), Write(new_head_label))
+        self.wait(0.3)
+        tail_rect = DashedVMobject(SurroundingRectangle(nodeGroup[-1], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        tail_label = Text("Tail", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeGroup[-1], UP, buff=0.6)
+        self.play(Create(tail_rect), Write(tail_label))
+        self.wait(0.5)
+        self.play(FadeOut(new_head_rect), FadeOut(new_head_label), FadeOut(tail_rect), FadeOut(tail_label))
+
         self.wait(1)
+
+
 
 class DoubleNodeExplanation(Scene):
     def construct(self):
@@ -733,7 +769,7 @@ class DoubleNodeExplanation(Scene):
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(node1.getElement(), buff=0.4, corner_radius=0.2, color=SORTCOL), num_dashes=30)
         self.play(Create(surroundingRectangleNode))
-        explanatoryText = Text("NODE", color=TEXTCOL, font=FONT, font_size=30).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
+        explanatoryText = Text("NODE", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=surroundingRectangleNode.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=4, max_tip_length_to_length_ratio=0.2)
@@ -746,7 +782,7 @@ class DoubleNodeExplanation(Scene):
 
         explanatoryTextGroup = VGroup()
 
-        explanatoryText = Text("Address of\nthis node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.selfAddressGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Address of\nthis node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.selfAddressGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.selfAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -755,7 +791,7 @@ class DoubleNodeExplanation(Scene):
         explanatoryTextGroup.add(explanatoryText)
 
 
-        explanatoryText = Text("Value of\nthis node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.valueTextGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Value of\nthis node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.valueTextGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.valueTextGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -764,7 +800,7 @@ class DoubleNodeExplanation(Scene):
         explanatoryTextGroup.add(explanatoryText)
 
 
-        explanatoryText = Text("Address of\nprevious node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.prevAddressGroup, LEFT).shift(LEFT).shift(DOWN * 0.2)
+        explanatoryText = Text("Address of\nprevious node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.prevAddressGroup, LEFT).shift(LEFT).shift(DOWN * 0.2)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.prevAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
@@ -773,7 +809,7 @@ class DoubleNodeExplanation(Scene):
         explanatoryTextGroup.add(explanatoryText)
 
 
-        explanatoryText = Text("Address of\nnext node", color=TEXTCOL, font=FONT, font_size=20).next_to(node1.nextAddressGroup, LEFT).shift(LEFT)
+        explanatoryText = Text("Address of\nnext node", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(node1.nextAddressGroup, LEFT).shift(LEFT)
         explanatoryText = VGroup(
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.nextAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
