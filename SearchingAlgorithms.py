@@ -14,6 +14,14 @@ SORTCOL = ManimColor.from_hex("#4a2a90")
 FSIZE = 40
 FONT = 'JetBrains Mono'
 
+SWAP_FONT_SIZE = 38         # For "Found!", "SORT!", etc.
+EXPLANATORY_FONT_SIZE = 40  # For step-by-step explanations
+POINTER_FONT_SIZE = 28      # For "Low", "High", "Mid", etc.
+
+SWAP_FONT_COLOR = SORTCOL
+EXPLANATORY_FONT_COLOR = TEXTCOL
+POINTER_FONT_COLOR = SORTCOL
+
 class ListElement():
     def __init__(self, value : str):
         self.size = 0.8
@@ -44,21 +52,34 @@ class ListElement():
 class LinearSearch(Scene):
     def construct(self):
         target = 6
-        values = [5, 2, 4, 6, 3, 1]
-        list_elements = [ListElement(str(i)) for i in values]
+        array = [5, 2, 4, 6, 3, 1]
+        list_elements = [ListElement(str(i)) for i in array]
         visuals = VGroup(*[el.getListElement() for el in list_elements])
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
-        
+
+        # Show the key visually
+        target_text = Text(f"Target = {target}", color=SELCOL, font=FONT).scale(1.2).next_to(visuals, UP, buff=1.6)
+        self.play(Write(target_text), run_time=0.4)
+
         n = len(list_elements)
 
         for i in range(n):
+            # Step label
+            step_text = Text(f"Checking index {i}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(visuals, DOWN, buff=1)
+            self.play(Write(step_text), run_time=0.2)
+
             self.play(list_elements[i].SelectElement(), run_time=0.2)
-            self.wait(1)
-            if values[i] == target:
+            self.wait(0.5)
+            if array[i] == target:
                 self.play(*(list_elements[i].MarkFound()), run_time=0.2)
+                found_text = Text("Found!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(visuals, DOWN, buff=1.8)
+                self.play(Write(found_text), run_time=0.4)
+                self.wait(1)
+                self.play(FadeOut(step_text), FadeOut(found_text))
                 break
             self.play(list_elements[i].ClearSelection(), run_time=0.2)
+            self.play(FadeOut(step_text), run_time=0.1)
 
         self.wait(1)
 
@@ -66,8 +87,8 @@ class LinearSearch(Scene):
 class BinarySearch(Scene):
     def construct(self):
         target = 4
-        values = [5, 2, 4, 6, 3, 1]
-        list_elements = [ListElement(str(i)) for i in values]
+        array = [5, 2, 4, 6, 3, 1]
+        list_elements = [ListElement(str(i)) for i in array]
 
         visuals = VGroup(*[el.getListElement() for el in list_elements])
         visuals.arrange(RIGHT, buff=0.5)
@@ -78,7 +99,7 @@ class BinarySearch(Scene):
         dummy_group.arrange(RIGHT, buff=0.5)
         target_positions = [el.get_center() for el in dummy_group]
 
-        sortText = Text("SORT!", color=TEXTCOL, font=FONT).scale(1.6).shift(UP*2.5)
+        sortText = Text("SORT!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE+5).shift(UP*2.5)
         self.play(Write(sortText), run_time=0.4)
 
         animations = [
@@ -88,18 +109,29 @@ class BinarySearch(Scene):
         self.play(*animations, run_time=2)
         self.play(FadeOut(sortText), run_time=0.2)
         self.wait(0.4)
+        
+        target_text = Text(f"Target = {target}", color=SELCOL, font=FONT, font_size=SWAP_FONT_SIZE).next_to(visuals, UP, buff=1.6)
+        self.play(Write(target_text), run_time=0.4)
+        self.wait(0.4)
 
         list_elements = sorted_elements
-        values = sorted(values)
+        array = sorted(array)
 
-        low, high = 0, len(values) - 1
+        low, high = 0, len(array) - 1
 
         def make_arrow(idx, label):
-            arrow = Arrow(start=list_elements[idx].getListElement().get_center() + (UP * 2),
-                          end=list_elements[idx].getListElement().get_center() + UP,
-                          max_stroke_width_to_length_ratio=5,
-                          color=SORTCOL)
-            text = Text(label, color=SORTCOL, font=FONT).scale(0.5).next_to(arrow, UP, buff=0.1)
+            arrow = Arrow(
+                start=list_elements[idx].getListElement().get_center() + (UP * 2),
+                end=list_elements[idx].getListElement().get_center() + UP,
+                max_stroke_width_to_length_ratio=5,
+                color=SORTCOL
+            )
+            text = Text(
+                label,
+                color=POINTER_FONT_COLOR,
+                font=FONT,
+                font_size=POINTER_FONT_SIZE
+            ).next_to(arrow, UP, buff=0.1)
             return VGroup(arrow, text)
 
         lowGroup = make_arrow(low, "Low")
@@ -107,8 +139,8 @@ class BinarySearch(Scene):
         mid = (low + high) // 2
         midGroup = make_arrow(mid, "Mid")
 
-        midSmallerText = Text("Mid < Target : Low = Mid + 1", color=TEXTCOL, font=FONT).shift(DOWN * 2.5)
-        midGreaterText = Text("Mid > Target : High = Mid - 1", color=TEXTCOL, font=FONT).shift(DOWN * 2.5)
+        midSmallerText = Text("Mid < Target : Low = Mid + 1", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
+        midGreaterText = Text("Mid > Target : High = Mid - 1", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
 
         self.play(Create(lowGroup), Create(highGroup), Create(midGroup), run_time=0.6)
 
@@ -121,10 +153,10 @@ class BinarySearch(Scene):
 
             self.wait(0.4)
 
-            if values[mid] == target:
+            if array[mid] == target:
                 self.play(FadeOut(lowGroup), FadeOut(highGroup))
                 break
-            elif values[mid] < target:
+            elif array[mid] < target:
                 low = mid + 1
                 self.play(Write(midSmallerText), run_time=0.2)
                 self.wait(1)
