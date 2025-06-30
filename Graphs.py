@@ -78,14 +78,24 @@ class WeightedLine(Line):
 
     def _add_weight(self):
         point = self.point_from_proportion(self.alpha)
-        label = Text(str(self.weight), **self.weight_config)
-        label.move_to(point)
+        self.label = Text(str(self.weight), **self.weight_config)
+        self.label.move_to(point)
 
         if self.add_bg:
-            label.add_background_rectangle(**self.bg_config)
-            label.background_rectangle.height += SMALL_BUFF
+            self.label.add_background_rectangle(**self.bg_config)
+            self.label.background_rectangle.height += SMALL_BUFF
 
-        self.add(label)
+        self.add(self.label)
+
+    def _get_weight_mob(self):
+        return self.label
+    
+    def highlight_line(self):
+        return self.animate.set_color(color=TEXTCOL), self.label.animate.set_stroke(color=TEXTCOL, width=0.2)
+    
+    def clear_line(self):
+        return self.animate.set_color(color=EDGE_COL), self.label.animate.set_stroke(color=TEXTCOL, width=0.2)
+    
 
 
 class UndirectedGraphs(Scene):
@@ -264,14 +274,14 @@ class AdjecencyListUD(Scene):
             for vertex, neighbors in adjacency_list.items():
                 vertex_text = Text(f"{vertex}: ", font_size=FSIZE, font=FONT, color=TEXTCOL)
                 neighbors_text = Text(", ".join(map(str, neighbors)), font_size=FSIZE, font=FONT, color=TEXTCOL)
-                line = VGroup(vertex_text, neighbors_text).arrange(RIGHT, buff=0.3)
+                line = VGroup(vertex_text, neighbors_text).arrange(RIGHT, buff=0.3, aligned_edge=UP)
                 adjacency_list_group.add(line)
             
             adjacency_list_group.arrange(DOWN, buff=0.5, aligned_edge=LEFT)
 
             adjacency_text = Text("Adjacency List", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(adjacency_list_group, UP, buff=1, aligned_edge=LEFT)
             
-            return VGroup(adjacency_list_group, adjacency_text).next_to(graph, RIGHT, buff=2)
+            return VGroup(adjacency_list_group, adjacency_text).next_to(graph, RIGHT, buff=2, aligned_edge=UP)
 
         vertices = [0, 1, 2, 3, 4]
         edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]
@@ -420,9 +430,150 @@ class DirectedGraphs(Scene):
         self.wait(2)
 
 
+class AdjecencyMatrixD(Scene):
+    def construct(self):
+        vertices = [0, 1, 2, 3, 4]
+        edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]
+        degrees = {0: 2, 1: 3, 2: 3, 3: 3, 4: 3}
+
+        graph = DiGraph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyMatrix = np.zeros((len(vertices), len(vertices)), dtype=int)
+
+        matrixTable = IntegerTable(
+            adjecencyMatrix,
+            row_labels=[Text(str(v)) for v in vertices],
+            col_labels=[Text(str(v)) for v in vertices],
+            include_outer_lines=True,
+            v_buff=0.5,
+            h_buff=0.8,
+        )
+
+        for mob in matrixTable.get_entries():
+            mob.set_color(TEXTCOL)
+
+        for line in matrixTable.get_horizontal_lines() + matrixTable.get_vertical_lines():
+            line.set_stroke(color=EDGE_COL, width=3.5)
+        
+        matrixTable.to_edge(RIGHT, buff=1.2)
+        
+        self.play(matrixTable.create(), Write(Text("Adjecency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
+        self.wait(1.2)
+
+        for u, v in edges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                graph.edges[(u, v)].animate.set_color(color=TEXTCOL),
+                run_time=0.5
+            )
+            ent_to_update1 = matrixTable.get_entries_without_labels(pos=(u+1, v+1))
+            cell_to_update1 = matrixTable.get_cell(pos=(u+2, v+2), color=SORTCOL).set_stroke(color=SORTCOL, width=7)
+            adjecencyMatrix[u][v] = 1
+
+            self.play(
+                matrixTable.get_row_labels()[u].animate.set_color(SORTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(SORTCOL),
+                run_time=0.5
+            )
+            
+            self.play(FadeIn(cell_to_update1), run_time=0.2)
+
+            self.play(
+                ReplacementTransform(
+                    ent_to_update1, Integer(1).set_color(TEXTCOL).move_to(ent_to_update1)
+                ),
+                run_time=0.7
+            )
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                graph.edges[(u, v)].animate.set_color(color=EDGE_COL),
+                FadeOut(cell_to_update1), 
+                matrixTable.get_row_labels()[u].animate.set_color(TEXTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(TEXTCOL),
+                run_time=0.5
+            )
+            
+            self.wait(2)
+
+        self.wait(4)
+
+class AdjecencyListD(Scene):
+    def construct(self):
+        def get_adjacency_list_VGroup(adjacency_list):
+            # adjacency_text.to_edge(UP, buff=0.5)
+            # self.play(Write(adjacency_text), run_time=1.5)
+
+            adjacency_list_group = VGroup()
+            for vertex, neighbors in adjacency_list.items():
+                vertex_text = Text(f"{vertex}: ", font_size=FSIZE, font=FONT, color=TEXTCOL)
+                neighbors_text = Text(", ".join(map(str, neighbors)), font_size=FSIZE, font=FONT, color=TEXTCOL)
+                line = VGroup(vertex_text, neighbors_text).arrange(RIGHT, buff=0.3, aligned_edge=UP)
+                adjacency_list_group.add(line)
+            
+            adjacency_list_group.arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+
+            adjacency_text = Text("Adjacency List", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(adjacency_list_group, UP, buff=1, aligned_edge=LEFT)
+            
+            return VGroup(adjacency_list_group, adjacency_text).next_to(graph, RIGHT, buff=2, aligned_edge=UP)
+
+        vertices = [0, 1, 2, 3, 4]
+        edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]
+        degrees = {0: 2, 1: 3, 2: 3, 3: 3, 4: 3}
+
+        graph = DiGraph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyList = {v: [] for v in vertices}
+        adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.play(Create(adjecencyListVGroup), run_time=0.5)
+
+        for u, v in edges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                graph.edges[(u, v)].animate.set_color(color=TEXTCOL),
+                run_time=0.5
+            )
+
+            adjecencyList[u].append(v)
+
+            self.play(
+                adjecencyListVGroup[0].submobjects[u].animate.set_color(SELCOL),
+                run_time=0.5
+            )
+
+            self.wait(0.6)
+
+            newAdjacencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+            self.play(ReplacementTransform(adjecencyListVGroup, newAdjacencyListVGroup), run_time=0.5)
+            adjecencyListVGroup = newAdjacencyListVGroup
+
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                graph.edges[(u, v)].animate.set_color(color=EDGE_COL),
+                run_time=0.5)
+            
+            self.wait(2)
+
+        self.wait(2)
+
 class WeightedUDGraphs(Scene):
     def construct(self):
-        vertices = [4, 3, 2, 0, 1]
+        vertices = [3, 2, 0, 1, 4]
         wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
         edges = [(i, j) for i, j, _ in wedges]
         degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
@@ -433,9 +584,449 @@ class WeightedUDGraphs(Scene):
                       edge_type=WeightedLine,
                       edge_config=edge_config)
         
+        # self.play(Create(graph), run_time=6)
+        # self.wait(1)
 
-        self.play(Create(graph), run_time=3)
-        # self.play(FadeIn(*graph.vertices.values(), lag_ratio=0.15), run_time=3)
-        # self.play(FadeIn(*graph.edges.values(), lag_ratio=0.15), run_time=3)
+        nodes = list(graph.vertices.values())
+        graphVertices = graph.vertices
+        for _ in range(len(vertices)):
+            self.play(*[FadeIn(nodes[_])], run_time=0.3)
+            self.wait(0.1)
+
+        self.wait(1)
+
+        self.play(graphVertices[1].Select(), run_time=0.5)
+        nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
+        nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(graphVertices[1].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        self.wait(1.3)
+
+        for i, item in enumerate(graph.edges.items()):
+            points, edge = item
+            n1, n2 = edges[i]
+            self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
+            pointText = Text(f"{points[0]}-{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.35)
+            self.play(Create(edge), run_time=0.5)
+            self.play(Write(pointText), run_time=0.2)
+
+            if i == 0:
+                # self.play(edge.animate.set_stroke(color=TEXTCOL), run_time=0.3)
+                self.wait(0.1)
+                nodeSurr = DashedVMobject(SurroundingRectangle(edge, color=TEXTCOL, buff=0.1, corner_radius=0.1), num_dashes=30).scale([0.7, 0.7, 1])
+                nodeText = Text("Edge", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, LEFT, buff=0.15)
+                self.play(Create(nodeSurr), run_time=0.5)
+                self.wait(0.2)
+                self.play(Write(nodeText), run_time=0.5)
+                self.wait(1.3)
+                self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+                self.wait(0.1)
+                # self.play(edge.animate.set_stroke(color=EDGE_COL), run_time=0.3)
+                # self.wait(1.3)
+
+            self.wait(0.6)
+            self.play(Unwrite(pointText), run_time=0.2)
+            self.wait(0.1)
+            self.play(graphVertices[n1].Clear(), graphVertices[n2].Clear(), run_time=0.5)
+            self.wait(0.5)
+
+        self.wait(1)
+        nodeSurr = DashedVMobject(SurroundingRectangle(list(graph.edges.values())[-1]._get_weight_mob(), color=TEXTCOL, buff=0.03, corner_radius=0.2))
+        nodeText = Text("Weight", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT + DOWN, buff=0.01)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)  
+
         self.wait(2)
 
+
+class WeightedAdjecencyMatrixUD(Scene):
+    def construct(self):
+        vertices = [0, 1, 2, 3, 4]
+        wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
+        edges = [(i, j) for i, j, _ in wedges]
+        degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = Graph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config)
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyMatrix = np.zeros((len(vertices), len(vertices)), dtype=int)
+
+        matrixTable = IntegerTable(
+            adjecencyMatrix,
+            row_labels=[Text(str(v)) for v in vertices],
+            col_labels=[Text(str(v)) for v in vertices],
+            include_outer_lines=True,
+            v_buff=0.5,
+            h_buff=0.8,
+        )
+
+        for mob in matrixTable.get_entries():
+            mob.set_color(TEXTCOL)
+
+        for line in matrixTable.get_horizontal_lines() + matrixTable.get_vertical_lines():
+            line.set_stroke(color=EDGE_COL, width=3.5)
+        
+        matrixTable.to_edge(RIGHT, buff=1.2)
+        
+        self.play(matrixTable.create(), Write(Text("Adjecency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
+        self.wait(1.2)
+
+        for u, v, w in wedges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                *graph.edges[(u, v)].highlight_line(),
+                run_time=0.5
+            )
+            ent_to_update1 = matrixTable.get_entries_without_labels(pos=(u+1, v+1))
+            ent_to_update2 = matrixTable.get_entries_without_labels(pos=(v+1, u+1))
+            cell_to_update1 = matrixTable.get_cell(pos=(u+2, v+2), color=SORTCOL).set_stroke(color=SORTCOL, width=7)
+            cell_to_update2 = matrixTable.get_cell(pos=(v+2, u+2), color=SORTCOL).set_stroke(color=SORTCOL, width=7)
+            adjecencyMatrix[u][v] = w
+            adjecencyMatrix[v][u] = w
+
+            self.play(
+                matrixTable.get_row_labels()[u].animate.set_color(SORTCOL),
+                matrixTable.get_row_labels()[v].animate.set_color(SORTCOL),
+                matrixTable.get_col_labels()[u].animate.set_color(SORTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(SORTCOL),
+                run_time=0.5
+            )
+            
+            self.play(FadeIn(cell_to_update1, cell_to_update2), run_time=0.2)
+
+            self.play(
+                ReplacementTransform(
+                    ent_to_update1, Integer(w).set_color(TEXTCOL).move_to(ent_to_update1)
+                ),
+                ReplacementTransform(
+                    ent_to_update2, Integer(w).set_color(TEXTCOL).move_to(ent_to_update2)
+                ),
+                run_time=0.7
+            )
+
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                FadeOut(cell_to_update1, cell_to_update2), 
+                matrixTable.get_row_labels()[u].animate.set_color(TEXTCOL),
+                matrixTable.get_row_labels()[v].animate.set_color(TEXTCOL),
+                matrixTable.get_col_labels()[u].animate.set_color(TEXTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(TEXTCOL),
+                *graph.edges[(u, v)].clear_line(),
+                run_time=0.5)
+            
+            self.wait(2)
+
+        self.wait(4)
+
+
+class WeightedAdjecencyListUD(Scene):
+    def construct(self):
+        def get_adjacency_list_VGroup(adjacency_list):
+            # adjacency_text.to_edge(UP, buff=0.5)
+            # self.play(Write(adjacency_text), run_time=1.5)
+
+            adjacency_list_group = VGroup()
+            for vertex, wneighbors in adjacency_list.items():
+                vertex_text = Text(f"{vertex}: ", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL)
+                neighbors_text = Text(", ".join(map(str, wneighbors)), font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL)
+                line = VGroup(vertex_text, neighbors_text).arrange(RIGHT, buff=0.3, aligned_edge=UP)
+                adjacency_list_group.add(line)
+            
+            adjacency_list_group.arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+
+            adjacency_text = Text("Adjacency List", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(adjacency_list_group, UP, buff=1, aligned_edge=LEFT)
+            
+            return VGroup(adjacency_list_group, adjacency_text).next_to(graph, RIGHT, buff=1.7, aligned_edge=UP)
+
+        vertices = [0, 1, 2, 3, 4]
+        wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
+        edges = [(i, j) for i, j, _ in wedges]
+        degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = Graph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config)
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyList = {v: [] for v in vertices}
+        adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.play(Create(adjecencyListVGroup), run_time=0.5)
+
+        for u, v, w in wedges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                *graph.edges[(u, v)].highlight_line(),
+                run_time=0.5
+            )
+
+            adjecencyList[u].append({v, w})
+            adjecencyList[v].append({u, w})
+
+            self.play(
+                adjecencyListVGroup[0].submobjects[u].animate.set_color(SELCOL),
+                adjecencyListVGroup[0].submobjects[v].animate.set_color(SELCOL),
+                run_time=0.5
+            )
+
+            self.wait(0.6)
+
+            newAdjacencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+            self.play(ReplacementTransform(adjecencyListVGroup, newAdjacencyListVGroup), run_time=0.5)
+            adjecencyListVGroup = newAdjacencyListVGroup
+
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                *graph.edges[(u, v)].clear_line(),
+                run_time=0.5)
+            
+            self.wait(2)
+
+        self.wait(4)
+
+
+class WeightedDGraphs(Scene):
+    def construct(self):
+        vertices = [3, 2, 0, 1, 4]
+        wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
+        edges = [(i, j) for i, j, _ in wedges]
+        degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = DiGraph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config)
+        
+        # self.play(Create(graph), run_time=6)
+        # self.wait(1)
+
+        nodes = list(graph.vertices.values())
+        graphVertices = graph.vertices
+        for _ in range(len(vertices)):
+            self.play(*[FadeIn(nodes[_])], run_time=0.3)
+            self.wait(0.1)
+
+        self.wait(1)
+
+        self.play(graphVertices[1].Select(), run_time=0.5)
+        nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
+        nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(graphVertices[1].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        self.wait(1.3)
+
+        for i, item in enumerate(graph.edges.items()):
+            points, edge = item
+            n1, n2 = edges[i]
+            self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
+            pointText = Text(f"{points[0]}-{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.35)
+            self.play(Create(edge), run_time=0.5)
+            self.play(Write(pointText), run_time=0.2)
+
+            if i == 0:
+                # self.play(edge.animate.set_stroke(color=TEXTCOL), run_time=0.3)
+                self.wait(0.1)
+                nodeSurr = DashedVMobject(SurroundingRectangle(edge, color=TEXTCOL, buff=0.1, corner_radius=0.1), num_dashes=30).scale([0.7, 1, 1])
+                nodeText = Text("Edge", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, LEFT, buff=0.15)
+                self.play(Create(nodeSurr), run_time=0.5)
+                self.wait(0.2)
+                self.play(Write(nodeText), run_time=0.5)
+                self.wait(1.3)
+                self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+                self.wait(0.1)
+                # self.play(edge.animate.set_stroke(color=EDGE_COL), run_time=0.3)
+                # self.wait(1.3)
+
+            self.wait(0.6)
+            self.play(Unwrite(pointText), run_time=0.2)
+            self.wait(0.1)
+            self.play(graphVertices[n1].Clear(), graphVertices[n2].Clear(), run_time=0.5)
+            self.wait(0.5)
+
+        self.wait(1)
+        nodeSurr = DashedVMobject(SurroundingRectangle(list(graph.edges.values())[-1]._get_weight_mob(), color=TEXTCOL, buff=0.07, corner_radius=0.2))
+        nodeText = Text("Weight", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT + DOWN, buff=0.01)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)  
+
+        self.wait(2)
+
+
+class WeightedAdjecencyMatrixD(Scene):
+    def construct(self):
+        vertices = [0, 1, 2, 3, 4]
+        wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (4, 3, 70)]
+        edges = [(i, j) for i, j, _ in wedges]
+        degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = DiGraph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config)
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyMatrix = np.zeros((len(vertices), len(vertices)), dtype=int)
+
+        matrixTable = IntegerTable(
+            adjecencyMatrix,
+            row_labels=[Text(str(v)) for v in vertices],
+            col_labels=[Text(str(v)) for v in vertices],
+            include_outer_lines=True,
+            v_buff=0.5,
+            h_buff=0.8,
+        )
+
+        for mob in matrixTable.get_entries():
+            mob.set_color(TEXTCOL)
+
+        for line in matrixTable.get_horizontal_lines() + matrixTable.get_vertical_lines():
+            line.set_stroke(color=EDGE_COL, width=3.5)
+        
+        matrixTable.to_edge(RIGHT, buff=1.2)
+        
+        self.play(matrixTable.create(), Write(Text("Adjecency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
+        self.wait(1.2)
+
+        for u, v, w in wedges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                *graph.edges[(u, v)].highlight_line(),
+                run_time=0.5
+            )
+            ent_to_update1 = matrixTable.get_entries_without_labels(pos=(u+1, v+1))
+            cell_to_update1 = matrixTable.get_cell(pos=(u+2, v+2), color=SORTCOL).set_stroke(color=SORTCOL, width=7)
+            adjecencyMatrix[u][v] = w
+
+            self.play(
+                matrixTable.get_row_labels()[u].animate.set_color(SORTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(SORTCOL),
+                run_time=0.5
+            )
+            
+            self.play(FadeIn(cell_to_update1), run_time=0.2)
+
+            self.play(
+                ReplacementTransform(
+                    ent_to_update1, Integer(w).set_color(TEXTCOL).move_to(ent_to_update1)
+                ),
+                run_time=0.7
+            )
+
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                FadeOut(cell_to_update1), 
+                matrixTable.get_row_labels()[u].animate.set_color(TEXTCOL),
+                matrixTable.get_col_labels()[v].animate.set_color(TEXTCOL),
+                *graph.edges[(u, v)].clear_line(),
+                run_time=0.5
+            )
+            
+            self.wait(2)
+
+        self.wait(4)
+
+
+class WeightedAdjecencyListD(Scene):
+    def construct(self):
+        def get_adjacency_list_VGroup(adjacency_list):
+            # adjacency_text.to_edge(UP, buff=0.5)
+            # self.play(Write(adjacency_text), run_time=1.5)
+
+            adjacency_list_group = VGroup()
+            for vertex, wneighbors in adjacency_list.items():
+                vertex_text = Text(f"{vertex}: ", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL)
+                neighbors_text = Text(", ".join(map(str, wneighbors)), font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL)
+                line = VGroup(vertex_text, neighbors_text).arrange(RIGHT, buff=0.3, aligned_edge=UP)
+                adjacency_list_group.add(line)
+            
+            adjacency_list_group.arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+
+            adjacency_text = Text("Adjacency List", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(adjacency_list_group, UP, buff=1, aligned_edge=LEFT)
+            
+            return VGroup(adjacency_list_group, adjacency_text).next_to(graph, RIGHT, buff=1.7, aligned_edge=UP)
+
+        vertices = [0, 1, 2, 3, 4]
+        wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (4, 3, 70)]
+        edges = [(i, j) for i, j, _ in wedges]
+        degrees = {0: 2, 1:3, 2:1, 3: 3, 4:2}
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = Graph(vertices, edges, layout='circular', layout_scale=LAYOT_SCALE,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config)
+        
+        graph.to_edge(LEFT, buff=1.2)
+        self.play(Create(graph), run_time=5)
+        self.wait(2)
+
+        graphVertices = graph.vertices
+
+        adjecencyList = {v: [] for v in vertices}
+        adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.play(Create(adjecencyListVGroup), run_time=0.5)
+
+        for u, v, w in wedges:
+            self.play(
+                graphVertices[u].Select(), graphVertices[v].Select(),
+                *graph.edges[(u, v)].highlight_line(),
+                run_time=0.5
+            )
+
+            adjecencyList[u].append({v, w})
+
+            self.play(
+                adjecencyListVGroup[0].submobjects[u].animate.set_color(SELCOL),
+                run_time=0.5
+            )
+
+            self.wait(0.6)
+
+            newAdjacencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+            self.play(ReplacementTransform(adjecencyListVGroup, newAdjacencyListVGroup), run_time=0.5)
+            adjecencyListVGroup = newAdjacencyListVGroup
+
+            self.play(
+                graphVertices[u].Clear(), graphVertices[v].Clear(), 
+                *graph.edges[(u, v)].clear_line(),
+                run_time=0.5)
+            
+            self.wait(2)
+
+        self.wait(4)
