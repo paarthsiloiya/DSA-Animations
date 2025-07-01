@@ -39,7 +39,7 @@ class Node(VGroup):
             return self.circle.animate.set_stroke(color=NODE_COL, width=0)
         
     def Highlight(self):
-        return self.circle.animate.set_fill(color=TEXTCOL), self.text.animate.set_color(color=BASECOL)
+        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
 
 
 class WeightedLine(Line):
@@ -69,6 +69,7 @@ class WeightedLine(Line):
         self.bg_config = {
             "color": config.background_color,
             "opacity": 1,
+            "buff": 0.1,
         }
         if bg_config:
             self.bg_config.update(bg_config)
@@ -1029,4 +1030,432 @@ class WeightedAdjecencyListD(Scene):
             
             self.wait(2)
 
+        self.wait(4)
+
+
+class Dijkstra(Scene):
+    def construct(self):
+        def add_dist(dist):
+            distMob = VGroup()
+            for i, distance in dist.items():
+                distText = str(int(distance)) if distance != np.inf else "∞"
+                distTextMob = Text(distText, font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graphVertices[i], UP, buff=0.2)
+                distMob.add(distTextMob)
+
+            return distMob
+
+        vertices = [0, 1, 2, 3, 4, 5, 6]
+        wedges = [(0, 1, 10), (0, 2, 80), (1, 2, 6), (1, 4, 20), (2, 3, 70), (4, 5, 50), (4, 6, 5), (5, 6, 10)]
+        edges = [(i, j) for i, j, _ in wedges]
+
+        adj_list = {v: [] for v in vertices}
+        for i, j, w in wedges:
+            adj_list[i].append((j,w))
+
+        scale = 1.4
+
+        layout = {
+            0: [0 * scale, 3 * scale, 0],
+            1: [-1 * scale, 1.5 * scale, 0],
+            2: [1 * scale, 1.5 * scale, 0],
+            3: [2.2 * scale, 0 * scale, 0],
+            4: [0.2 * scale, 0 * scale, 0],
+            5: [-1 * scale, -1.5 * scale, 0],
+            6: [1.5 * scale, -1.5 * scale, 0],
+        }
+
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = DiGraph(vertices, edges, layout=layout, #layout='circular', layout_scale=3,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config).center()
+        
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=1.3), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+        start = 0
+        dist = {i: float('inf') for i in range(len(vertices))}
+        
+        distMob = add_dist(dist)
+        self.play(FadeIn(distMob))
+
+        dist[start] = 0 
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[0], color=TEXTCOL, buff=0.15, corner_radius=0.6))
+        nodeText = Text("Starting Node", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+
+        newDistMob = add_dist(dist)
+        self.play(ReplacementTransform(distMob, newDistMob), run_time=0.5)
+        distMob = newDistMob
+
+        self.wait(1)
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(distMob[2], color=TEXTCOL, buff=0.08, corner_radius=0.06))
+        nodeText = Text("<- Current Best Distance\n      From Start", font=FONT, color=TEXTCOL, font_size=WEIGHT_FONT_SIZE).next_to(nodeSurr, RIGHT, buff=0.08).shift(DOWN * 0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(0.7)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)  
+        self.wait(0.7)
+        
+
+        visited = set()
+
+        while len(visited) < len(vertices):
+            min_node = None
+            explanatory_text = Text("Selecting the unvisited \nnode with the minimum \ntentative distance", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.8).shift(UP * 0.2)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.4)
+            for node in range(len(vertices)):
+                if node not in visited and (min_node is None or dist[node] < dist[min_node]):
+                    min_node = node
+
+            if min_node is None:
+                break
+            
+            visited.add(min_node)
+
+            subExplanatory_text = Text("Selected Node: " + str(min_node), font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatory_text, DOWN, buff=0.5)
+            self.play(Write(subExplanatory_text), run_time=0.5)
+            self.wait(0.1)
+            self.play(graphVertices[min_node].Select())
+            self.wait(0.3)
+            self.play(FadeOut(explanatory_text, subExplanatory_text), run_time=0.5)
+            self.wait(0.4)
+            explanatory_text = Text("Updating distances \nto the neighbouring \nnodes", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.8).shift(UP * 0.2)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.7)
+
+            for neighbor, weight in adj_list[min_node]:
+                if neighbor not in visited:
+                    nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[neighbor], color=TEXTCOL, buff=0, corner_radius=0.52))
+                    self.play(Create(nodeSurr), run_time=0.3)
+                    self.wait(0.1)
+                    self.play(graph.edges[(min_node, neighbor)].highlight_line())
+                    self.wait(0.4)
+
+                    new_dist = dist[min_node] + weight
+                    
+                    subExplanatory_text = Text(f"New Distance = {dist[min_node]} + {weight}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatory_text, DOWN, buff=0.5)
+                    self.play(Write(subExplanatory_text), run_time=0.2)
+                    self.wait(0.6)
+                    self.play(FadeOut(subExplanatory_text), run_time=0.2)
+                    self.wait(0.4)
+                    if new_dist < dist[neighbor]:
+                        dist_test = str(dist[neighbor]) if dist[neighbor] != float('inf') else "∞"
+                        subExplanatory_text = Text(f"{new_dist} < {dist_test}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatory_text, DOWN, buff=0.5)
+                        self.play(Write(subExplanatory_text), run_time=0.2)
+                        self.wait(0.5)
+
+                        dist[neighbor] = new_dist
+
+                        # newDistMob = add_dist(dist)
+                        # self.play(ReplacementTransform(distMob, newDistMob), run_time=0.5)
+                        # distMob = newDistMob
+                        self.play(distMob.submobjects[neighbor].animate.become(
+                            Text(str(int(dist[neighbor])), font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).move_to(distMob.submobjects[neighbor])
+                        ))
+                        self.wait(0.2)
+                    else:
+                        subExplanatory_text = Text(f"{new_dist} > {dist[neighbor]}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatory_text, DOWN, buff=0.5)
+                        self.play(Write(subExplanatory_text), run_time=0.2)
+                        self.wait(0.5)
+                    
+                    self.play(FadeOut(subExplanatory_text), run_time=0.2)
+                    self.wait(0.2)
+                    self.play(FadeOut(nodeSurr), graph.edges[(min_node, neighbor)].clear_line(), run_time=0.2)
+                else:
+                    nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[neighbor], color=SELCOL, buff=0, corner_radius=0.52))
+                    self.play(Create(nodeSurr), run_time=0.3)
+                    self.wait(0.1)
+                    subExplanatory_text = Text(f"Node {neighbor} already visited", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatory_text, DOWN, buff=0.5)
+                    self.play(Write(subExplanatory_text), run_time=0.2)
+                    self.wait(0.6)
+                    self.play(FadeOut(subExplanatory_text, nodeSurr), run_time=0.2)
+
+            self.play(FadeOut(explanatory_text), run_time=0.5)
+            
+            explanatory_text = Text("Marking the selected \nnode as visited", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.8).shift(UP * 0.2)
+            self.play(Write(explanatory_text), run_time=0.3)
+            self.wait(0.4)
+            self.play(graphVertices[min_node].Clear(), run_time=0.5)
+            self.play(*graphVertices[min_node].Highlight())
+            self.play(FadeOut(explanatory_text), run_time=0.2)
+            
+        self.wait(0.2)
+
+        self.play(VGroup(graph, distMob).animate.center())
+
+        self.wait(4)
+
+
+class BellmanFord(Scene):
+    def construct(self):
+        def add_dist(dist):
+            distMob = VGroup()
+            for i, distance in dist.items():
+                distText = str(int(distance)) if distance != np.inf else "∞"
+                distTextMob = Text(distText, font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graphVertices[i], UP, buff=0.2)
+                if i == 2:
+                    distTextMob.shift(LEFT * 0.4).shift(DOWN * 0.15)
+                distMob.add(distTextMob)
+
+            return distMob
+
+        vertices = [0, 1, 2, 3, 4, 5, 6, 7]
+        wedges = [(0, 7, 8), (0, 1, 10), (7, 6, 1), (6, 1, -4), (1, 5, 2), (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]
+        edges = [(i, j) for i, j, _ in wedges]
+
+        scale = 1.8
+
+        layout = {
+            0: [-0.8 * scale, 0.3 * scale, 0],
+            1: [-1.5 * scale, -1.1 * scale, 0],
+            7: [0.8 * scale, 0.3 * scale, 0],
+            6: [1.5 * scale ,-1.1 * scale, 0],
+            5: [0 * scale ,-2.2 * scale, 0],
+            2: [-1.5 * scale ,-3.3 * scale, 0],
+            3: [0 * scale ,-3.3 * scale, 0],
+            4: [1.5 * scale ,-3.3 * scale, 0],
+        }
+
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = DiGraph(vertices, edges, layout=layout, #layout='circular', layout_scale=3,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config).center()
+        
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=1.3), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+        start = 0
+        dist = {i: float('inf') for i in range(len(vertices))}
+
+        dist[start] = 0
+
+        distMob = add_dist(dist)
+        self.play(FadeIn(distMob))
+        self.wait(1)
+
+        for _ in range(len(vertices) - 1):
+            itterText = Text(f"Iteration {_}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 0.6)
+            self.play(Write(itterText), run_time=0.2)
+
+            for u, v, weight in wedges:
+                edgeText = Text(f"{u} -> {v} ({weight})", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(itterText, DOWN, buff=0.5)
+                self.play(Write(edgeText), run_time=0.2)
+                self.play(
+                    graphVertices[u].Select(),
+                    graphVertices[v].Select(),
+                    graph.edges[(u, v)].highlight_line(),
+                    run_time=0.3
+                )
+
+                self.wait(0.1)
+
+                distV = str(dist[v]) if dist[v] != float('inf') else "∞"
+                if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+                    explanatoryText = Text(f"Updating : {dist[u]} + {weight} < {distV}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(edgeText, DOWN, buff=0.8)
+                    self.play(Write(explanatoryText), run_time=0.2)
+                    
+                    dist[v] = dist[u] + weight
+
+                    self.play(distMob.submobjects[v].animate.become(
+                        Text(str(int(dist[v])), font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).move_to(distMob.submobjects[v])
+                    ))
+                    self.wait(0.2)
+
+                    self.play(FadeOut(explanatoryText), run_time=0.2)
+                    self.wait(0.1)
+                else:
+                    explanatoryText = Text(f"No Update : {dist[u]} + {weight} >= {distV}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(edgeText, DOWN, buff=0.8)
+                    self.play(Write(explanatoryText), run_time=0.2)
+                    self.wait(0.6)
+                    self.play(FadeOut(explanatoryText), run_time=0.2)
+                    self.wait(0.1)
+
+                self.play(
+                    FadeOut(edgeText),
+                    graphVertices[u].Clear(),
+                    graphVertices[v].Clear(),
+                    graph.edges[(u, v)].clear_line(),
+                    run_time=0.1
+                )
+                self.wait(0.1)
+            
+            self.wait(0.1)
+            self.play(FadeOut(itterText), run_time=0.2)
+            self.wait(0.2)
+
+        self.wait(2)
+        self.play(VGroup(graph, distMob).animate.center())
+        self.wait(4)
+
+
+class FloydWarshall(Scene):
+    def construct(self):
+        def get_path(u, v, nextMatrix):
+            if nextMatrix[u][v] == -1:
+                return []  # No path
+            path = [u]
+            while u != v:
+                u = nextMatrix[u][v]
+                if u == -1:
+                    return []  # No complete path
+                path.append(u)
+            return path
+        
+        
+        vertices = [0, 1, 2, 3, 4, 5, 6, 7]
+        wedges = [(0, 7, 8), (0, 1, 10), (7, 6, 1), (6, 1, -4), (1, 5, 2), (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]
+        edges = [(i, j) for i, j, _ in wedges]
+
+        scale = 1.5
+
+        layout = {
+            0: [-0.8 * scale, 0.3 * scale, 0],
+            1: [-1.5 * scale, -1.1 * scale, 0],
+            7: [0.8 * scale, 0.3 * scale, 0],
+            6: [1.5 * scale ,-1.1 * scale, 0],
+            5: [0 * scale ,-2.2 * scale, 0],
+            2: [-1.5 * scale ,-3.3 * scale, 0],
+            3: [0 * scale ,-3.3 * scale, 0],
+            4: [1.5 * scale ,-3.3 * scale, 0],
+        }
+
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = DiGraph(vertices, edges, layout=layout, #layout='circular', layout_scale=3,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config).center()
+        
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=0.8), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+        adjMatrix = np.full((len(vertices), len(vertices)), np.inf)
+        np.fill_diagonal(adjMatrix, 0)
+        for u, v, w in wedges:
+            adjMatrix[u][v] = w
+
+
+        adjMatrixText = []
+        for u in range(len(vertices)):
+            row = []
+            for v in range(len(vertices)):
+                if adjMatrix[u][v] == np.inf:
+                    row.append(MathTex(r"\infty", font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL))
+                else:
+                    row.append(Text(str(int(adjMatrix[u][v])), font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL, weight=THIN))
+            adjMatrixText.append(row)
+
+        
+        matrixTable = MobjectTable(
+            adjMatrixText,
+            row_labels=[Text(str(v), font_size=FSIZE, font=FONT) for v in vertices],
+            col_labels=[Text(str(v), font_size=FSIZE, font=FONT) for v in vertices],
+            include_outer_lines=True,
+            v_buff=0.3,
+            h_buff=0.4,
+            top_left_entry = MathTex("SP_1", font_size=FSIZE),
+        )
+
+        for mob in matrixTable.get_entries():
+            mob.set_color(TEXTCOL)
+
+        for line in matrixTable.get_horizontal_lines() + matrixTable.get_vertical_lines():
+            line.set_stroke(color=EDGE_COL, width=3.5)
+        
+        
+        SP_Text = Text("Shortest Pair", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)
+        self.play(Create(VGroup(matrixTable, SP_Text).next_to(graph, RIGHT, buff=1)), run_time=1.5)   
+        self.wait(1.2)
+
+
+        self.play(VGroup(graph, matrixTable, SP_Text).animate.shift(DOWN * 0.6))
+
+        nextMatrix = np.full((len(vertices), len(vertices)), -1)
+        for u, v, w in wedges:
+            nextMatrix[u][v] = v  # direct edge goes to v
+
+
+        ittrText = Text(f"Iteration : 1", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, UP, buff=1)
+        for k in range(1, len(vertices)):
+            kittrText = Text(f"Iteration : {k+1}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, UP, buff=1)
+            # nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[k], color=TEXTCOL, buff=0, corner_radius=0.52))
+            self.play(matrixTable.get_entries(pos=(1,1)).animate.become(
+                MathTex(f"SP_{k+1}", font_size=FSIZE, color=TEXTCOL).move_to(matrixTable.get_entries(pos=(1,1))),
+                ),
+                ittrText.animate.become(kittrText),
+                # Create(nodeSurr),
+                run_time=0.5
+            )
+            for u in range(len(vertices)):
+                for v in range(len(vertices)):
+                    if adjMatrix[u][v] > adjMatrix[u][k] + adjMatrix[k][v]:
+                        uvText = int(adjMatrix[u][v]) if adjMatrix[u][v] != np.inf else "∞"
+                        explanatoryText = Text(f"{u} -> {v} : {uvText} > {int(adjMatrix[u][k])} + {int(adjMatrix[k][v])}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(SP_Text, UP, buff=0.6)
+                        self.play(Write(explanatoryText), run_time=0.2)
+                        self.wait(0.3)
+
+                        ent_to_update1 = matrixTable.get_entries_without_labels(pos=(u+1, v+1))
+                        cell_to_update1 = matrixTable.get_cell(pos=(u+2, v+2), color=SORTCOL).set_stroke(color=SORTCOL, width=7)
+                        
+                        adjMatrix[u][v] = adjMatrix[u][k] + adjMatrix[k][v]
+                        nextMatrix[u][v] = nextMatrix[u][k]
+
+                        path1 = get_path(u, k, nextMatrix)
+                        path2 = get_path(k, v, nextMatrix)[1:] if nextMatrix[k][v] != -1 else []
+                        full_path = path1 + path2 
+                        evaluated_edges = [(full_path[i], full_path[i+1]) for i in range(len(full_path)-1)]
+                        edges_to_highlight = [graph.edges[e] for e in evaluated_edges if e in graph.edges]
+
+                        self.play(
+                            graphVertices[u].Select(), graphVertices[v].Select(),
+                            *[edge.highlight_line() for edge in edges_to_highlight],
+                            run_time=0.3
+                        )
+
+                        self.wait(0.4)
+                        self.play(FadeIn(cell_to_update1), run_time=0.2)
+                        self.wait(0.2)
+
+                        self.play(
+                            matrixTable.get_entries_without_labels(pos=(u+1, v+1)).animate.become(
+                                Text(str(int(adjMatrix[u][v])), font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL, weight=THIN).move_to(ent_to_update1)
+                            ),
+                            run_time=0.4
+                        )
+                        
+                        self.wait(0.6)
+
+                        self.play(
+                            graphVertices[u].Clear(), graphVertices[v].Clear(),
+                            *[edge.clear_line() for edge in edges_to_highlight],
+                            Unwrite(explanatoryText), FadeOut(cell_to_update1),
+                            run_time=0.3
+                        )
+                    
+                    self.wait(0.1)
         self.wait(4)
