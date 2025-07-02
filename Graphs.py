@@ -91,6 +91,12 @@ class WeightedLine(Line):
     def _get_weight_mob(self):
         return self.label
     
+    def select_line(self):
+        return self.animate.set_stroke(color=EDGE_COL, width=12), self.label.animate.set_stroke(color=TEXTCOL, width=0.2)
+    
+    def deselect_line(self):
+        return self.animate.set_stroke(color=EDGE_COL, width=6), self.label.animate.set_stroke(color=TEXTCOL, width=0.2)
+
     def highlight_line(self):
         return self.animate.set_color(color=TEXTCOL), self.label.animate.set_stroke(color=TEXTCOL, width=0.2)
     
@@ -1458,4 +1464,354 @@ class FloydWarshall(Scene):
                         )
                     
                     self.wait(0.1)
+        self.wait(4)
+
+
+class PrimsMCST(Scene):
+    def construct(self):
+        vertices = [0, 1, 2, 3, 4, 5, 6]
+        wedges = [(0, 1, 10), (0, 2, 80), (1, 2, 6), (1, 4, 20), (2, 3, 70), (4, 5, 50), (4, 6, 5), (6, 5, 10)]
+        edges = [(i, j) for i, j, _ in wedges]
+
+        adj_list = {v: [] for v in vertices}
+        for i, j, w in wedges:
+            adj_list[i].append((j,w))
+            adj_list[j].append((i,w))
+
+        scale = 1.4
+
+        layout = {
+            0: [0 * scale, 3 * scale, 0],
+            1: [-1 * scale, 1.5 * scale, 0],
+            2: [1 * scale, 1.5 * scale, 0],
+            3: [2.2 * scale, 0 * scale, 0],
+            4: [0.2 * scale, 0 * scale, 0],
+            5: [-1 * scale, -1.5 * scale, 0],
+            6: [1.5 * scale, -1.5 * scale, 0],
+        }
+
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = Graph(vertices, edges, layout=layout, #layout='circular', layout_scale=3,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config).center()
+        
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=1.5), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+        visited, distance, TreeEdge, minCost = {}, {}, [], 0
+
+        minCostText = Text("Minimum Cost: 0", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 2)
+        self.play(Write(minCostText), run_time=0.5)
+
+        for v in vertices:
+            visited[v] = False
+            distance[v] = float('inf')
+
+        visited[0] = True
+        for v, d in adj_list[0]:
+            distance[v] = d
+
+        explanatoryText = Text(f"Selecting the egde with \nminimum weight connected \nto MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.play(Write(explanatoryText), run_time=0.5)
+        for i in range(1, len(vertices)):
+            mindist = float('inf')
+            nextv = None
+            for u in vertices:
+                for v, d in adj_list[u]:
+                    if visited[u] and (not visited[v]):
+                        try:
+                            self.play(*graph.edges[(u, v)].select_line(), run_time = 0.3)
+                            self.wait(0.3)
+                            self.play(*graph.edges[(u, v)].deselect_line(), run_time = 0.2)
+                        except KeyError:
+                            self.play(*graph.edges[(v, u)].select_line(),run_time = 0.3)
+                            self.wait(0.3)
+                            self.play(*graph.edges[(v, u)].deselect_line(), run_time = 0.2)
+                        
+                        if d < mindist:
+                            mindist = d
+                            nextv = v
+                            nexte = (u, v)
+
+            subExplanatoryText = Text(f"Selected Edge: {nexte}, weight: {mindist}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+            self.play(Write(subExplanatoryText), run_time=0.5)
+            self.wait(0.4)
+            
+            visited[nextv] = True
+            TreeEdge.append(nexte)
+            minCost += mindist
+            
+            try:
+                self.play(
+                    *graph.edges[nexte].highlight_line(),
+                    run_time=0.5
+                )
+            except KeyError:
+                self.play(
+                    *graph.edges[(nexte[1], nexte[0])].highlight_line(),
+                    run_time=0.5
+                )
+
+            self.wait(0.2)
+
+            self.play(
+                minCostText.animate.become(
+                    Text(f"Minimum Cost: {minCost}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 1.5)
+                ),
+                run_time=0.5
+            )
+
+            self.wait(0.3)
+            
+            self.play(FadeOut(subExplanatoryText), run_time=0.5)
+
+            for v, d in adj_list[nextv]:
+                if not visited[v] and d < distance[v]:
+                    distance[v] = d
+
+        
+        # print(minCost)
+        self.wait(1)
+        self.play(
+            FadeOut(explanatoryText),
+            FadeOut(minCostText),
+            run_time=0.5
+        )
+        self.wait(0.2)
+        self.play(
+            graph.animate.center(),
+            run_time=0.5
+        )
+
+        self.wait(0.7)
+
+        edges_not_in_mst = [e for e in graph.edges if e not in TreeEdge]
+        self.play(
+            FadeOut(*[graph.edges[e] for e in edges_not_in_mst]),
+        )
+
+        self.wait(4)
+        # treeEdges = [graph.edges[e] for e in TreeEdge if e in graph.edges]
+
+
+class KruskalMCST(Scene):
+    def construct(self):
+        vertices = [0, 1, 2, 3, 4, 5, 6]
+        wedges = [(0, 1, 10), (0, 2, 80), (1, 2, 6), (1, 4, 20), (2, 3, 70), (4, 5, 50), (4, 6, 5), (5, 6, 10)]
+        edges = [(i, j) for i, j, _ in wedges]
+
+        adj_list = {v: [] for v in vertices}
+        for i, j, d in wedges:
+            adj_list[i].append((j,d))
+            adj_list[j].append((i,d))
+
+        scale = 1.4
+
+        layout = {
+            0: [0 * scale, 3 * scale, 0],
+            1: [-1 * scale, 1.5 * scale, 0],
+            2: [1 * scale, 1.5 * scale, 0],
+            3: [2.2 * scale, 0 * scale, 0],
+            4: [0.2 * scale, 0 * scale, 0],
+            5: [-1 * scale, -1.5 * scale, 0],
+            6: [1.5 * scale, -1.5 * scale, 0],
+        }
+
+        edge_config = {(i, j):{'weight': w, "stroke_color": EDGE_COL, "stroke_width": 6} for i, j, w in wedges}
+
+        graph = Graph(vertices, edges, layout=layout, #layout='circular', layout_scale=3,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_type=WeightedLine,
+                      edge_config=edge_config).center()
+        
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=1.5), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+        edgesK, component, TreeEdge, minCost = [], {}, [], 0
+
+        for u in adj_list:
+            edgesK.extend([(d, u, v) for v, d in adj_list[u]])
+            component[u] = u
+
+        edgesK = sorted(edgesK, key=lambda x: x[0])  # Sort edges by weight
+
+        minCostText = Text("Minimum Cost: 0", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 2)
+        self.play(Write(minCostText), run_time=0.5)
+        self.wait(0.3)
+        explanatoryText = Text("Selecting edge with the \nsmallest weights that do \nnot create a cycle in \nthe MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.play(Write(explanatoryText), run_time=0.5)
+        self.wait(0.5)
+        
+        for d, u, v in edgesK:
+            if component[u] != component[v]:
+                TreeEdge.append((u, v))
+
+                subExplanatoryText = Text(f"Selected Edge: ({u}, {v}), weight: {d}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+                self.play(Write(subExplanatoryText), run_time=0.5)
+
+                self.wait(0.2)
+
+                self.play(
+                    *graph.edges[(u, v)].highlight_line(),
+                    run_time=0.5
+                )
+
+                c = component[u]
+
+                minCost += d
+                self.play(
+                    minCostText.animate.become(
+                        Text(f"Minimum Cost: {minCost}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 2)
+                    ),
+                    run_time=0.5
+                )
+
+                self.wait(0.2)
+                self.play(FadeOut(subExplanatoryText), run_time=0.5)
+
+                for w in adj_list:
+                    if component[w] == c:
+                        component[w] = component[v]
+
+        self.wait(1)
+        self.play(
+            FadeOut(explanatoryText),
+            FadeOut(minCostText),
+            run_time=0.5
+        )
+
+        explanatoryText = Text("All Components \nare connected", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.play(Write(explanatoryText), run_time=0.5)
+        self.wait(0.4)
+        self.play(FadeOut(explanatoryText),run_time=0.5)
+
+        self.wait(0.2)
+        self.play(
+            graph.animate.center(),
+            run_time=0.5
+        )
+
+        self.wait(0.7)
+        edges_not_in_mst = [e for e in graph.edges if e not in TreeEdge]
+        self.play(
+            FadeOut(*[graph.edges[e] for e in edges_not_in_mst]),
+        )
+
+        self.wait(4)
+
+
+class DAGArrow(Arrow): #There was some wierd bug with DiGraph, that it was not placing the arrow center to center of the vertices, so I had to create a custom arrow class
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        super().__init__(buff=0.46, *args, **kwargs)
+
+class TopologicalSort(Scene):
+    def construct(self):
+        from collections import deque
+        vertices = [0, 1, 2, 3, 4, 5, 6, 7]
+        verticesGraph = [3, 1, 2, 0, 4, 7, 6, 5]
+        edges = [(0,2), (0,3), (0,4), (1,2), (1,7), (2,5), (3,5), (3,7), (4,7), (5,6), (6,7)]
+        
+        adj_list = {v: [] for v in vertices}
+        for i, j in edges:
+            adj_list[i].append(j)
+
+        graph = Graph(verticesGraph, edges, layout='circular', layout_scale=2.7,
+                      vertex_mobjects={v : Node(v) for v in vertices},
+                      edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                      edge_type=DAGArrow,)
+                
+        self.play(Create(graph), run_time=6)
+        self.wait(0.5)
+        self.play(graph.animate.to_edge(LEFT, buff=0.5), run_time=1.5)
+        self.wait(1)
+
+        graphVertices = graph.vertices
+
+
+        indegree, topSort, zerodegreeq = {v:0 for v in vertices}, [], deque()
+
+        for u in adj_list:
+            for v in adj_list[u]:
+                indegree[v] += 1
+
+
+        indegreeVgroup = VGroup()
+        for v in vertices:
+            indegreeVgroup.add(
+                Text(str(indegree[v]), font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graphVertices[v], DOWN, buff=0.1)
+            )
+
+        self.play(FadeIn(indegreeVgroup, lag_ratio=0.1), run_time=0.5)
+        self.wait(0.5)
+        nodeSurr = DashedVMobject(SurroundingRectangle(indegreeVgroup.submobjects[1], color=TEXTCOL, buff=0.1, corner_radius=0.15))
+        nodeText = Text("<-Indegree", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT, buff=0.08)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        for v in vertices:
+            if indegree[v] == 0:
+                zerodegreeq.append(v)
+
+        explanatoryText = Text(f"Selecting the vertex\nwith zero indegree", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.7).shift(UP * 0.2)
+        self.play(Write(explanatoryText), run_time=0.5)
+
+        topSortVGroup = VGroup(Text("t")).shift(UP * 3.4).shift(LEFT * 2.5)
+
+        while zerodegreeq:
+            curr_vertex = zerodegreeq.popleft()
+            subExplanatoryText = Text(f"Selected Vertex: {curr_vertex}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+            self.play(Write(subExplanatoryText), run_time=0.5)
+            self.wait(0.4)
+            self.play(graphVertices[curr_vertex].Select(), run_time=0.5)
+            self.wait(0.3)
+
+            topSort.append(curr_vertex)
+            indegree[curr_vertex] -= 1
+
+            for adj_vertex in adj_list[curr_vertex]:
+                indegree[adj_vertex] -= 1
+
+                self.play(FadeOut(graph.edges[(curr_vertex, adj_vertex)]))
+                self.remove(graph.edges[(curr_vertex, adj_vertex)])
+                self.wait(0.2)
+
+                self.play(
+                    indegreeVgroup.submobjects[adj_vertex].animate.become(
+                        Text(str(indegree[adj_vertex]), font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).move_to(indegreeVgroup.submobjects[adj_vertex])
+                    )
+                )
+
+                if indegree[adj_vertex] == 0:
+                    zerodegreeq.append(adj_vertex)
+
+            self.wait(0.2)
+            self.play(FadeOut(indegreeVgroup.submobjects[curr_vertex]))
+            self.remove(indegreeVgroup.submobjects[curr_vertex])
+            self.wait(0.1)
+            self.play(graphVertices[curr_vertex].animate.next_to(topSortVGroup, RIGHT, buff=0.27))
+            topSortVGroup.add(graphVertices[curr_vertex])
+            self.wait(0.3)
+            self.play(FadeOut(subExplanatoryText), run_time=0.5)
+            self.wait(0.2)
+
+        self.play(FadeOut(explanatoryText), run_time=0.5)
+        self.wait(0.3)
+        self.play(topSortVGroup.animate.center())
         self.wait(4)
