@@ -562,3 +562,323 @@ class TreeListCorrelation(Scene):
 
         self.wait(2)
 
+
+class MaxHeap(Scene):
+    def construct(self):
+        def insert(value):
+            new_node = Node(value)
+            new_node.set_z_index(2)
+            tree_node.append(new_node)
+            max_heap.append(value)
+            G.add_node(value)
+            
+            i = len(tree_node) - 1
+            parent_index = (i - 1) // 2
+
+            is_left_child = i % 2 == 1 
+
+            level_of_parent = np.floor(np.log2(parent_index + 1))
+
+            if i == 0:
+                new_node.to_edge(UP, buff=0.5)
+            elif is_left_child:
+                new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (LEFT * (len(list_of_vertices) - level_of_parent - 7)))
+            elif not is_left_child:
+                new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (RIGHT * (len(list_of_vertices) - level_of_parent - 7)))
+
+            explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.3)
+
+            self.play(Create(new_node), run_time=0.5)
+            G.add_edge(max_heap[parent_index], value)
+            self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
+
+            if parent_index >= 0:
+                while i > 0 and max_heap[i] > max_heap[parent_index]:
+                    sub_explanatory_text1 = Text(f"{max_heap[i]} > {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    sub_explanatory_text2 = Text(f"Swapping {max_heap[i]} with {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    
+                    self.play(
+                        tree_node[i].Select(),
+                        tree_node[parent_index].Select(),
+                        Write(sub_explanatory_text1),
+                        Write(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+
+                    self.wait(0.2)
+
+                    self.play(
+                        tree_node[i].animate.move_to(tree_node[parent_index].get_center()),
+                        tree_node[parent_index].animate.move_to(tree_node[i].get_center())
+                    )
+
+                    # Swap in the heap
+                    max_heap[i], max_heap[parent_index] = max_heap[parent_index], max_heap[i]
+                    # Swap in the tree node representation
+                    tree_node[i], tree_node[parent_index] = tree_node[parent_index], tree_node[i]
+
+                    self.wait(0.2)
+
+                    self.play(
+                        tree_node[i].Clear(),
+                        tree_node[parent_index].Clear(),
+                        Unwrite(sub_explanatory_text1),
+                        Unwrite(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+
+                    i = parent_index
+                    parent_index = (i - 1) // 2
+
+                self.wait(0.1)
+
+                sub_explanatory_text1 = Text(f"{max_heap[i]} <= {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                sub_explanatory_text2 = Text(f"{max_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                self.play(
+                    Write(sub_explanatory_text1),
+                    Write(sub_explanatory_text2),
+                    run_time=0.5
+                )
+                self.wait(0.5)
+                self.play(
+                    Unwrite(sub_explanatory_text1),
+                    Unwrite(sub_explanatory_text2),
+                    run_time=0.5
+                )
+                self.wait(0.2)
+
+            self.wait(0.4)
+            self.play(Unwrite(explanatory_text), run_time=0.5)
+            
+
+        list_of_vertices = [2,7,26,25,19,17,1,90,3,36]
+        max_heap = []
+        tree_node = []
+
+        G = nx.Graph()
+
+        for i in list_of_vertices:
+            insert(i)
+
+        self.wait(2)
+
+
+class MinHeap(Scene):
+    def construct(self):
+        def insert(value):
+            new_node = Node(value)
+            new_node.set_z_index(2)
+            tree_node.append(new_node)
+            min_heap.append(value)
+            G.add_node(value)
+            
+            i = len(tree_node) - 1
+            parent_index = (i - 1) // 2
+
+            is_left_child = i % 2 == 1 
+
+            level_of_parent = np.floor(np.log2(parent_index + 1))
+
+            if i == 0:
+                new_node.to_edge(UP, buff=0.5)
+            elif is_left_child:
+                new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (LEFT * (len(list_of_vertices) - level_of_parent - 7)))
+            elif not is_left_child:
+                new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (RIGHT * (len(list_of_vertices) - level_of_parent - 7)))
+
+            explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.3)
+
+            self.play(Create(new_node), run_time=0.5)
+            G.add_edge(min_heap[parent_index], value)
+            self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
+
+            if parent_index >= 0:
+                while i > 0 and min_heap[i] < min_heap[parent_index]:
+                    sub_explanatory_text1 = Text(f"{min_heap[i]} < {min_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    sub_explanatory_text2 = Text(f"Swapping {min_heap[i]} with {min_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    
+                    self.play(
+                        tree_node[i].Select(),
+                        tree_node[parent_index].Select(),
+                        Write(sub_explanatory_text1),
+                        Write(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+
+                    self.wait(0.2)
+
+                    self.play(
+                        tree_node[i].animate.move_to(tree_node[parent_index].get_center()),
+                        tree_node[parent_index].animate.move_to(tree_node[i].get_center())
+                    )
+
+                    # Swap in the heap
+                    min_heap[i], min_heap[parent_index] = min_heap[parent_index], min_heap[i]
+                    # Swap in the tree node representation
+                    tree_node[i], tree_node[parent_index] = tree_node[parent_index], tree_node[i]
+
+                    self.wait(0.2)
+
+                    self.play(
+                        tree_node[i].Clear(),
+                        tree_node[parent_index].Clear(),
+                        Unwrite(sub_explanatory_text1),
+                        Unwrite(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+
+                    i = parent_index
+                    parent_index = (i - 1) // 2
+
+                self.wait(0.1)
+
+                sub_explanatory_text1 = Text(f"{min_heap[parent_index]} <= {min_heap[i]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                sub_explanatory_text2 = Text(f"{min_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                self.play(
+                    Write(sub_explanatory_text1),
+                    Write(sub_explanatory_text2),
+                    run_time=0.5
+                )
+                self.wait(0.5)
+                self.play(
+                    Unwrite(sub_explanatory_text1),
+                    Unwrite(sub_explanatory_text2),
+                    run_time=0.5
+                )
+                self.wait(0.2)
+
+            self.wait(0.4)
+            self.play(Unwrite(explanatory_text), run_time=0.5)
+            
+
+        list_of_vertices = [26,7,2,25,19,17,1,90,36,3]
+        min_heap = []
+        tree_node = []
+
+        G = nx.Graph()
+
+        for i in list_of_vertices:
+            insert(i)
+
+        self.wait(2)
+
+
+
+class BinarySearchTree(Scene):
+    def construct(self):
+        def insert_bst(value):
+            new_node = Node(value)
+            new_node.set_z_index(2)
+            explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.3)
+
+            if not bst_root:
+                # First node becomes the root
+                new_node.to_edge(UP, buff=0.5)
+                bst_root.append((value, new_node))
+                tree_node_map[value] = new_node
+                G.add_node(value)
+                self.play(Create(new_node), run_time=0.5)
+            else:
+                current_value, current_node = bst_root[0]
+                parent_value = None
+                path = []  # Keep track of the traversal path
+
+                current_value, current_node = bst_root[0]
+                index = 0  # Start from root index
+
+                nodeSurr = DashedVMobject(SurroundingRectangle(current_node, color=TEXTCOL, buff=0, corner_radius=0.52))
+                nodeSurr.set_z_index(3)
+                self.play(Create(nodeSurr), run_time=0.5)
+                self.wait(0.2)
+
+                while True:
+                    parent_value = current_value
+                    parent_node = current_node
+
+                    self.play(nodeSurr.animate.move_to(current_node.get_center()), run_time=0.5)
+
+                    if value < current_value:
+                        next_index = 2 * index + 1
+                        sub_explanatory_text1 = Text(f"{value} < {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                        sub_explanatory_text2 = Text(f"Going to the Left Child of {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                        self.play(
+                            Write(sub_explanatory_text1),
+                            Write(sub_explanatory_text2),
+                            run_time=0.5
+                        )
+                        self.wait(0.6)
+                        self.play(
+                            Unwrite(sub_explanatory_text1), 
+                            Unwrite(sub_explanatory_text2),
+                            run_time=0.5
+                        )
+                        self.wait(0.2)
+                    else:
+                        next_index = 2 * index + 2
+                        sub_explanatory_text1 = Text(f"{value} >= {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                        sub_explanatory_text2 = Text(f"Going to the Right Child of {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                        self.play(
+                            Write(sub_explanatory_text1),
+                            Write(sub_explanatory_text2),
+                            run_time=0.5
+                        )
+                        self.wait(0.6)
+                        self.play(
+                            Unwrite(sub_explanatory_text1), 
+                            Unwrite(sub_explanatory_text2),
+                            run_time=0.5
+                        )
+                        self.wait(0.2)
+
+                    if next_index not in bst_tree:
+                        break
+                    else:
+                        current_value = bst_tree[next_index]
+                        current_node = tree_node_map[current_value]
+                        index = next_index
+
+
+                # Place the new node
+                parent_node = tree_node_map[parent_value]
+                is_left = value < parent_value
+
+                # Heuristic horizontal offset based on level
+                level = int(np.log2(next_index + 1))
+                offset = RIGHT if not is_left else LEFT
+                new_node.move_to(parent_node.get_center() + (DOWN * 1.5) + offset * (4 - level))
+
+                G.add_node(value)
+                G.add_edge(parent_value, value)
+
+                self.play(Create(new_node), run_time=0.5)
+                self.play(Create(Line(parent_node.get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
+
+                # Update data structures
+                bst_tree[next_index] = value
+                bst_indices[value] = next_index
+                tree_node_map[value] = new_node
+
+                self.play(Uncreate(nodeSurr),run_time=0.5)
+
+            self.wait(0.4)
+            self.play(Unwrite(explanatory_text), run_time=0.5)
+
+        list_of_vertices = [26, 7, 2, 25, 19, 47, 1, 90, 36, 3]
+        bst_root = []                 # To hold (value, node) of root
+        bst_tree = dict()             # Maps index (like array position in binary tree) to node value
+        bst_indices = dict()          # Maps value to index
+        tree_node_map = dict()        # Maps value to Node object
+        G = nx.Graph()                # For networkx visualization
+
+        for val in list_of_vertices:
+            insert_bst(val)
+
+        self.wait(2)
+
+
