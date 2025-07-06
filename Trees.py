@@ -41,6 +41,12 @@ class Node(VGroup):
         
     def Highlight(self):
         return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
+    
+    def SelectHighlight(self):
+        return self.circle.animate.set_stroke(color=SELCOL, width=10)
+    
+    def Reset(self):
+        return self.circle.animate.set_stroke(color=NODE_COL, width=0).set_fill(color=NODE_COL), self.text.animate.set_color(color=TEXTCOL)
 
 
 class TreeExplanation(Scene):
@@ -870,11 +876,11 @@ class BinarySearchTree(Scene):
             self.play(Unwrite(explanatory_text), run_time=0.5)
 
         list_of_vertices = [26, 7, 2, 25, 19, 47, 1, 90, 36, 3]
-        bst_root = []                 # To hold (value, node) of root
-        bst_tree = dict()             # Maps index (like array position in binary tree) to node value
-        bst_indices = dict()          # Maps value to index
-        tree_node_map = dict()        # Maps value to Node object
-        G = nx.Graph()                # For networkx visualization
+        bst_root = []
+        bst_tree = dict()
+        bst_indices = dict()
+        tree_node_map = dict()
+        G = nx.Graph()
 
         for val in list_of_vertices:
             insert_bst(val)
@@ -882,3 +888,170 @@ class BinarySearchTree(Scene):
         self.wait(2)
 
 
+class UnionFind(Scene):
+    def construct(self):
+        def findParent(v):
+            if parent[v] != v:
+                return findParent(parent[v])
+            else:
+                return v
+                
+        def union(u, v):
+            sub_operation_text = Text(f"Union({u}, {v})", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(operation_text, DOWN, buff=0.5)
+            self.play(Write(sub_operation_text), run_time=0.5)
+            self.wait(0.5)
+            self.play(
+                index_to_node[u].SelectHighlight(),
+                index_to_node[v].SelectHighlight(),
+                run_time=0.5
+            )
+
+            c_old = findParent(u)
+            c_old_node = index_to_node[c_old]
+            sub_operation_text1 = Text(f"Find({u}) => {c_old}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_operation_text, DOWN, buff=0.2)
+            self.play(Write(sub_operation_text1), run_time=0.5)
+            self.wait(0.5)
+            self.play(c_old_node.Highlight())
+            self.play(Unwrite(sub_operation_text1), run_time=0.5)
+
+            self.wait(0.1)
+
+            c_new = findParent(v)
+            c_new_node = index_to_node[c_new]
+            sub_operation_text1 = Text(f"Find({v}) => {c_new}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_operation_text, DOWN, buff=0.2)
+            self.play(Write(sub_operation_text1), run_time=0.5)
+            self.wait(0.5)
+            self.play(c_new_node.Highlight())
+            self.play(Unwrite(sub_operation_text1), run_time=0.5)
+
+            if c_old == c_new:
+                return
+
+            if len(members[c_new]) == 1:
+                shift = LEFT
+            elif len(members[c_new]) == 2:
+                shift = RIGHT
+            else:
+                shift = 2.5 * RIGHT
+            
+            displacement = (c_new_node.get_center() - c_old_node.get_center()) + DOWN + shift
+
+            for x in members[c_old]:
+                members[c_new].append(x)
+                member_vgroup[c_new].add(index_to_node[x])
+                is_child.add(x)
+
+            parent[c_old] = c_new
+
+            for x in members[c_old]:
+                self.play(
+                    index_to_node[x].animate.shift(displacement),
+                    run_time=0.5
+                )
+            
+            edge = Line(
+                c_old_node.get_center(),
+                c_new_node.get_center(),
+                color=EDGE_COL,
+                stroke_width=6
+            )
+
+            edge.add_updater(
+                lambda m: m.put_start_and_end_on(
+                    c_old_node.get_center(), 
+                    c_new_node.get_center()
+                )
+            )
+
+            self.play(Create(edge), run_time=0.5)
+
+            self.play(
+                index_to_node[u].Reset(),
+                index_to_node[v].Reset(),
+                c_old_node.Reset(),
+                c_new_node.Reset(),
+                Unwrite(sub_operation_text),
+                run_time=0.5
+            )
+
+            sets = calculate_arrangement()
+            self.play(
+                sets.animate.arrange(RIGHT, buff=0.7).next_to(operation_text, DOWN, buff=2.3),
+                
+                run_time=0.5
+            )
+            # self.play(sets.animate.next_to(operation_text, DOWN, buff=2.3))
+
+            self.play(c_new_node.Select())
+
+            self.wait(0.5)
+
+        def calculate_arrangement():
+            sets = VGroup()
+            for v in members:
+                if v not in is_child:
+                    sets.add(member_vgroup[v])
+            
+            return sets
+
+        list_of_vertices = [26,7,2,25,19,17,1,90,3]
+
+        parent = {v : v for v in list_of_vertices}
+        members = {v : [v] for v in list_of_vertices}
+
+        index_to_node = {v : Node(v).set_z_index(2) for v in list_of_vertices}
+        member_vgroup = {v : VGroup(index_to_node[v]) for v in list_of_vertices}
+        is_child = set()
+
+        sets = calculate_arrangement()
+        sets.arrange(RIGHT, buff=0.7)
+        self.play(Create(sets), run_time=2)
+        self.play(*[index_to_node[v].Select() for v in list_of_vertices], run_time=0.5)
+        self.wait(0.5)
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(member_vgroup[7], color=TEXTCOL, buff=0.15, corner_radius=0.6))
+        nodeText = Text("Set", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        operation_text = Text("Union Operation", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.6)
+        self.play(Write(operation_text), run_time=0.5)
+        self.wait(0.5)
+
+        union(26, 7)
+        
+        nodeSurr = DashedVMobject(SurroundingRectangle(member_vgroup[7], color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=25)
+        nodeText = Text("Union Set", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        self.wait(0.5)
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(index_to_node[7], color=TEXTCOL, buff=0.15, corner_radius=0.6))
+        nodeText = Text("     Set\nRepresentative", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        union(2, 25)
+        union(2, 19)
+        union(2, 26)
+        union(1, 17)
+        union(90, 1)
+        union(90, 3)
+        union(2, 1)
+
+        self.wait(0.6)
+
+        self.play(Unwrite(operation_text), run_time=0.5)
+        sets = calculate_arrangement()
+        self.play(sets.animate.center())
+        self.wait(2)
