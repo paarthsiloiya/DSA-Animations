@@ -1063,6 +1063,15 @@ class AVLNode():
         self.height = 1
         self.left : AVLNode | None = None
         self.right : AVLNode | None = None
+
+        self.balanceFactor = ValueTracker(0)
+        self.balanceFactorText = DecimalNumber(
+            self.balanceFactor.get_value(), 
+            num_decimal_places=0, 
+            font_size=POINTER_FONT_SIZE + 8, 
+            fill_color=TEXTCOL,
+            # stroke_width=0,
+        ).set_z_index(3).next_to(UP, buff=0.2)
         
         self.node = Node(value).set_z_index(2)
 
@@ -1070,8 +1079,15 @@ class AVLNode():
             lambda m: m.move_to(self.node.circle.get_center())
         )
 
-        self.leftPos = Dot(self.node.get_center() + DL, color=BLUE)
-        self.rightPos = Dot(self.node.get_center() + DR, color=RED)
+        self.balanceFactorText.add_updater(
+            lambda m: m.set_value(self.balanceFactor.get_value())
+        )
+        self.balanceFactorText.add_updater(
+            lambda m: m.next_to(self.node.circle, UP, buff=0.2)
+        )
+
+        self.leftPos = Dot(self.node.get_center() + DL, color=BLUE, fill_opacity=0)
+        self.rightPos = Dot(self.node.get_center() + DR, color=RED, fill_opacity=0)
 
         self.left_edge = Line(
             self.node.get_center(),
@@ -1202,8 +1218,6 @@ class AVLTreeExplanation(Scene):
     def left_rotate(self, x : AVLNode):
         y = x.right
 
-        print(x.value, y.value)
-
         self.play(
             x.node.Select(),
             y.node.Select()
@@ -1257,9 +1271,10 @@ class AVLTreeExplanation(Scene):
                     avlnode.node.move_to(parent_node.rightPos.get_center())
             
             self.play(Create(avlnode.node), run_time=0.5)
-            self.play(Create(avlnode.left_edge), Create(avlnode.right_edge))
+            self.play(Create(avlnode.left_edge), Create(avlnode.right_edge), Create(avlnode.balanceFactorText))
             self.add(avlnode.rightPos, avlnode.leftPos)
             self.nodeGroup.add(avlnode.node)
+            self.AVLnodeGroup.append(avlnode)
             self.wait(0.52)
             return avlnode
 
@@ -1276,6 +1291,12 @@ class AVLTreeExplanation(Scene):
         
         node.height = 1 + max(self.height(node.left), self.height(node.right))
         balance = self.get_balance(node)
+
+
+        self.wait(0.2)
+        self.play(self.nodeGroup.animate.center().shift(UP))
+        self.wait(0.2)
+        self.recalculate_balance_factors()
 
         if balance > 1 and value < node.left.value:
             self.play(node.node.Highlight(), node.node.Reset())
@@ -1299,24 +1320,30 @@ class AVLTreeExplanation(Scene):
             self.play(node.node.Highlight(), node.node.Reset())
             return self.left_rotate(node)
         
+        return node
+    
+    def recalculate_balance_factors(self):
+        for avl_node in self.AVLnodeGroup:
+            self.play(avl_node.balanceFactor.animate.set_value(self.get_balance(avl_node)), run_time=0.2)
+
+    def insert_into_AVLTree(self, root, value):
+        root = self.insert(root, value)
+        self.wait(0.1)
+        self.recalculate_balance_factors()
         self.wait(0.2)
         self.play(self.nodeGroup.animate.center().shift(UP))
         self.wait(0.5)
-        return node
+        return root
+
 
     def construct(self):
         self.nodeGroup = VGroup()
+        self.AVLnodeGroup = []
         root = None
-        root = self.insert(root, 3)
-        root = self.insert(root, 4)
-        root = self.insert(root, 5)
-        root = self.insert(root, 6)
-        root = self.insert(root, 7)
-        root = self.insert(root, 2)
-        root = self.insert(root, 1)
-        root = self.insert(root, 9)
-        root = self.insert(root, 8)
-        root = self.insert(root, 10)
-        root = self.insert(root, 11)
+
+        values = [3, 4, 5, 6, 7, 2, 1, 9, 8, 10, 11]
+
+        for value in values:
+            root = self.insert_into_AVLTree(root, value)
 
         self.wait(2)
