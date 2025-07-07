@@ -1055,3 +1055,268 @@ class UnionFind(Scene):
         sets = calculate_arrangement()
         self.play(sets.animate.center())
         self.wait(2)
+
+
+class AVLNode():
+    def __init__(self, value):
+        self.value = value
+        self.height = 1
+        self.left : AVLNode | None = None
+        self.right : AVLNode | None = None
+        
+        self.node = Node(value).set_z_index(2)
+
+        self.node.text.add_updater(
+            lambda m: m.move_to(self.node.circle.get_center())
+        )
+
+        self.leftPos = Dot(self.node.get_center() + DL, color=BLUE)
+        self.rightPos = Dot(self.node.get_center() + DR, color=RED)
+
+        self.left_edge = Line(
+            self.node.get_center(),
+            self.node.get_center(),
+            color=EDGE_COL,
+            stroke_width=6
+        )
+
+        self.right_edge = Line(
+            self.node.get_center(),
+            self.node.get_center(),
+            color=EDGE_COL,
+            stroke_width=6
+        )
+
+        self.leftPos.add_updater(
+            lambda m, dt: m.move_to(
+                interpolate(
+                    m.get_center(),
+                    self.node.get_center() + DOWN + (LEFT * (self.height - 1)),
+                    0.8
+                )
+            )
+        )
+
+        self.rightPos.add_updater(
+            lambda m, dt: m.move_to(
+                interpolate(
+                    m.get_center(),
+                    self.node.get_center() + DOWN + (RIGHT * (self.height - 1)),
+                    0.8
+                )
+            )
+        )
+
+        def left_edge_updater(m):
+            if self.left is not None:
+                m.put_start_and_end_on(
+                    self.node.get_center(), 
+                    self.leftPos.get_center()
+                )
+            else:
+                m.put_start_and_end_on(
+                    self.node.get_center(), 
+                    self.node.get_center() + (DOWN * 0.1)
+                )
+
+        def right_edge_updater(m):
+            if self.right is not None:
+                m.put_start_and_end_on(
+                    self.node.get_center(), 
+                    self.rightPos.get_center()
+                )
+            else:
+                m.put_start_and_end_on(
+                    self.node.get_center(), 
+                    self.node.get_center() + (DOWN * 0.1)
+                )
+
+        self.left_edge.add_updater(left_edge_updater)
+        self.right_edge.add_updater(right_edge_updater)
+
+    def set_left(self):
+        if self.left is None or self.left.node.updaters:
+            return
+        
+        self.left.node.move_to(self.leftPos.get_center())
+        self.left.node.add_updater(
+            lambda m: m.move_to(self.leftPos.get_center())
+        )
+
+    def set_right(self):
+        if self.right is None or self.right.node.updaters:
+            return
+        
+        self.right.node.move_to(self.rightPos.get_center())
+        self.right.node.add_updater(
+            lambda m: m.move_to(self.rightPos.get_center())
+        )
+        
+
+class AVLTreeExplanation(Scene):
+    def height(self, node):
+        if node is None:
+            return 0
+        return node.height
+    
+    def right_rotate(self, y):
+        x = y.left
+
+        self.play(
+            y.node.Select(),
+            x.node.Select()
+        )
+
+        T2 = x.right
+
+        if y.left is not None:
+            y.left.node.clear_updaters()
+            y.node.clear_updaters()
+            self.play(
+                y.node.animate.move_to(x.rightPos.get_center()),
+            )
+
+        if x.right is not None:
+            x.right.node.clear_updaters()
+            x.node.clear_updaters()
+            self.play(
+                x.node.animate.move_to(y.leftPos.get_center()),
+            )
+
+        x.right = y
+        y.left = T2
+
+        x.set_right()
+        y.set_left()
+
+        self.play(
+            y.node.Clear(),
+            x.node.Clear()
+        )
+
+        y.height = max(self.height(y.left), self.height(y.right)) + 1
+        x.height = max(self.height(x.left), self.height(x.right)) + 1
+
+        return x
+    
+    def left_rotate(self, x : AVLNode):
+        y = x.right
+
+        print(x.value, y.value)
+
+        self.play(
+            x.node.Select(),
+            y.node.Select()
+        )
+
+        T2 = y.left
+
+        if x.right is not None:
+            x.right.node.clear_updaters()
+            x.node.clear_updaters()
+            self.play(
+                x.node.animate.move_to(y.leftPos.get_center()),
+            )
+
+        if y.left is not None:
+            y.left.node.clear_updaters()
+            y.node.clear_updaters()
+            self.play(
+                y.node.animate.move_to(x.rightPos.get_center()),
+            )
+
+
+        y.left = x
+        x.right = T2
+
+        y.set_left()
+        x.set_right()
+
+        self.play(
+            y.node.Clear(),
+            x.node.Clear()
+        )
+
+        x.height = max(self.height(x.left), self.height(x.right)) + 1
+        y.height = max(self.height(y.left), self.height(y.right)) + 1
+
+        return y
+    
+    def get_balance(self, node):
+        if node is None:
+            return 0
+        return self.height(node.left) - self.height(node.right)
+    
+    def insert(self, node : AVLNode, value, is_left=False, parent_node : AVLNode = None):
+        if node is None:
+            avlnode = AVLNode(value)
+            if parent_node is not None:
+                if is_left:
+                    avlnode.node.move_to(parent_node.leftPos.get_center())
+                else:
+                    avlnode.node.move_to(parent_node.rightPos.get_center())
+            
+            self.play(Create(avlnode.node), run_time=0.5)
+            self.play(Create(avlnode.left_edge), Create(avlnode.right_edge))
+            self.add(avlnode.rightPos, avlnode.leftPos)
+            self.nodeGroup.add(avlnode.node)
+            self.wait(0.52)
+            return avlnode
+
+        if value < node.value:
+            node.left = self.insert(node.left, value, True, node)
+            self.wait(0.52)
+            node.set_left()
+        elif value > node.value:
+            node.right = self.insert(node.right, value, False, node)
+            self.wait(0.52)
+            node.set_right()
+        else:
+            return node
+        
+        node.height = 1 + max(self.height(node.left), self.height(node.right))
+        balance = self.get_balance(node)
+
+        if balance > 1 and value < node.left.value:
+            self.play(node.node.Highlight(), node.node.Reset())
+            return self.right_rotate(node)
+        
+        if balance < -1 and value > node.right.value:
+            self.play(node.node.Highlight(), node.node.Reset())
+            return self.left_rotate(node)
+        
+        if balance > 1 and value > node.left.value:
+            self.play(node.node.Highlight(), node.node.Reset())
+            node.left = self.left_rotate(node.left)
+            self.wait(0.52)
+            self.play(node.node.Highlight(), node.node.Reset())
+            return self.right_rotate(node)
+        
+        if balance < -1 and value < node.right.value:
+            self.play(node.node.Highlight(), node.node.Reset())
+            node.right = self.right_rotate(node.right)
+            self.wait(0.52)
+            self.play(node.node.Highlight(), node.node.Reset())
+            return self.left_rotate(node)
+        
+        self.wait(0.2)
+        self.play(self.nodeGroup.animate.center().shift(UP))
+        self.wait(0.5)
+        return node
+
+    def construct(self):
+        self.nodeGroup = VGroup()
+        root = None
+        root = self.insert(root, 3)
+        root = self.insert(root, 4)
+        root = self.insert(root, 5)
+        root = self.insert(root, 6)
+        root = self.insert(root, 7)
+        root = self.insert(root, 2)
+        root = self.insert(root, 1)
+        root = self.insert(root, 9)
+        root = self.insert(root, 8)
+        root = self.insert(root, 10)
+        root = self.insert(root, 11)
+
+        self.wait(2)
