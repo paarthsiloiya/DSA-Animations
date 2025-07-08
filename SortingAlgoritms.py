@@ -538,3 +538,229 @@ class QuickSort(Scene):
         arr[i], arr[j] = arr[j], arr[i]
 
 
+import networkx as nx
+
+EDGE_COL = SELCOL
+NODE_COL = BASECOL
+
+class Node(VGroup):
+    def __init__(self, value):
+        super().__init__()
+        self.text = Text(str(value), font=FONT, color=TEXTCOL, font_size=FSIZE)
+        self.circle = Circle(radius=0.5, color=NODE_COL, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
+        self.text.move_to(self.circle.get_center())
+        self.add(self.circle, self.text)
+
+    def Select(self):
+        return self.circle.animate.set_stroke(color=SORTCOL, width=10)
+    
+    def Clear(self):
+            return self.circle.animate.set_stroke(color=NODE_COL, width=0)
+        
+    def Highlight(self):
+        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
+    
+    def SelectHighlight(self):
+        return self.circle.animate.set_stroke(color=SELCOL, width=10)
+    
+    def Reset(self):
+        return self.circle.animate.set_stroke(color=NODE_COL, width=0).set_fill(color=NODE_COL), self.text.animate.set_color(color=TEXTCOL)
+
+
+class HeapSort(Scene):
+    def construct(self):
+        def max_heapify(A : list[int], size : int, k : int, buff=1.4):
+            l = 2 * k + 1
+            r = 2 * k + 2
+            largest = k
+
+            if l < size and A[l] > A[largest]:
+                largest = l
+            
+            if r < size and A[r] > A[largest]:
+                largest = r
+
+            largestSurrL = DashedVMobject(SurroundingRectangle(list_elements[largest], color=TEXTCOL, buff=0, corner_radius=0.52))
+            largestSurrT = DashedVMobject(SurroundingRectangle(tree.vertices[A[largest]], color=TEXTCOL, buff=0, corner_radius=0.52))    
+
+            explanatory_text = Text(f"Largest Child of Node {A[k]} : {A[largest]}", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=buff)
+            self.play(Write(explanatory_text), Create(largestSurrL), Create(largestSurrT), run_time=0.3)
+            self.wait(1.5)
+            self.play(FadeOut(explanatory_text), Uncreate(largestSurrL), Uncreate(largestSurrT), run_time=0.2)
+            self.wait(0.2)
+            
+            if largest != k:
+                (A[k], A[largest]) = (A[largest], A[k])
+
+                explanatory_text = Text(f"Swapping {A[k]} and {A[largest]}", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=buff)
+                self.play(Write(explanatory_text), run_time=0.3)
+                self.wait(0.3)
+
+                self.play(
+                    list_elements[k].animate.move_to(list_elements[largest].get_center()),
+                    list_elements[largest].animate.move_to(list_elements[k].get_center()),
+                    tree.vertices[A[k]].animate.move_to(tree.vertices[A[largest]].get_center()),
+                    tree.vertices[A[largest]].animate.move_to(tree.vertices[A[k]].get_center()),
+                    run_time=0.6
+                )
+                list_elements[k], list_elements[largest] = list_elements[largest], list_elements[k]
+
+                self.play(FadeOut(explanatory_text), run_time=0.2)
+                self.wait(0.2)
+
+                max_heapify(A,size,largest, buff)
+
+            self.wait(0.2)
+
+        def build_max_heap(A):
+            operationText = Text("Building Max Heap", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
+            self.play(Write(operationText), run_time=0.5)
+            self.wait(0.5)
+
+            n = (len(A)//2)-1
+            for i in range(n, -1, -1):
+                lnode = list_elements[i]
+                tnode = tree.vertices[A[i]]
+                self.play(
+                    lnode.Select(),
+                    tnode.Select(),
+                    run_time=0.3
+                )
+
+                self.wait(0.3)
+
+                max_heapify(A,len(A),i)
+                
+                self.wait(0.1)
+                self.play(
+                    lnode.Clear(),
+                    tnode.Clear(),
+                    run_time=0.3
+                )
+                self.wait(0.3)
+
+            self.wait(0.2)
+            self.play(FadeOut(operationText), run_time=0.5)
+
+
+        def heap_sort(A):
+            build_max_heap(A)
+            
+            self.wait(0.5)
+
+            operationText = Text("Performing Heap Sort", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
+            self.play(Write(operationText), run_time=0.5)
+            self.wait(0.5)
+
+            n = len(A)
+            for i in range(n - 1, 0, -1):
+                explanatory_text = Text(f"Swapping First and Largest Element\n              {A[0]} and {A[i]}", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=1.4)
+                self.play(Write(explanatory_text), run_time=0.3)
+                self.wait(0.3)
+
+                A[0], A[i] = A[i], A[0]
+
+                self.play(
+                    list_elements[0].animate.move_to(list_elements[i].get_center()),
+                    list_elements[i].animate.move_to(list_elements[0].get_center()),
+                    tree.vertices[A[0]].animate.move_to(tree.vertices[A[i]].get_center()),
+                    tree.vertices[A[i]].animate.move_to(tree.vertices[A[0]].get_center()),
+                    run_time=0.6
+                )
+                list_elements[0], list_elements[i] = list_elements[i], list_elements[0]
+
+                self.wait(0.2)
+                self.play(FadeOut(explanatory_text), run_time=0.2)
+                self.play(
+                    list_elements[i].Highlight(),
+                    tree.vertices[A[i]].Highlight(),
+                    run_time=0.3
+                )
+                self.wait(0.3)
+
+                explanatory_text = Text(f"Building Max Heap on the Remaining Elements", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=1.4)
+                self.play(Write(explanatory_text), run_time=0.3)
+                self.wait(0.2)
+
+                max_heapify(A, i, 0, 2.2)
+
+                self.wait(0.1)
+                self.play(Unwrite(explanatory_text), run_time=0.2)
+
+                self.wait(0.2)
+
+            self.wait(0.2)
+
+            self.play(
+                list_elements[0].Highlight(),
+                tree.vertices[A[0]].Highlight(),
+                run_time=0.3
+            )
+
+            self.wait(0.2)
+            self.play(FadeOut(operationText), run_time=0.5)
+
+        values = [5, 2, 4, 6, 3, 1]
+        list_elements = [Node(str(i)) for i in values]
+        visuals = VGroup(*list_elements)
+
+        edges = []
+
+        for i in range(len(values)):
+            left = 2 * i + 1
+            right = 2 * i + 2
+            if left < len(values):
+                edges.append((values[i], values[left]))
+            if right < len(values):
+                edges.append((values[i], values[right]))
+
+        G = nx.Graph()
+        G.add_nodes_from(values)
+        G.add_edges_from(edges)
+
+        tree = Graph(
+            vertices=list(G.nodes), 
+            edges=list(G.edges)[::-1], 
+            vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+            edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+            layout="tree", 
+            layout_scale=2,
+            root_vertex=5    
+        )
+
+        tree.clear_updaters()
+
+
+        visuals.arrange(RIGHT, buff=0.4)
+        self.add(VGroup(visuals, tree).arrange(RIGHT, buff=1))
+        self.wait(0.5)
+
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(visuals, color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=40)
+        nodeText = Text("List", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.2)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+        
+        self.wait(1)
+
+        nodeSurr = DashedVMobject(SurroundingRectangle(tree, color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=40)
+        nodeText = Text("Tree Representation\n      of List", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.2)
+        self.play(Create(nodeSurr), run_time=0.5)
+        self.wait(0.2)
+        self.play(Write(nodeText), run_time=0.5)
+        self.wait(1.5)
+        self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
+
+        self.wait(0.5)
+
+        heap_sort(values)
+
+        self.wait(0.5)
+        self.play(FadeOut(tree), run_time=0.5)
+        self.wait(0.3)
+        self.play(visuals.animate.center(), run_time=0.5)
+
+        self.wait(1)

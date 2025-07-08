@@ -451,7 +451,7 @@ class TreeListCorrelation(Scene):
         
         tree = Graph(
                     vertices=list(G.nodes), 
-                    edges=list(G.edges), 
+                    edges=list(G.edges)[::-1], 
                     vertex_mobjects={v : Node((v)) for v in list(G.nodes)},
                     edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
                     layout="tree", 
