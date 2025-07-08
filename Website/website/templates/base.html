@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+        <title>{% block title %}DSA Animation{% endblock %}</title>
+    </head>
+    <body>
+        <header>
+            <h1>Data Structures and Algorithms Animations</h1>
+        </header>
+        <main>
+            {% block content %}
+            <!-- Content will be injected here -->
+            {% endblock %}
+        </main>
+        <footer>
+            <p>&copy; 2023 DSA Animations</p>
+        </footer>
+    </body>
+</html>
