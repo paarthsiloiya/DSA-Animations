@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}
+Content Page
+{% endblock %}
+
+{% block content %}
+
+<div class="sidebar">
+    <a href="{{ url_for('views.home') }}">Home</a>
+</div>
+<div class="content">
+{% block main_content %}
+
+{% endblock %}
+</div>
+
+
+<script>
+
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('footer').style.marginLeft = '200px';
+});
+
+// function adjustSidebarHeight() {
+//     var sidebar = document.querySelector('.sidebar');
+//     var rect = sidebar.getBoundingClientRect();
+//     if (rect.top === 0) {
+//         sidebar.style.height = '100vh';
+//     } else {
+//         sidebar.style.height = '90vh';
+//     }
+// }
+
+// window.addEventListener('DOMContentLoaded', adjustSidebarHeight);
+// window.addEventListener('scroll', adjustSidebarHeight);
+// window.addEventListener('resize', adjustSidebarHeight);
+</script>
+{% endblock %}
