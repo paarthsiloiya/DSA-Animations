@@ -1,152 +1,275 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='styles/styles.css') }}"
+        />
+        <script>
+            MathJax = {
+                tex: {
+                    inlineMath: [
+                        ["$", "$"],
+                        ["\\(", "\\)"],
+                    ],
+                },
+                svg: {
+                    fontCache: "global",
+                },
+            };
+        </script>
+        <script
+            type="text/javascript"
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+        ></script>
+        <!-- Prism Core -->
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+        <!-- Language support (example: Python, JavaScript, etc.) -->
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+        <!-- Prism Line Numbers Plugin -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css"
+            rel="stylesheet"
+        />
+        <!-- Prism CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-dracula.min.css"
+            rel="stylesheet"
+        />
+        <!-- Prism Line Highlight Plugin -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-highlight/prism-line-highlight.css"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+
         <title>{% block title %}DSA Animation{% endblock %}</title>
     </head>
     <body>
         <div class="navbar">
             <button class="home-button" onclick="location.href='/'">
-                <img src="{{ url_for('static', filename='images/AlgoVizLogo.png') }}" alt="Home" style="width: 73.15px; height: 50px; aspect-ratio: 73.15/50.00;">
-                <img src="{{ url_for('static', filename='images/logo-name.png') }}" alt="Home" style="width: 136.97px; height: 40px; aspect-ratio: 136.97/40.00;">
+                <img
+                    src="{{ url_for('static', filename='images/AlgoVizLogo.png') }}"
+                    alt="Home"
+                    style="width: 73.15px; height: 50px; aspect-ratio: 73.15/50"
+                />
+                <img
+                    src="{{ url_for('static', filename='images/logo-name.png') }}"
+                    alt="Home"
+                    style="
+                        width: 136.97px;
+                        height: 40px;
+                        aspect-ratio: 136.97/40;
+                    "
+                />
             </button>
             <div class="navbar-user-container">
                 {% if user.is_authenticated %}
-                    <button class="sign-in-button" onclick="location.href='/logout'">
-                        Log Out
-                    </button>
+                <button
+                    class="sign-in-button"
+                    onclick="location.href='/logout'"
+                >
+                    Log Out
+                </button>
                 {% else %}
-                    <button class="log-in-button" onclick="location.href='/login'">
-                        Log In
-                    </button>
-                    <button class="sign-in-button" onclick="location.href='/signup'">
-                        Sign In
-                    </button>
+                <button class="log-in-button" onclick="location.href='/login'">
+                    Log In
+                </button>
+                <button
+                    class="sign-in-button"
+                    onclick="location.href='/signup'"
+                >
+                    Sign In
+                </button>
                 {% endif %}
             </div>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="flashes {{ category }}">
-                    <p>{{ message }}</p>
-                    <button class="close-button" type="button" aria-label="Close" onclick="this.parentElement.style.display='none';">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% block content %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="flashes {{ category }}">
+            <p>{{ message }}</p>
+            <button
+                class="close-button"
+                type="button"
+                aria-label="Close"
+                onclick="this.parentElement.style.display='none';"
+            >
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %} {% block content %}
         <!-- Content will be injected here -->
         {% endblock %}
     </body>
 
-        <footer class="footer">
-            <div class="footer-section-container">
-                <div class="footer-section">
-                    <h3>AlgoViz</h3>
-                    <a>Our Team</a>
-                    <a>Contact Us</a>
-                    <a>Privacy Policy</a>
-                    <a>Terms of Service</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Searching Algorithms</h3>
-                    <a>Linear Search</a>
-                    <a>Binary Search</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Sorting Algorithms</h3>
-                    <a>Bubble Sort</a>
-                    <a>Insertion Sort</a>
-                    <a>Selection Sort</a>
-                    <a>Quick Sort</a>
-                    <a>Merge Sort</a>
-                    <a>Heap Sort</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Linked List Algorithms</h3>
-                    <a>Node Explanation</a>
-                    <a>Linked List Creation</a>
-                    <a>Traversal</a>
-                    <a>Insertion</a>
-                    <a>Deletion</a>
-                    <a>Rotation</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Trees Algorithms</h3>
-                    <a>Types of Trees</a>
-                    <a>Properties of Trees</a>
-                    <a>Traversal</a>
-                    <a>Breadth First Search</a>
-                    <a>Depth First Search</a>
-                    <a>List-Tree Correlation</a>
-                    <a>Binary Search Tree</a>
-                    <a>Ternary Tree</a>
-                    <a>AVL Tree</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Heap Algorithms</h3>
-                    <a>Types of Heaps</a>
-                    <a>Properties of Heap</a>
-                    <a>Min Heap</a>
-                    <a>Max Heap</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Graph Algorithms</h3>
-                    <a>Types of Graphs</a>
-                    <a>Graph Representation</a>
-                    <a>Traversal</a>
-                    <a>Breadth First Search</a>
-                    <a>Depth First Search</a>
-                    <a>Dijkstra's Algorithm</a>
-                    <a>Floyd Warshall Algorithm</a>
-                    <a>Bellman Ford Algorithm</a>
-                    <a>Kruskal's Algorithm</a>
-                    <a>Prims's Algorithm</a>
-                    <a>DAG</a>
-                    <a>Topological Sort</a>
-                </div>
+    <footer class="footer">
+        <div class="footer-section-container">
+            <div class="footer-section">
+                <h3>AlgoViz</h3>
+                <a>Our Team</a>
+                <a>Contact Us</a>
+                <a>Privacy Policy</a>
+                <a>Terms of Service</a>
             </div>
-            <div class="footer-socials">
-                <p style="margin-left: 50px; color: gray;">&copy; 2025 AlgoViz. All rights reserved.</p>
-                <div class="social-icons">
-                    <a class="social-buttton">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="26" viewBox="0 0 35 26" fill="none">
-                        <path d="M32.8709 5.36242C32.6976 4.67031 32.3448 4.03617 31.8481 3.52405C31.3513 3.01194 30.7282 2.63998 30.0417 2.44575C27.5334 1.83325 17.5 1.83325 17.5 1.83325C17.5 1.83325 7.46669 1.83325 4.95835 2.50409C4.27184 2.69831 3.64874 3.07027 3.15198 3.58239C2.65523 4.0945 2.30242 4.72864 2.12919 5.42075C1.67012 7.96635 1.44557 10.5487 1.45835 13.1353C1.44199 15.7414 1.66656 18.3435 2.12919 20.9083C2.32017 21.5789 2.68088 22.1889 3.17648 22.6794C3.67208 23.1699 4.2858 23.5242 4.95835 23.7083C7.46669 24.3791 17.5 24.3791 17.5 24.3791C17.5 24.3791 27.5334 24.3791 30.0417 23.7083C30.7282 23.514 31.3513 23.1421 31.8481 22.6299C32.3448 22.1178 32.6976 21.4837 32.8709 20.7916C33.3264 18.2652 33.5509 15.7025 33.5417 13.1353C33.5581 10.5292 33.3335 7.92719 32.8709 5.36242Z" stroke="#7A5BAF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14.2188 17.9041L22.6042 13.1353L14.2188 8.36658V17.9041Z" stroke="#7A5BAF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
 
-                    <a class="social-buttton">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-                        <path d="M26.25 2.91675H21.875C19.9412 2.91675 18.0865 3.68497 16.7191 5.05243C15.3516 6.41988 14.5834 8.27454 14.5834 10.2084V14.5834H10.2084V20.4167H14.5834V32.0834H20.4167V20.4167H24.7917L26.25 14.5834H20.4167V10.2084C20.4167 9.82164 20.5704 9.45071 20.8438 9.17722C21.1173 8.90373 21.4883 8.75008 21.875 8.75008H26.25V2.91675Z" stroke="#7A5BAF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-
-                    <a>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-                        <path d="M33.5417 4.37502C32.1452 5.36009 30.599 6.11351 28.9625 6.60627C28.0842 5.59639 26.917 4.88061 25.6186 4.55574C24.3203 4.23087 22.9535 4.31259 21.7031 4.78984C20.4527 5.26709 19.379 6.11685 18.6273 7.22419C17.8756 8.33152 17.4821 9.64301 17.5 10.9813V12.4396C14.9372 12.5061 12.3977 11.9377 10.1078 10.785C7.81779 9.63242 5.84842 7.93136 4.37504 5.83335C4.37504 5.83335 -1.45829 18.9583 11.6667 24.7917C8.66331 26.8304 5.08548 27.8526 1.45837 27.7083C14.5834 35 30.625 27.7083 30.625 10.9375C30.6237 10.5313 30.5846 10.1261 30.5084 9.7271C31.9968 8.25928 33.0471 6.40606 33.5417 4.37502Z" stroke="#7A5BAF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-
-                    <a>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-                        <path d="M25.5208 9.47925H25.5354M10.2083 2.91675H24.7916C28.8187 2.91675 32.0833 6.18134 32.0833 10.2084V24.7917C32.0833 28.8188 28.8187 32.0834 24.7916 32.0834H10.2083C6.18122 32.0834 2.91663 28.8188 2.91663 24.7917V10.2084C2.91663 6.18134 6.18122 2.91675 10.2083 2.91675ZM23.3333 16.5813C23.5133 17.795 23.306 19.0346 22.7409 20.1236C22.1758 21.2127 21.2816 22.0959 20.1857 22.6475C19.0897 23.1992 17.8477 23.3912 16.6363 23.1962C15.4249 23.0013 14.3059 22.4294 13.4383 21.5618C12.5707 20.6942 11.9987 19.5751 11.8038 18.3637C11.6089 17.1523 11.8009 15.9103 12.3525 14.8144C12.9041 13.7184 13.7873 12.8243 14.8764 12.2592C15.9655 11.6941 17.205 11.4868 18.4187 11.6667C19.6567 11.8503 20.8029 12.4272 21.6878 13.3122C22.5728 14.1972 23.1497 15.3433 23.3333 16.5813Z" stroke="#7A5BAF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-                </div>
+            <div class="footer-section">
+                <h3>Searching Algorithms</h3>
+                <a>Linear Search</a>
+                <a>Binary Search</a>
             </div>
-        </footer>
+
+            <div class="footer-section">
+                <h3>Sorting Algorithms</h3>
+                <a>Bubble Sort</a>
+                <a>Insertion Sort</a>
+                <a>Selection Sort</a>
+                <a>Quick Sort</a>
+                <a>Merge Sort</a>
+                <a>Heap Sort</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Linked List Algorithms</h3>
+                <a>Node Explanation</a>
+                <a>Linked List Creation</a>
+                <a>Traversal</a>
+                <a>Insertion</a>
+                <a>Deletion</a>
+                <a>Rotation</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Trees Algorithms</h3>
+                <a>Types of Trees</a>
+                <a>Properties of Trees</a>
+                <a>Traversal</a>
+                <a>Breadth First Search</a>
+                <a>Depth First Search</a>
+                <a>List-Tree Correlation</a>
+                <a>Binary Search Tree</a>
+                <a>Ternary Tree</a>
+                <a>AVL Tree</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Heap Algorithms</h3>
+                <a>Types of Heaps</a>
+                <a>Properties of Heap</a>
+                <a>Min Heap</a>
+                <a>Max Heap</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Graph Algorithms</h3>
+                <a>Types of Graphs</a>
+                <a>Graph Representation</a>
+                <a>Traversal</a>
+                <a>Breadth First Search</a>
+                <a>Depth First Search</a>
+                <a>Dijkstra's Algorithm</a>
+                <a>Floyd Warshall Algorithm</a>
+                <a>Bellman Ford Algorithm</a>
+                <a>Kruskal's Algorithm</a>
+                <a>Prims's Algorithm</a>
+                <a>DAG</a>
+                <a>Topological Sort</a>
+            </div>
+        </div>
+        <div class="footer-socials">
+            <p style="margin-left: 50px; color: gray">
+                &copy; 2025 AlgoViz. All rights reserved.
+            </p>
+            <div class="social-icons">
+                <a class="social-buttton">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="35"
+                        height="26"
+                        viewBox="0 0 35 26"
+                        fill="none"
+                    >
+                        <path
+                            d="M32.8709 5.36242C32.6976 4.67031 32.3448 4.03617 31.8481 3.52405C31.3513 3.01194 30.7282 2.63998 30.0417 2.44575C27.5334 1.83325 17.5 1.83325 17.5 1.83325C17.5 1.83325 7.46669 1.83325 4.95835 2.50409C4.27184 2.69831 3.64874 3.07027 3.15198 3.58239C2.65523 4.0945 2.30242 4.72864 2.12919 5.42075C1.67012 7.96635 1.44557 10.5487 1.45835 13.1353C1.44199 15.7414 1.66656 18.3435 2.12919 20.9083C2.32017 21.5789 2.68088 22.1889 3.17648 22.6794C3.67208 23.1699 4.2858 23.5242 4.95835 23.7083C7.46669 24.3791 17.5 24.3791 17.5 24.3791C17.5 24.3791 27.5334 24.3791 30.0417 23.7083C30.7282 23.514 31.3513 23.1421 31.8481 22.6299C32.3448 22.1178 32.6976 21.4837 32.8709 20.7916C33.3264 18.2652 33.5509 15.7025 33.5417 13.1353C33.5581 10.5292 33.3335 7.92719 32.8709 5.36242Z"
+                            stroke="#7A5BAF"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                        <path
+                            d="M14.2188 17.9041L22.6042 13.1353L14.2188 8.36658V17.9041Z"
+                            stroke="#7A5BAF"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+
+                <a class="social-buttton">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="35"
+                        height="35"
+                        viewBox="0 0 35 35"
+                        fill="none"
+                    >
+                        <path
+                            d="M26.25 2.91675H21.875C19.9412 2.91675 18.0865 3.68497 16.7191 5.05243C15.3516 6.41988 14.5834 8.27454 14.5834 10.2084V14.5834H10.2084V20.4167H14.5834V32.0834H20.4167V20.4167H24.7917L26.25 14.5834H20.4167V10.2084C20.4167 9.82164 20.5704 9.45071 20.8438 9.17722C21.1173 8.90373 21.4883 8.75008 21.875 8.75008H26.25V2.91675Z"
+                            stroke="#7A5BAF"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+
+                <a>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="35"
+                        height="35"
+                        viewBox="0 0 35 35"
+                        fill="none"
+                    >
+                        <path
+                            d="M33.5417 4.37502C32.1452 5.36009 30.599 6.11351 28.9625 6.60627C28.0842 5.59639 26.917 4.88061 25.6186 4.55574C24.3203 4.23087 22.9535 4.31259 21.7031 4.78984C20.4527 5.26709 19.379 6.11685 18.6273 7.22419C17.8756 8.33152 17.4821 9.64301 17.5 10.9813V12.4396C14.9372 12.5061 12.3977 11.9377 10.1078 10.785C7.81779 9.63242 5.84842 7.93136 4.37504 5.83335C4.37504 5.83335 -1.45829 18.9583 11.6667 24.7917C8.66331 26.8304 5.08548 27.8526 1.45837 27.7083C14.5834 35 30.625 27.7083 30.625 10.9375C30.6237 10.5313 30.5846 10.1261 30.5084 9.7271C31.9968 8.25928 33.0471 6.40606 33.5417 4.37502Z"
+                            stroke="#7A5BAF"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+
+                <a>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="35"
+                        height="35"
+                        viewBox="0 0 35 35"
+                        fill="none"
+                    >
+                        <path
+                            d="M25.5208 9.47925H25.5354M10.2083 2.91675H24.7916C28.8187 2.91675 32.0833 6.18134 32.0833 10.2084V24.7917C32.0833 28.8188 28.8187 32.0834 24.7916 32.0834H10.2083C6.18122 32.0834 2.91663 28.8188 2.91663 24.7917V10.2084C2.91663 6.18134 6.18122 2.91675 10.2083 2.91675ZM23.3333 16.5813C23.5133 17.795 23.306 19.0346 22.7409 20.1236C22.1758 21.2127 21.2816 22.0959 20.1857 22.6475C19.0897 23.1992 17.8477 23.3912 16.6363 23.1962C15.4249 23.0013 14.3059 22.4294 13.4383 21.5618C12.5707 20.6942 11.9987 19.5751 11.8038 18.3637C11.6089 17.1523 11.8009 15.9103 12.3525 14.8144C12.9041 13.7184 13.7873 12.8243 14.8764 12.2592C15.9655 11.6941 17.205 11.4868 18.4187 11.6667C19.6567 11.8503 20.8029 12.4272 21.6878 13.3122C22.5728 14.1972 23.1497 15.3433 23.3333 16.5813Z"
+                            stroke="#7A5BAF"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
 </html>

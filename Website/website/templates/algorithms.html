@@ -1,0 +1,414 @@
+{% extends "content.html" %} {% block title %} DSA {% endblock %} {% block
+main_content %}
+<h1>Algorithms</h1>
+
+<p>
+  Algorithms are a set of well-defined computational steps or instructions
+  designed to transform input values into output values. Every piece of code can
+  be considered an algorithm, but the field of algorithms focuses on those that
+  are particularly fast or solve interesting problems.
+</p>
+
+<div class="subcontent">
+  <h3>Why Algorithm Efficiency Matters</h3>
+  <p>
+    The study of algorithms is crucial because computers are not infinitely
+    fast, and memory is not free.
+    <strong
+      >Efficient algorithms help in wisely using computational time and memory
+      space, which are bounded resources</strong
+    >. Different algorithms for the same problem can vary dramatically in their
+    efficiency, often more significantly than differences in hardware and
+    software.
+    <strong
+      >Total system performance depends as much on choosing efficient algorithms
+      as it does on choosing fast hardware</strong
+    >. Algorithms are at the core of most modern computer technologies.
+  </p>
+  <p>
+    For large problem sizes, the differences in efficiency between algorithms
+    become particularly prominent. For instance, a small improvement in
+    efficiency can mean the difference between an operation taking 4 billion
+    steps and just 32 steps. Understanding trade-offs between different
+    algorithms (e.g., Merge Sort vs. Quicksort) and data structures (e.g.,
+    arrays vs. linked lists) is essential, as choosing the right one can make a
+    significant difference in performance.
+  </p>
+</div>
+
+<div class="subcontent">
+  <h3>Measuring Algorithm Efficiency: Time and Space Complexity</h3>
+  <p>
+    Algorithm efficiency is typically measured by its
+    <strong>time complexity</strong> (the number of operations an algorithm
+    performs) and <strong>space complexity</strong> (the number of bytes in
+    memory it occupies), both expressed as a function of the input size.
+    <strong>Algorithm speed isn't measured in seconds</strong>, but rather in
+    the <strong>growth rate of the number of operations</strong> as the input
+    size increases.
+  </p>
+  <p>
+    The input size itself depends on the problem: for sorting, it might be the
+    array size <em>n</em>; for graph algorithms, it could be the number of
+    vertices <em>V</em> and edges <em>E</em>.
+  </p>
+</div>
+<div class="subcontent">
+  <h3>Asymptotic Notations: Big O, Big Omega, and Big Theta</h3>
+  <p>
+    Asymptotic notations are mathematical notations used to
+    <strong>compare the rate of convergence of functions</strong>. They describe
+    the <strong>order of growth</strong> of an algorithm's running time,
+    abstracting away constant factors and lower-order terms to focus on how the
+    time increases for large inputs. They apply to functions defined over
+    natural numbers.
+  </p>
+  <ol>
+    <li>
+      <p><strong>Big O Notation (O)</strong>:</p>
+      <ul>
+        <li>
+          <strong>Definition</strong>: Big O notation represents an
+          <strong>asymptotic upper bound</strong> on the running time of an
+          algorithm. When we say <code>f(n) = O(g(n))</code>, it means that for
+          sufficiently large <em>n</em>, the function <code>f(n)</code> is
+          bounded above by some constant multiple of <code>g(n)</code>.
+          Formally, <code>f(n) = O(g(n))</code> if there exist positive
+          constants <code>c</code> and <code>n₀</code> such that
+          <code>0 ≤ f(n) ≤ c * g(n)</code> for all <code>n ≥ n₀</code>.
+        </li>
+        <li>
+          <strong>Purpose</strong>: It provides a
+          <strong>reassurance</strong> that an algorithm's running time will
+          never be slower than a certain rate. It captures the
+          <strong>worst-case scenario</strong> for an algorithm.
+        </li>
+        <li>
+          <strong>Common Use</strong>: Often used to describe the
+          <strong>worst-case running time</strong>. For example, Insertion Sort
+          has a worst-case running time of O(n²). While
+          <code>f(n) = O(g(n))</code> means an upper bound, in algorithm
+          analysis, people sometimes use "Big O" informally to imply a tight
+          bound (which is more accurately Big Theta).
+        </li>
+        <li>
+          <strong>Examples of Common Big O Runtimes (Fastest to Slowest)</strong
+          >:
+          <ul>
+            <li>
+              <strong>O(log n)</strong> (Logarithmic time): e.g., Binary Search.
+            </li>
+            <li><strong>O(n)</strong> (Linear time): e.g., Simple Search.</li>
+            <li>
+              <strong>O(n log n)</strong>: e.g., fast sorting algorithms like
+              Quicksort (average case) or Merge Sort.
+            </li>
+            <li>
+              <strong>O(n²)</strong> (Quadratic time): e.g., slow sorting
+              algorithms like Selection Sort.
+            </li>
+            <li>
+              <strong>O(n!)</strong> (Factorial time): e.g., the Traveling
+              Salesperson Problem.
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>Big Omega Notation (Ω)</strong>:</p>
+      <ul>
+        <li>
+          <strong>Definition</strong>: Big Omega notation is used for the
+          <strong>asymptotic lower bound</strong>. When we write
+          <code>f(n) = Ω(g(n))</code>, it means that for sufficiently large
+          <em>n</em>, <code>f(n)</code> grows asymptotically no slower than
+          <code>g(n)</code>. Formally, <code>f(n) = Ω(g(n))</code> if there
+          exist positive constants <code>c</code> and <code>n₀</code> such that
+          <code>0 ≤ c * g(n) ≤ f(n)</code> for all <code>n ≥ n₀</code>.
+        </li>
+        <li>
+          <strong>Purpose</strong>: It states that an algorithm's running time
+          will be <em>at least</em> a certain rate. It can be used when a tight
+          bound cannot be proven.
+        </li>
+        <li>
+          <strong>Example</strong>: <code>f(n) = 3n² + 5n - 4</code> is
+          <code>Ω(n²)</code>, and also <code>Ω(n)</code> or <code>Ω(1)</code>.
+          The best-case running time of Insertion Sort is <code>Ω(n)</code>.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>Big Theta Notation (Θ)</strong>:</p>
+      <ul>
+        <li>
+          <strong>Definition</strong>: Big Theta notation represents a
+          <strong>tight bound</strong>, encompassing both an asymptotic upper
+          and lower bound. When <code>f(n) = Θ(g(n))</code>, it means that
+          <code>f(n)</code> and <code>g(n)</code> grow at the same rate, or
+          "behave similarly" for large enough values of <em>n</em>. Formally,
+          <code>f(n) = Θ(g(n))</code> if there exist positive constants
+          <code>c₁</code>, <code>c₂</code>, and <code>n₀</code> such that
+          <code>0 ≤ c₁ * g(n) ≤ f(n) ≤ c₂ * g(n)</code> for all
+          <code>n ≥ n₀</code>.
+        </li>
+        <li>
+          <strong>Relationship</strong>:
+          <strong
+            >An algorithm <code>f(n)</code> is <code>Θ(g(n))</code> if and only
+            if it is both <code>O(g(n))</code> and <code>Ω(g(n))</code></strong
+          >. This makes it more precise than just Big O, but also more difficult
+          to compute.
+        </li>
+        <li>
+          <strong>Example</strong>: An algorithm taking
+          <code>42n² + 25n + 4</code> operations is <code>Θ(n²)</code>, but not
+          <code>Θ(n³)</code>. Merge Sort's worst-case running time is
+          <code>Θ(n lg n)</code>.
+        </li>
+      </ul>
+    </li>
+  </ol>
+</div>
+<div class="subcontent">
+  <h3>T Notation</h3>
+  <p>
+    The notation <strong>T(n)</strong> is commonly used in algorithm analysis to
+    denote the <strong>running time</strong> of an algorithm as a function of
+    the input size <em>n</em>. It is not a separate asymptotic notation like Big
+    O, Big Omega, or Big Theta, but rather the function whose asymptotic growth
+    is described by these notations. For example,
+    <code>T(n) = 2T(n/2) + O(n)</code> is a recurrence relation where
+    <code>T(n)</code> represents the running time, and its solution is
+    <code>T(n) = Θ(n log n)</code>.
+  </p>
+</div>
+<div class="subcontent">
+  <h3>Calculating Efficiency: Loops and Recursion</h3>
+  <h4>Efficiency in Loops</h4>
+  <ol>
+    <li>
+      <strong>Simple Loop</strong>: To find the maximal element in an array of
+      <code>len</code> (or <em>n</em>) elements, a simple loop iterates
+      <code>n</code> times. If the operations inside the loop take a constant
+      amount of time (e.g., 3 operations per loop), the total operations can be
+      expressed as <code>3n + 2</code> (including initial assignments). As
+      <em>n</em> grows, this is considered <strong>O(n)</strong>, or linear
+      time, because the operations grow proportionally to the input size.
+    </li>
+    <li>
+      <strong>Nested Loop</strong>: When a loop is nested inside another loop,
+      the number of operations increases significantly. For example, a function
+      checking for duplicates in an array might use two nested loops, each
+      running <em>n</em> times. Operations inside the inner loop run
+      <em>n²</em> times, leading to a complexity like <code>an² + bn + c</code>,
+      which is <strong>O(n²)</strong>, or quadratic time. Even if optimizations
+      reduce the total operations (e.g., <code>n(n-1)/2</code> for the inner
+      loop), if the highest term remains <em>n²</em>, it stays in the same
+      <strong>O(n²)</strong> complexity class.
+    </li>
+    <li>
+      <strong>Logarithmic Loop (O(log n))</strong>: Some algorithms reduce the
+      problem size by a constant factor (e.g., halving it) in each step. If a
+      problem of size <em>n</em> becomes <em>n/2</em>, then <em>n/4</em>, and so
+      on, until it reaches a size of 1, the number of steps <em>k</em> required
+      is such that <em>n/2 = 1</em>, meaning
+      <em
+        >n = 2. Taking the logarithm (base 2) of both sides gives _k = log₂
+        n</em
+      >. Therefore, the time complexity is <strong>O(log n)</strong>, or
+      logarithmic time. This is considerably faster than linear time, especially
+      for large <em>n</em>. An example is a loop where the control variable
+      <code>i</code> is repeatedly multiplied by 2 (e.g.,
+      <code>i = i * 2</code>).
+    </li>
+  </ol>
+  <h4>Efficiency in Recursion</h4>
+  <p>
+    Recursive algorithms often divide a problem into smaller instances of the
+    same problem, leading to their running times being described by
+    <strong>recurrence equations (or recurrences)</strong>.
+  </p>
+  <ol>
+    <li>
+      <strong>Divide-and-Conquer (D&C)</strong>: This is a common algorithmic
+      design paradigm where a problem is broken down into smaller, similar
+      subproblems, solved recursively, and then their solutions are combined.
+      <ul>
+        <li>
+          <strong>Base Case</strong>: A recursive function must have a base
+          case, which is the simplest input that can be solved directly,
+          preventing infinite loops. For list-based D&amp;C, this is often an
+          empty array or an array with one element.
+        </li>
+        <li>
+          <strong>Recursive Case</strong>: The function calls itself with a
+          smaller version of the problem.
+        </li>
+        <li>
+          <strong>Example: Merge Sort</strong>: This algorithm sorts
+          <em>n</em> numbers by recursively sorting two subarrays of
+          <em>n/2</em> elements each and then merging the sorted subarrays. The
+          running time is described by the recurrence
+          <code>T(n) = 2T(n/2) + O(n)</code>. The <code>O(n)</code> term
+          represents the time taken for the "divide" (constant time) and
+          "combine" (linear time for merging) steps. This recurrence has a
+          solution of <strong>O(n log n)</strong>.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <strong>Recursion-Tree Method</strong>: This method provides a
+      straightforward way to devise a good guess for a recurrence solution. Each
+      node in the tree represents the cost of a single subproblem, and summing
+      costs at each level gives per-level costs, which are then summed to find
+      the total cost.
+    </li>
+    <li>
+      <strong>Master Theorem</strong>: This theorem offers a "cookbook" method
+      for solving recurrences of the form <code>T(n) = aT(n/b) + f(n)</code>,
+      where <code>a ≥ 1</code> and <code>b &gt; 1</code> are constants, and
+      <code>f(n)</code> is an asymptotically positive function. The theorem has
+      three cases, comparing <code>f(n)</code> with <code>n^(log_b a)</code>:
+      <ul>
+        <li>
+          <strong>Case 1</strong>: If <code>f(n)</code> is polynomially smaller
+          than <code>n^(log_b a)</code>, then
+          <code>T(n) = Θ(n^(log_b a))</code>.
+          <ul>
+            <li>
+              <em>Example</em>: For <code>T(n) = 8T(n/2) + O(n)</code> (matrix
+              multiplication), <code>log_2 8 = 3</code>, so
+              <code>n</code> dominates <code>n</code>. Thus
+              <code>T(n) = Θ(n)</code>.
+            </li>
+            <li>
+              <em>Example</em>: For
+              <code>T(n) = 7T(n/2) + O(n)</code> (Strassen's algorithm),
+              <code>log_2 7 ≈ 2.81</code>. <code>n^(lg 7)</code> dominates
+              <code>n</code>. Thus <code>T(n) = Θ(n^(lg 7))</code>.
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Case 2</strong>: If <code>f(n)</code> is asymptotically the
+          same size as <code>n^(log_b a)</code>, then
+          <code>T(n) = Θ(n^(log_b a) lg n)</code>.
+          <ul>
+            <li>
+              <em>Example</em>: For <code>T(n) = 2T(n/2) + O(n)</code> (Merge
+              Sort or maximum-subarray problem), <code>log_2 2 = 1</code>, so
+              <code>n</code> is comparable to <code>n</code>. Thus
+              <code>T(n) = Θ(n lg n)</code>.
+            </li>
+            <li>
+              <em>Example</em>: For <code>T(n) = T(n/2) + O(1)</code> (Binary
+              Search), <code>log_2 1 = 0</code>, so <code>n = 1</code> is
+              comparable to <code>O(1)</code>. Thus <code>T(n) = Θ(lg n)</code>.
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Case 3</strong>: If <code>f(n)</code> is polynomially larger
+          than <code>n^(log_b a)</code> and satisfies a regularity condition,
+          then <code>T(n) = Θ(f(n))</code>.
+        </li>
+      </ul>
+    </li>
+  </ol>
+</div>
+<div class="subcontent">
+  <h3>Types of Algorithms</h3>
+  <ul>
+    <li>
+      <p>
+        <strong
+          ><a href="Searching%20Algorithms">Searching Algorithms</a> :
+        </strong>
+        These algorithms are used to find a specific item or a set of items with
+        particular properties within a larger collection of data.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong
+          ><a href="Sorting%20Algorithms">Sorting Algorithms</a> :
+        </strong>
+        These algorithms arrange elements of a list or array in a specific order
+        (e.g., numerical, alphabetical).
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Graph Algorithms : </strong>These algorithms are designed to
+        solve problems modelled as a network of interconnected entities
+        (nodes/vertices and edges). They are fundamental for tasks involving
+        relationships, connections, and paths.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Dynamic Programming : </strong>
+        This technique solves
+        <strong>optimization problems</strong> by breaking them into
+        <strong>overlapping subproblems</strong> and solving each subproblem
+        only once, storing its solution to avoid re-computation. It builds an
+        optimal solution to the problem from optimal solutions to subproblems.
+        Every dynamic-programming algorithm typically starts with a
+        <strong>grid</strong>.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Greedy Algorithms : </strong>
+        These algorithms solve optimization problems by making a sequence of
+        <strong>locally optimal choices</strong> at each step, hoping to lead to
+        a globally optimal solution. They don't always yield the global optimum,
+        but for many problems, they do. A key characteristic is that a greedy
+        choice typically leaves only <strong>one subproblem</strong> to solve.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Divide-and-Conquer Algorithms (General Paradigm)</strong> This
+        paradigm solves problems by recursively breaking them into smaller
+        subproblems of the same type, solving these subproblems independently,
+        and then combining their solutions to solve the original problem. This
+        strategy often yields efficient algorithms.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>String Matching Algorithms</strong> These algorithms find
+        occurrences of a smaller string (pattern) within a larger text string.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Linear Programming</strong>
+        These algorithms solve optimization problems where one aims to maximize
+        or minimize a
+        <strong>linear objective function</strong> subject to a set of
+        <strong>linear inequality or equality constraints</strong>. They are
+        used for resource allocation and optimization.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>Hashing</strong> Hash tables store key-value pairs, providing
+        very fast (average O(1) time) lookups, insertions, and deletions. They
+        are useful for modelling relationships, filtering out duplicates, and
+        caching data.
+      </p>
+    </li>
+  </ul>
+  <p>
+    *This comprehensive list highlights the diverse and interconnected nature of
+    algorithms, ranging from foundational concepts like searching and sorting to
+    advanced topics in optimisation, parallel processing, and data structure
+    design.
+  </p>
+</div>
+
+{% endblock %}
