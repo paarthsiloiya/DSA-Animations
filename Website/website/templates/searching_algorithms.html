@@ -1,0 +1,109 @@
+{% extends "content.html" %} {% block title %} Searching Algorithms {% endblock
+%} {% block main_content %}
+<h1>Searching Algorithms</h1>
+<p>
+  <strong>Searching</strong> is a fundamental algorithmic problem which involves
+  locating a specific value or set of values, known as an item or key, within a
+  larger collection of data. An algorithm for searching takes some input and
+  produces an output indicating the position of the item if found, or a special
+  value like NIL or null if it is not present. The efficiency of search
+  algorithms is measured by their <strong>time complexity</strong>, which
+  describes how the number of operations grows with the size of the input.
+</p>
+<div class="subcontent">
+  <h3>When to Use Searching</h3>
+  <p>
+    Searching algorithms are
+    <strong>ubiquitous in practical applications</strong>. Here are some
+    scenarios where they are crucial:
+  </p>
+  <ul>
+    <li>
+      <strong>Data Retrieval</strong> Searching for specific information in
+      databases, such as looking up a username in Facebook's database to verify
+      an account. This also applies to finding product prices in a grocery store
+      inventory.
+    </li>
+    <li>
+      <strong>Navigation and Routing</strong> Finding optimal routes in road
+      networks (like with GPS devices) or determining good routes for data
+      travel on the Internet.
+    </li>
+    <li>
+      <strong>Information Management</strong> Utilised by search engines to
+      quickly find web pages containing particular information.
+    </li>
+    <li>
+      <strong>Security and Cryptography</strong> Core to electronic commerce
+      technologies like public-key cryptography and digital signatures, which
+      rely on numerical algorithms and number theory. Hash functions are also
+      used for checking passwords and comparing files.
+    </li>
+    <li>
+      <strong>Resource Allocation</strong> Helping commercial enterprises
+      determine the most beneficial way to allocate scarce resources, such as
+      optimising oil well placement or airline crew assignments using linear
+      programming.
+    </li>
+    <li>
+      <strong>Pattern Recognition and Matching</strong> Used in substring
+      searching for text editing programs, such as finding occurrences of a
+      pattern string in a text. Also used for detecting plagiarism and finding
+      similar items (e.g., detecting duplicate web pages).
+    </li>
+    <li>
+      <strong>Problem Solving and Optimisation</strong> Employed in solving
+      various puzzles like mazes and finding solutions for complex problems
+      where candidates may not directly exist.
+    </li>
+    <li>
+      <strong>Data Compression</strong> For techniques like Huffman coding,
+      which compresses data by building an optimal representation of characters
+      as binary strings.
+    </li>
+    <li>
+      <strong>Cache Management</strong> In systems using a cache, search is used
+      to determine if an item is already present (cache hit) or needs to be
+      retrieved (cache miss).
+    </li>
+  </ul>
+</div>
+<div class="subcontent">
+  <h3>Types of Searching Algorithms</h3>
+  <p>
+    Numerous search algorithms have been developed, each with its own strengths
+    and limitations. Here are some types of search algorithms:
+  </p>
+  <ul>
+    <li>
+      <strong><a href="Linear%20Search">Linear Search</a></strong> A simple
+      method that scans through a sequence element by element.
+    </li>
+    <li>
+      <strong><a href="Binary%20Search">Binary Search</a></strong> A
+      divide-and-conquer algorithm that efficiently finds an element in a
+      <strong>sorted search space</strong> by repeatedly halving the search
+      range.
+    </li>
+    <li>
+      <strong>Hash Table Searching (Hashing)</strong> Utilises a hash function
+      to map keys to array indices, allowing for fast, often constant-time,
+      lookups on average.
+    </li>
+    <li>
+      <strong>Breadth-First Search (BFS)</strong> A graph traversal algorithm
+      used to find the shortest path (in terms of number of edges) from a source
+      node to other nodes in a graph.
+    </li>
+    <li>
+      <strong>Depth-First Search (DFS)</strong> A graph traversal algorithm that
+      explores as far as possible along each branch before backtracking.
+    </li>
+    <li>
+      <strong>Dijkstra's Algorithm</strong> An algorithm for finding the
+      shortest paths between nodes in a graph with
+      <strong>weighted edges</strong>.
+    </li>
+  </ul>
+</div>
+{% endblock %}
