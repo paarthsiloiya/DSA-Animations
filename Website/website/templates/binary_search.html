@@ -1,0 +1,309 @@
+{% extends "content.html" %} {% block title %} Binary Search {% endblock %} {% block main_content %}
+<h1>Binary Search</h1>
+<p>
+    Binary search is a <strong>Divide and Conquer search algorithm</strong> used for finding a particular item within a
+    sorted list or array. It operates by <strong>sequentially checking the middle item</strong> in the list, then
+    eliminating half of the remaining numbers in each step until the desired item is found or the search space is
+    exhausted. This approach requires the input list or search space to be <strong>ordered (sorted)</strong> in some
+    way.
+</p>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="19">
+    <code>def binarySearch(arr, low, high, x):
+        while low <= high:
+            mid = low + (high - low) // 2
+            # Check if x is present at mid
+            if arr[mid] == x:
+                return mid
+            # If x is greater, ignore left half
+            elif arr[mid] < x:
+                low = mid + 1
+            # If x is smaller, ignore right half
+            else:
+                high = mid - 1
+        return -1
+    
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    N = len(arr)
+    x = 6
+    result = binarySearch(arr, 0, N, x)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source src="{{ url_for('static', filename='videos/BinarySearch.mp4') }}" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3 id="use-cases-and-applications">Use Cases and Applications</h3>
+    <p>Binary search is applicable in scenarios where the data is sorted or can be efficiently sorted:</p>
+    <ul>
+        <li>
+            <strong>Efficient Lookups</strong>: It can find the position of an element in a sorted list. For instance,
+            looking up a word in a dictionary or a name in a phone book leverages this principle.
+        </li>
+        <li>
+            <strong>Database Search</strong>: Platforms like Facebook use binary search to verify usernames in their
+            databases, assuming the data is structured to allow such searches.
+        </li>
+        <li>
+            <strong>Finding Equilibrium</strong>: In economic problems, such as determining an equilibrium price where
+            supply equals demand, binary search is efficient when the search space is monotonic. A linear search would
+            be infeasible for very large search spaces, such as 1 to 10.
+        </li>
+        <li>
+            <strong>Solving Monotone Functions</strong>: It can be extended to solve equations involving monotone
+            functions by halving the search range.
+        </li>
+        <li>
+            <strong>As part of other algorithms</strong>: While not efficient as a standalone sort for unsorted data,
+            binary search is used within algorithms like insertion sort to locate the correct position for an element in
+            an already sorted sub-array.
+        </li>
+        <li>
+            <strong>Finding Specific Occurrences</strong>: With slight modifications, it can be used to find the
+            smallest or largest occurrence of a value in an array with duplicates.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3 id="time-complexity">Time Complexity</h3>
+    <p>
+        The time complexity of binary search indicates how its running time increases with the size of the input,
+        <code>n</code>.
+    </p>
+    <ul>
+        <li>
+            <p><strong>General Complexity: $O(\log{n})$</strong></p>
+            <ul>
+                <li>
+                    Binary search is a <strong>logarithmic algorithm</strong>, with a complexity of
+                    <strong>$O(\log{n})$</strong>. This means the number of operations performed is proportional to the
+                    logarithm (base 2) of the number of items (<code>n</code>).
+                </li>
+                <li>
+                    Big O notation focuses on the <strong>worst-case scenario</strong> to provide reassurance that the
+                    algorithm will never be slower than the stated time.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Worst-Case Analysis: $\Theta(\log{n})$</strong></p>
+            <ul>
+                <li>
+                    In the worst case, the element being searched for is not present, or it is found only after the
+                    search space has been reduced to its smallest possible part.
+                </li>
+                <li>
+                    Each step of binary search eliminates half the remaining numbers. This halving process means that
+                    the number of operations is $\log_2{n}$.
+                </li>
+                <li>
+                    For example, to find a word in a dictionary of 240,000 words, simple search could take 240,000
+                    steps, but binary search would take approximately 18 steps ($\log_2{240,000}$ is roughly 18). For 4
+                    billion numbers, it takes at most 32 guesses.
+                </li>
+                <li>Thus, the worst-case time complexity of binary search is <strong>$\Theta(\log{n})$</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Average-Case Analysis: $\Theta(\log{n})$</strong></p>
+            <ul>
+                <li>
+                    The average-case running time for binary search is generally considered to be
+                    <strong>$\Theta(\log{n})$</strong>. This is because, on average, the search still involves
+                    repeatedly halving the search space until the element is found, similar to the worst case.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Best-Case Analysis: $\Theta(1)$</strong></p>
+            <ul>
+                <li>
+                    The best case occurs when the element <code>x</code> is found at the
+                    <strong>middle location</strong> in the very first comparison.
+                </li>
+                <li>
+                    The number of operations in this scenario is <strong>constant</strong> (not dependent on
+                    <code>n</code>).
+                </li>
+                <li>So, the best-case time complexity is <strong>$\Theta(1)$</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Comparison with Linear Search</strong>:</p>
+            <ul>
+                <li>Binary search is <strong>significantly faster</strong> than linear search for large datasets.</li>
+                <li>
+                    While linear search takes linear time $O(n)$, binary search takes logarithmic time $O(\log{n})$.
+                    This difference becomes dramatic as <code>n</code> increases; for example, searching a list of 4
+                    billion numbers could take 4 billion guesses with linear search but only 32 guesses with binary
+                    search.
+                </li>
+                <li>
+                    The <strong>rate of growth</strong> of running time is what truly matters for large inputs, making
+                    binary search much more efficient.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3 id="space-complexity">Space Complexity</h3>
+    <ul>
+        <li>
+            Binary search typically uses a <strong>constant amount of auxiliary memory</strong>, which means its space
+            complexity is <strong>$O(1)$</strong> for iterative implementations.
+        </li>
+        <li>
+            For recursive implementations, it uses stack space proportional to the depth of the recursion, which is
+            <strong>$O(\log{n})$</strong>. However, this stack space can often be eliminated through tail recursion
+            optimization or by rewriting as an iterative algorithm.
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3 id="advantages">Advantages</h3>
+    <ul>
+        <li>
+            <strong>Efficiency on Sorted Data</strong>: Binary search is <strong>highly efficient</strong> for large,
+            sorted datasets, providing a significant speed advantage over linear search.
+        </li>
+        <li>
+            <strong>Divide and Conquer</strong>: It leverages the powerful divide-and-conquer strategy, effectively
+            reducing the problem size by half at each step.
+        </li>
+        <li>
+            <strong>Guaranteed Performance (for sorted data)</strong>: Its logarithmic time complexity is guaranteed in
+            the worst case, making its performance predictable.
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3 id="disadvantages">Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Requires Sorted Input</strong>: The most significant limitation is the
+            <strong>absolute requirement for the input data to be sorted</strong>. If the data is unsorted, the time
+            required to sort it (e.g., $O(n \log{n})$ for efficient sorting algorithms) would negate the benefits of
+            binary search for a single lookup.
+        </li>
+        <li>
+            <strong>Not Suitable for Linked Lists</strong>: Binary search requires <strong>random access</strong> to
+            elements to jump to the middle of the search space. Data structures like linked lists, which only support
+            sequential access, cannot directly benefit from binary search without converting them to an array or using
+            an underlying array-like structure.
+        </li>
+        <li>
+            <strong>Implementation Complexity</strong>: While simple in concept, "the details can be surprisingly
+            tricky". Even expert implementers have made errors in binary search implementations.
+        </li>
+        <li>
+            <strong>Overflow Risk in Midpoint Calculation</strong>: For very large inputs, the direct calculation
+            <code>(low + high) / 2</code> for the midpoint can lead to an integer overflow. This can be mitigated by
+            using <code>low + ((high - low) / 2)</code>.
+        </li>
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("code-video");
+        const codeBlock = document.getElementById("code-block");
+
+        // Time-to-line mapping
+        const highlightMap = [
+            { time: 0.0, lines: "19" },
+            //Got to function definition after sorting
+            { time: 3, lines: "1" },
+            //Create Pointers and write target
+            { time: 4.4, lines: "2" },
+            // Highlight mid
+            { time: 5, lines: "3" },
+            //mid < target
+            { time: 5.8, lines: "8" },
+            { time: 7, lines: "9" },
+            // Highlight mid again
+            { time: 8, lines: "3" },
+            //mid > target
+            { time: 8.8, lines: "11" },
+            { time: 10, lines: "12" },
+            // Highlight mid again
+            { time: 11.2, lines: "3" },
+            //mid == target
+            { time: 12.2, lines: "5" },
+            // Highlight return statement
+            { time: 13, lines: "6" },
+            // result
+            { time: 14.8, lines: "19" },
+        ];
+
+        video.addEventListener("timeupdate", () => {
+            const currentTime = video.currentTime;
+            // console.log(`At ${currentTime.toFixed(3)}s`);
+            let currentHighlight = "";
+
+            for (let i = highlightMap.length - 1; i >= 0; i--) {
+                if (currentTime >= highlightMap[i].time) {
+                    currentHighlight = highlightMap[i].lines;
+                    break;
+                }
+            }
+
+            if (codeBlock.getAttribute("data-line") !== currentHighlight) {
+                codeBlock.setAttribute("data-line", currentHighlight);
+                Prism.highlightElement(codeBlock.querySelector("code"));
+            }
+        });
+    });
+
+    function copyToClipboard(button) {
+        const pre = button.closest(".code-block");
+        const code = pre?.querySelector("code");
+        if (!code) return;
+
+        // Create a temporary textarea to hold the code text
+        const tempTextarea = document.createElement("textarea");
+        tempTextarea.value = code.innerText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextarea);
+
+        // Optionally give user feedback
+        button.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M382-320 155-547l57-57 170 170 366-366 57 57-423 423ZM200-160v-80h560v80H200Z"/></svg>
+        `;
+        setTimeout(() => {
+            button.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+            <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+        </svg>`;
+        }, 1000);
+    }
+</script>
+
+{% endblock %}

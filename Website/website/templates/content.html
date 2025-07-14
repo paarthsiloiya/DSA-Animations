@@ -1,82 +1,96 @@
-{% extends "base.html" %} {% block title %} Content Page {% endblock %} {% block
-content %}
+{% extends "base.html" %} {% block title %} Content Page {% endblock %} {% block content %}
 
 <div class="main">
-  <div class="sidebar">
-    <details open>
-      <summary><a href="/">Searching Algorithms</a></summary>
-      <ul>
-        <li><a href="/linear_search">Linear Search</a></li>
-        <li><a href="/binary_search">Binary Search</a></li>
-      </ul>
-    </details>
+    <div class="sidebar">
+        <details open>
+            <summary><a href="{{ url_for('views.dsa') }}">Data structures and Algorithms</a></summary>
+            <ul>
+                <li><a href="{{ url_for('views.data_structures') }}">Data structures</a></li>
+                <li><a href="{{ url_for('views.algorithms') }}">Algorithms</a></li>
+            </ul>
+        </details>
 
-    <details open>
-      <summary><a href="/">Sorting Algorithms</a></summary>
-      <ul>
-        <li><a href="/bubble_sort">Bubble Sort</a></li>
-        <li><a href="/insertion_sort">Insertion Sort</a></li>
-        <li><a href="/selection_sort">Selection Sort</a></li>
-        <li><a href="/quick_sort">Quick Sort</a></li>
-        <li><a href="/merge_sort">Merge Sort</a></li>
-        <li><a href="/heap_sort">Heap Sort</a></li>
-      </ul>
-    </details>
+        <details open>
+            <summary><a href="{{ url_for('views.arrays') }}">Arrays</a></summary>
+            <ul>
+                <li><a href="{{ url_for('views._2Darrays') }}">2D Arrays</a></li>
+            </ul>
+        </details>
 
-    <details open>
-      <summary><a href="/">Linked List Algorithms</a></summary>
-      <ul>
-        <li><a href="/node_explanation">Node Explanation</a></li>
-        <li><a href="/linked_list_creation">Linked List Creation</a></li>
-        <li><a href="/traversal">Traversal</a></li>
-        <li><a href="/insertion">Insertion</a></li>
-        <li><a href="/deletion">Deletion</a></li>
-        <li><a href="/rotation">Rotation</a></li>
-      </ul>
-    </details>
+        <details open>
+            <summary><a href="{{ url_for('views.searching_algorithms') }}">Searching Algorithms</a></summary>
+            <ul>
+                <li><a href="{{ url_for('views.linear_search') }}">Linear Search</a></li>
+                <li><a href="{{ url_for('views.binary_search') }}">Binary Search</a></li>
+            </ul>
+        </details>
 
-    <details open>
-      <summary><a href="/">Trees Algorithms</a></summary>
-      <ul>
-        <li><a href="/types_of_trees">Types of Trees</a></li>
-        <li><a href="/properties_of_trees">Properties of Trees</a></li>
-        <li><a href="/traversal">Traversal</a></li>
-        <li><a href="/breadth_first_search">Breadth First Search</a></li>
-        <li><a href="/depth_first_search">Depth First Search</a></li>
-        <li><a href="/list_tree_correlation">List-Tree Correlation</a></li>
-        <li><a href="/binary_search_tree">Binary Search Tree</a></li>
-        <li><a href="/ternary_tree">Ternary Tree</a></li>
-        <li><a href="/avl_tree">AVL Tree</a></li>
-      </ul>
-    </details>
+        <details open>
+            <summary><a href="/">Sorting Algorithms</a></summary>
+            <ul>
+                <li><a href="/bubble_sort">Bubble Sort</a></li>
+                <li><a href="/insertion_sort">Insertion Sort</a></li>
+                <li><a href="/selection_sort">Selection Sort</a></li>
+                <li><a href="/quick_sort">Quick Sort</a></li>
+                <li><a href="/merge_sort">Merge Sort</a></li>
+                <li><a href="/heap_sort">Heap Sort</a></li>
+            </ul>
+        </details>
 
-    <details open>
-      <summary><a href="/">Heap Algorithms</a></summary>
-      <ul>
-        <li><a href="/types_of_heaps">Types of Heaps</a></li>
-        <li><a href="/properties_of_heap">Properties of Heap</a></li>
-      </ul>
-    </details>
+        <details open>
+            <summary><a href="/">Linked List</a></summary>
+            <ul>
+                <li><a href="/node_explanation">Node Explanation</a></li>
+                <li><a href="/linked_list_creation">Linked List Creation</a></li>
+                <li><a href="/traversal">Traversal</a></li>
+                <li><a href="/insertion">Insertion</a></li>
+                <li><a href="/deletion">Deletion</a></li>
+                <li><a href="/rotation">Rotation</a></li>
+            </ul>
+        </details>
 
-    <details open>
-      <summary><a href="/">Graph Algorithms</a></summary>
-      <ul>
-        <li><a href="/types_of_graphs">Types of Graphs</a></li>
-        <li><a href="/graph_representation">Graph Representation</a></li>
-        <li><a href="/traversal">Traversal</a></li>
-        <li><a href="/breadth_first_search">Breadth First Search</a></li>
-        <li><a href="/depth_first_search">Depth First Search</a></li>
-        <li><a href="/dijkstra_algorithm">Dijkstra's Algorithm</a></li>
-        <li>
-          <a href="/floyd_warshall_algorithm">Floyd Warshall Algorithm</a>
-        </li>
-        <li><a href="/bellman_ford_algorithm">Bellman Ford Algorithm</a></li>
-        <li><a href="/prims_algorithm">Prim's Algorithm</a></li>
-        <li><a href="/kruskal_algorithm">Kruskal's Algorithm</a></li>
-      </ul>
-    </details>
-  </div>
-  <div class="content">{% block main_content %} {% endblock %}</div>
+        <details open>
+            <summary><a href="/">Trees</a></summary>
+            <ul>
+                <li><a href="/types_of_trees">Types of Trees</a></li>
+                <li><a href="/properties_of_trees">Properties of Trees</a></li>
+                <li><a href="/traversal">Traversal</a></li>
+                <li><a href="/breadth_first_search">Breadth First Search</a></li>
+                <li><a href="/depth_first_search">Depth First Search</a></li>
+                <li><a href="/list_tree_correlation">List-Tree Correlation</a></li>
+                <li><a href="/binary_search_tree">Binary Search Tree</a></li>
+                <li><a href="/ternary_tree">Ternary Tree</a></li>
+                <li><a href="/avl_tree">AVL Tree</a></li>
+            </ul>
+        </details>
+
+        <details open>
+            <summary><a href="/">Heaps</a></summary>
+            <ul>
+                <li><a href="/types_of_heaps">Types of Heaps</a></li>
+                <li><a href="/properties_of_heap">Properties of Heap</a></li>
+            </ul>
+        </details>
+
+        <details open>
+            <summary><a href="/">Graphs</a></summary>
+            <ul>
+                <li><a href="/types_of_graphs">Types of Graphs</a></li>
+                <li><a href="/graph_representation">Graph Representation</a></li>
+                <li><a href="/traversal">Traversal</a></li>
+                <li><a href="/breadth_first_search">Breadth First Search</a></li>
+                <li><a href="/depth_first_search">Depth First Search</a></li>
+                <li><a href="/dijkstra_algorithm">Dijkstra's Algorithm</a></li>
+                <li>
+                    <a href="/floyd_warshall_algorithm">Floyd Warshall Algorithm</a>
+                </li>
+                <li><a href="/bellman_ford_algorithm">Bellman Ford Algorithm</a></li>
+                <li><a href="/prims_algorithm">Prim's Algorithm</a></li>
+                <li><a href="/kruskal_algorithm">Kruskal's Algorithm</a></li>
+            </ul>
+        </details>
+    </div>
+    <div class="content">{% block main_content %} {% endblock %}</div>
 </div>
 
 {% endblock %}

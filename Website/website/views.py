@@ -9,21 +9,33 @@ def home():
 
 @views.route('/dsa')
 # @login_required
-def content():
+def dsa():
     return render_template('dsa.html', user=current_user)
 
-@views.route('/Data Structures')
+@views.route('/data structures')
 def data_structures():
     return render_template('data_structures.html', user=current_user)
 
-@views.route('/Algorithms')
+@views.route('/algorithms')
 def algorithms():
     return render_template('algorithms.html', user=current_user)
 
-@views.route('/Searching Algorithms')
+@views.route('/arrays')
+def arrays():
+    return render_template('arrays.html', user=current_user)
+
+@views.route('/2D arrays')
+def _2Darrays():
+    return render_template('2Darrays.html', user=current_user)
+
+@views.route('/searching algorithms')
 def searching_algorithms():
     return render_template('searching_algorithms.html', user=current_user)
 
-@views.route('/Linear Search')
+@views.route('/linear search')
 def linear_search():
     return render_template('linear_search.html', user=current_user)
+
+@views.route('/binary search')
+def binary_search():
+    return render_template('binary_search.html', user=current_user)
