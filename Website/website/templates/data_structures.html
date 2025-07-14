@@ -1,300 +1,248 @@
-{% extends "content.html" %} {% block title %} Data Structures {% endblock %} {%
-block main_content %}
+{% extends "content.html" %} {% block title %} Data Structures {% endblock %} {% block main_content %}
 <h1>Data Structures</h1>
 <p>
-  Data Structures are a fundamental concept in computer science, serving as
-  organised ways to store and manage data.
+    Data Structures are a fundamental concept in computer science, serving as organised ways to store and manage data.
 </p>
 <div class="subcontent">
-  <h3>What are Data Structures?</h3>
-  <p>
-    A
-    <strong>data structure is a specific way to store and organise data</strong>
-    in a computer's memory or storage to facilitate efficient access and
-    modifications. They are considered the
-    <strong
-      >building blocks for more complex data structures and algorithms</strong
-    >. Data structures can be <strong>dynamic</strong>, meaning their size and
-    content can grow, shrink, or change over time. No single data structure is
-    optimal for all purposes, which highlights the importance of understanding
-    the <strong>strengths and limitations</strong> of various types. Operations
-    performed on dynamic sets, which are typically managed by data structures,
-    fall into two main categories: <strong>queries</strong>, which retrieve
-    information, and <strong>modifying operations</strong>, which alter the set.
-  </p>
+    <h3>What are Data Structures?</h3>
+    <p>
+        A
+        <strong>data structure is a specific way to store and organise data</strong>
+        in a computer's memory or storage to facilitate efficient access and modifications. They are considered the
+        <strong>building blocks for more complex data structures and algorithms</strong>. Data structures can be
+        <strong>dynamic</strong>, meaning their size and content can grow, shrink, or change over time. No single data
+        structure is optimal for all purposes, which highlights the importance of understanding the
+        <strong>strengths and limitations</strong> of various types. Operations performed on dynamic sets, which are
+        typically managed by data structures, fall into two main categories: <strong>queries</strong>, which retrieve
+        information, and <strong>modifying operations</strong>, which alter the set.
+    </p>
 </div>
 
 <div class="subcontent">
-  <h3>Why are Data Structures Helpful?</h3>
-  <p>
-    Data structures are essential because they provide
-    <strong>efficient methods for managing information</strong>, which directly
-    impacts an algorithm's performance. By choosing an appropriate data
-    structure, you can significantly
-    <strong>reduce the time and space resources</strong> an algorithm requires
-    to accomplish its task. For instance, certain data structures enable
-    operations like inserting, deleting, or searching for elements to be
-    performed in remarkably fast times, such as constant time or logarithmic
-    time, compared to linear or even quadratic time with less suitable
-    structures. This efficiency is critical for complex applications and large
-    datasets, where even small differences in algorithm efficiency can be more
-    significant than hardware improvements. They provide the foundation for
-    solving a wide range of computational problems effectively.
-  </p>
+    <h3>Why are Data Structures Helpful?</h3>
+    <p>
+        Data structures are essential because they provide
+        <strong>efficient methods for managing information</strong>, which directly impacts an algorithm's performance.
+        By choosing an appropriate data structure, you can significantly
+        <strong>reduce the time and space resources</strong> an algorithm requires to accomplish its task. For instance,
+        certain data structures enable operations like inserting, deleting, or searching for elements to be performed in
+        remarkably fast times, such as constant time or logarithmic time, compared to linear or even quadratic time with
+        less suitable structures. This efficiency is critical for complex applications and large datasets, where even
+        small differences in algorithm efficiency can be more significant than hardware improvements. They provide the
+        foundation for solving a wide range of computational problems effectively.
+    </p>
 </div>
 <div class="subcontent">
-  <h3>Kinds of Data Structures:</h3>
-  <p>Here are some common types of data structures:</p>
-  <ol>
-    <li>
-      <strong><a href="Arrays">Arrays</a></strong
-      >:
-      <ul>
+    <h3>Kinds of Data Structures:</h3>
+    <p>Here are some common types of data structures:</p>
+    <ol>
         <li>
-          <strong>Definition</strong>: Arrays are rows of elements of the same
-          type, stored
-          <strong>contiguously (right next to each other) in memory</strong>.
-          They typically have a fixed size when declared.
-        </li>
-        <li>
-          <strong>Helpfulness</strong>: They allow for
-          <strong>random access</strong> to any element in
-          <strong>constant time (O(1))</strong> by directly computing its
-          address from its index. This makes them very fast for reading and
-          accessing elements.
-        </li>
-        <li>
-          <strong>Limitations</strong>: Inserting or deleting elements in the
-          middle of an array is generally slow, as it requires
-          <strong>shifting</strong> all subsequent elements. They also have a
-          fixed size, meaning they cannot dynamically grow or shrink easily.
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Linked%20Lists">Linked Lists</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: Linked lists arrange objects in a linear
-          order, but unlike arrays, their order is determined by
-          <strong>pointers within each object</strong> rather than contiguous
-          memory locations. Each item stores the address of the next item.
-        </li>
-        <li>
-          <strong>Helpfulness</strong>: They offer
-          <strong>flexible representation for dynamic sets</strong>.
-          <strong>Inserting and deleting elements</strong> (especially at the
-          head or when the element to be deleted can be instantly accessed) can
-          be done in <strong>constant time (O(1))</strong>.
-        </li>
-        <li>
-          <strong>Types</strong>: Can be <strong>singly linked</strong> (only
-          <code>next</code> pointer), <strong>doubly linked</strong> (<code
-            >next</code
-          >
-          and <code>prev</code> pointers), or <strong>circular</strong>.
-        </li>
-        <li>
-          <strong>Limitations</strong>: They only allow
-          <strong>sequential access</strong>, meaning to reach the <em>n</em>-th
-          element, you must traverse through the preceding
-          <em>n-1</em> elements, which is slow (linear time) for random access.
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Stacks">Stacks</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: Stacks are dynamic sets that follow a
-          <strong>Last-In, First-Out (LIFO)</strong> policy, meaning the element
-          most recently inserted is the first one removed.
-        </li>
-        <li>
-          <strong>Helpfulness</strong>: Operations like
-          <strong>PUSH (insert)</strong> and
-          <strong>POP (remove and read)</strong> take
-          <strong>constant time (O(1))</strong>.
-        </li>
-        <li>
-          <strong>Implementation</strong>: Can be efficiently implemented using
-          arrays or singly linked lists.
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Queues">Queues</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: Queues are dynamic sets that follow a
-          <strong>First-In, First-Out (FIFO)</strong> policy, where the element
-          that has been in the set the longest is always the one removed.
-        </li>
-        <li>
-          <strong>Helpfulness</strong>: Operations like
-          <strong>ENQUEUE (insert at tail)</strong> and
-          <strong>DEQUEUE (remove from head)</strong> take
-          <strong>constant time (O(1))</strong>. They are crucial for algorithms
-          like Breadth-First Search.
-        </li>
-        <li>
-          <strong>Types</strong>: A
-          <strong>deque (double-ended queue)</strong> allows insertion and
-          deletion at both ends.
-        </li>
-        <li>
-          <strong>Implementation</strong>: Can be implemented using linked lists
-          or circular buffers.
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Trees">Trees (General Concept)</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: Trees are
-          <strong>hierarchical data structures</strong> that model a set of
-          connections using <strong>nodes and edges</strong>, with the key
-          characteristic that they contain <strong>no cycles</strong>.
-        </li>
-        <li>
-          <strong>Binary Trees</strong>: Each node can have at most two children
-          (a left child and a right child).
-          <ul>
-            <li>
-              <strong>Binary Search Trees (BSTs)</strong>: A special binary tree
-              where elements are comparable, and for any node, all keys in the
-              left subtree are less than or equal to the node's key, and all
-              keys in the right subtree are greater.
-              <ul>
+            <strong><a href="Arrays">Arrays</a></strong
+            >:
+            <ul>
                 <li>
-                  <strong>Helpfulness</strong>: They support efficient
-                  searching, insertion, deletion, and finding minimum/maximum
-                  elements, as well as predecessors and successors. Operations
-                  typically take time proportional to the height of the tree.
-                  For a balanced tree, this is <strong>O(lg n)</strong>. They
-                  can be used to implement map data structures.
+                    <strong>Definition</strong>: Arrays are rows of elements of the same type, stored
+                    <strong>contiguously (right next to each other) in memory</strong>. They typically have a fixed size
+                    when declared.
                 </li>
-              </ul>
-            </li>
-            <li>
-              <strong
-                >Balanced Search Trees (e.g., Red-Black Trees, AVL Trees,
-                B-Trees)</strong
-              >: These are variants of BSTs that automatically maintain a
-              balanced structure to
-              <strong>guarantee O(lg n) worst-case performance</strong> for
-              operations, preventing the tree from becoming a linear chain.
-            </li>
-            <li>
-              <strong>Heaps (e.g., Binary Heaps, Fibonacci Heaps)</strong>:
-              Primarily used for <strong>sorting</strong> and implementing
-              <strong>priority queues</strong>. They maintain a property where
-              the key of a node is always greater than or equal to (or less than
-              or equal to for a min-heap) the key of its parent.
-              <ul>
                 <li>
-                  <strong>Helpfulness</strong>: Operations on binary heaps
-                  generally run in <strong>O(lg n) time</strong>. Fibonacci
-                  heaps are a more complex variant that offer
-                  <strong>constant amortised time (O(1))</strong> for some
-                  operations, critical for certain graph algorithms.
+                    <strong>Helpfulness</strong>: They allow for <strong>random access</strong> to any element in
+                    <strong>constant time $O(1)$</strong> by directly computing its address from its index. This makes
+                    them very fast for reading and accessing elements.
                 </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Hash%20Tables">Hash Tables</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: An effective data structure for
-          implementing <strong>dictionaries</strong> (dynamic sets that support
-          INSERT, SEARCH, and DELETE operations). They use a
-          <strong>hash function</strong> to compute an array index (slot) from a
-          key.
+                <li>
+                    <strong>Limitations</strong>: Inserting or deleting elements in the middle of an array is generally
+                    slow, as it requires <strong>shifting</strong> all subsequent elements. They also have a fixed size,
+                    meaning they cannot dynamically grow or shrink easily.
+                </li>
+            </ul>
         </li>
         <li>
-          <strong>Helpfulness</strong>: Under reasonable assumptions (a good
-          hash function and a low load factor), hash tables achieve
-          <strong>O(1) average time</strong> for insertions, searches, and
-          deletions. This makes them very fast, combining the speed of array
-          access with the flexibility of linked lists for inserts/deletes in the
-          average case.
+            <strong><a href="Linked%20Lists">Linked Lists</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: Linked lists arrange objects in a linear order, but unlike arrays,
+                    their order is determined by <strong>pointers within each object</strong> rather than contiguous
+                    memory locations. Each item stores the address of the next item.
+                </li>
+                <li>
+                    <strong>Helpfulness</strong>: They offer <strong>flexible representation for dynamic sets</strong>.
+                    <strong>Inserting and deleting elements</strong> (especially at the head or when the element to be
+                    deleted can be instantly accessed) can be done in <strong>constant time $O(1)$</strong>.
+                </li>
+                <li>
+                    <strong>Types</strong>: Can be <strong>singly linked</strong> (only <code>next</code> pointer),
+                    <strong>doubly linked</strong> (<code>next</code> and <code>prev</code> pointers), or
+                    <strong>circular</strong>.
+                </li>
+                <li>
+                    <strong>Limitations</strong>: They only allow <strong>sequential access</strong>, meaning to reach
+                    the <em>n</em>-th element, you must traverse through the preceding <em>n-1</em> elements, which is
+                    slow (linear time) for random access.
+                </li>
+            </ul>
         </li>
         <li>
-          <strong>Use Cases</strong>: Commonly used for
-          <strong>lookups</strong> (e.g., mapping web addresses to IP addresses
-          in DNS resolution, phonebooks),
-          <strong>preventing duplicate entries</strong>, and
-          <strong>caching/memorizing data</strong>.
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong><a href="Graphs">Graphs (Representations)</a></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: While a "graph" is a mathematical concept
-          of nodes (vertices) and edges (connections), data structures are used
-          to <strong>represent</strong> these graphs in a computer.
-        </li>
-        <li>
-          <strong>Adjacency List</strong>: Represents a graph as a collection of
-          unordered lists, where each list describes the set of neighbours for a
-          vertex.
-          <ul>
-            <li>
-              <strong>Helpfulness</strong>: Provides a
-              <strong>compact way to represent sparse graphs</strong> (graphs
-              with relatively few edges compared to vertices).
-            </li>
-          </ul>
+            <strong><a href="Stacks">Stacks</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: Stacks are dynamic sets that follow a
+                    <strong>Last-In, First-Out (LIFO)</strong> policy, meaning the element most recently inserted is the
+                    first one removed.
+                </li>
+                <li>
+                    <strong>Helpfulness</strong>: Operations like <strong>PUSH (insert)</strong> and
+                    <strong>POP (remove and read)</strong> take <strong>constant time $O(1)$</strong>.
+                </li>
+                <li>
+                    <strong>Implementation</strong>: Can be efficiently implemented using arrays or singly linked lists.
+                </li>
+            </ul>
         </li>
         <li>
-          <strong>Adjacency Matrix</strong>: A square matrix where elements
-          indicate whether pairs of vertices are adjacent.
-          <ul>
-            <li>
-              <strong>Helpfulness</strong>: Preferred when the graph is
-              <strong>dense</strong> (many edges) or when a quick check is
-              needed to see if an edge connects two given vertices.
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <strong
-        ><a href="Union-Find"
-          >Disjoint Sets (Union-Find Data Structures)</a
-        ></strong
-      >:
-      <ul>
-        <li>
-          <strong>Definition</strong>: Maintain a collection of
-          <strong>disjoint dynamic sets</strong>, where each set is identified
-          by a representative member.
+            <strong><a href="Queues">Queues</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: Queues are dynamic sets that follow a
+                    <strong>First-In, First-Out (FIFO)</strong> policy, where the element that has been in the set the
+                    longest is always the one removed.
+                </li>
+                <li>
+                    <strong>Helpfulness</strong>: Operations like <strong>ENQUEUE (insert at tail)</strong> and
+                    <strong>DEQUEUE (remove from head)</strong> take <strong>constant time $O(1)$</strong>. They are
+                    crucial for algorithms like Breadth-First Search.
+                </li>
+                <li>
+                    <strong>Types</strong>: A <strong>deque (double-ended queue)</strong> allows insertion and deletion
+                    at both ends.
+                </li>
+                <li><strong>Implementation</strong>: Can be implemented using linked lists or circular buffers.</li>
+            </ul>
         </li>
         <li>
-          <strong>Helpfulness</strong>: Supports operations like
-          <strong>MAKE-SET</strong> (creates a new set),
-          <strong>UNION</strong> (unites two sets), and
-          <strong>FIND-SET</strong> (returns the representative of an element's
-          set). With heuristics such as "union by rank" and "path compression,"
-          these operations are highly efficient, practically linear time.
+            <strong><a href="Trees">Trees (General Concept)</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: Trees are <strong>hierarchical data structures</strong> that model a
+                    set of connections using <strong>nodes and edges</strong>, with the key characteristic that they
+                    contain <strong>no cycles</strong>.
+                </li>
+                <li>
+                    <strong>Binary Trees</strong>: Each node can have at most two children (a left child and a right
+                    child).
+                    <ul>
+                        <li>
+                            <strong>Binary Search Trees (BSTs)</strong>: A special binary tree where elements are
+                            comparable, and for any node, all keys in the left subtree are less than or equal to the
+                            node's key, and all keys in the right subtree are greater.
+                            <ul>
+                                <li>
+                                    <strong>Helpfulness</strong>: They support efficient searching, insertion, deletion,
+                                    and finding minimum/maximum elements, as well as predecessors and successors.
+                                    Operations typically take time proportional to the height of the tree. For a
+                                    balanced tree, this is <strong>$O(\log{n})$</strong>. They can be used to implement
+                                    map data structures.
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Balanced Search Trees (e.g., Red-Black Trees, AVL Trees, B-Trees)</strong>: These
+                            are variants of BSTs that automatically maintain a balanced structure to
+                            <strong>guarantee $O(\log{n})$ worst-case performance</strong> for operations, preventing
+                            the tree from becoming a linear chain.
+                        </li>
+                        <li>
+                            <strong>Heaps (e.g., Binary Heaps, Fibonacci Heaps)</strong>: Primarily used for
+                            <strong>sorting</strong> and implementing <strong>priority queues</strong>. They maintain a
+                            property where the key of a node is always greater than or equal to (or less than or equal
+                            to for a min-heap) the key of its parent.
+                            <ul>
+                                <li>
+                                    <strong>Helpfulness</strong>: Operations on binary heaps generally run in
+                                    <strong>$O(\log{n})$ time</strong>. Fibonacci heaps are a more complex variant that
+                                    offer <strong>constant amortised time $O(1)$</strong> for some operations, critical
+                                    for certain graph algorithms.
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </li>
-      </ul>
-    </li>
-  </ol>
+        <li>
+            <strong><a href="Hash%20Tables">Hash Tables</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: An effective data structure for implementing
+                    <strong>dictionaries</strong> (dynamic sets that support INSERT, SEARCH, and DELETE operations).
+                    They use a <strong>hash function</strong> to compute an array index (slot) from a key.
+                </li>
+                <li>
+                    <strong>Helpfulness</strong>: Under reasonable assumptions (a good hash function and a low load
+                    factor), hash tables achieve <strong>$O(1)$ average time</strong> for insertions, searches, and
+                    deletions. This makes them very fast, combining the speed of array access with the flexibility of
+                    linked lists for inserts/deletes in the average case.
+                </li>
+                <li>
+                    <strong>Use Cases</strong>: Commonly used for <strong>lookups</strong> (e.g., mapping web addresses
+                    to IP addresses in DNS resolution, phonebooks), <strong>preventing duplicate entries</strong>, and
+                    <strong>caching/memorizing data</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong><a href="Graphs">Graphs (Representations)</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: While a "graph" is a mathematical concept of nodes (vertices) and edges
+                    (connections), data structures are used to <strong>represent</strong> these graphs in a computer.
+                </li>
+                <li>
+                    <strong>Adjacency List</strong>: Represents a graph as a collection of unordered lists, where each
+                    list describes the set of neighbours for a vertex.
+                    <ul>
+                        <li>
+                            <strong>Helpfulness</strong>: Provides a
+                            <strong>compact way to represent sparse graphs</strong> (graphs with relatively few edges
+                            compared to vertices).
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Adjacency Matrix</strong>: A square matrix where elements indicate whether pairs of vertices
+                    are adjacent.
+                    <ul>
+                        <li>
+                            <strong>Helpfulness</strong>: Preferred when the graph is <strong>dense</strong> (many
+                            edges) or when a quick check is needed to see if an edge connects two given vertices.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong><a href="Union-Find">Disjoint Sets (Union-Find Data Structures)</a></strong
+            >:
+            <ul>
+                <li>
+                    <strong>Definition</strong>: Maintain a collection of <strong>disjoint dynamic sets</strong>, where
+                    each set is identified by a representative member.
+                </li>
+                <li>
+                    <strong>Helpfulness</strong>: Supports operations like <strong>MAKE-SET</strong> (creates a new
+                    set), <strong>UNION</strong> (unites two sets), and <strong>FIND-SET</strong> (returns the
+                    representative of an element's set). With heuristics such as "union by rank" and "path compression,"
+                    these operations are highly efficient, practically linear time.
+                </li>
+            </ul>
+        </li>
+    </ol>
 </div>
 
 {% endblock %}
