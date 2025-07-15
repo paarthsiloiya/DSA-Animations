@@ -376,6 +376,7 @@ body {
     color: var(--accent);
 }
 
+p code,
 .subcontent code {
     font-size: 0.9rem;
     background-color: hsl(262, 50%, 90%);
@@ -491,6 +492,24 @@ pre[class*="language-"] > code .line-highlight {
    HOME PAGE STYLES
    ======================================== */
 
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* Cover only main section + gradient transition, not beyond */
+    overflow: hidden;
+    z-index: -999;
+    pointer-events: none;
+}
+
+.hero-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
 .main-section {
     display: flex;
     flex-direction: column;
@@ -503,7 +522,18 @@ pre[class*="language-"] > code .line-highlight {
     flex-wrap: wrap;
 }
 
+.gradient-transition {
+    width: 100%;
+    height: 10vh;
+    min-height: 120px;
+    max-height: 200px;
+    flex-shrink: 0;
+    margin-top: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, var(--background) 41.35%);
+}
+
 .featured-topics {
+    background-color: var(--background);
     margin-top: var(--spacing-4xl);
     display: flex;
     flex-direction: column;

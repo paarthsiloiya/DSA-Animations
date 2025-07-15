@@ -22,7 +22,7 @@
                     />
                 </svg>
             </button>
-            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="1">
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="11">
     <code>def search(arr, N, x):
         for i in range(0, N):
             if (arr[i] == x):
@@ -38,7 +38,10 @@
         </div>
         <div class="video-container">
             <video id="code-video" width="640" controls>
-                <source src="{{ url_for('static', filename='videos/LinearSearch.mp4') }}" type="video/mp4" />
+                <source
+                    src="{{ url_for('static', filename='videos/SearchingAlgorithms/LinearSearch.webm') }}"
+                    type="video/webm"
+                />
                 Your browser does not support the video tag.
             </video>
         </div>
@@ -213,20 +216,21 @@
 
         // Time-to-line mapping
         const highlightMap = [
-            { time: 0.0, lines: "1" },
+            { time: 0.0, lines: "11" },
+            { time: 1.0, lines: "1" },
             //Check 5
-            { time: 0.6, lines: "2" },
-            { time: 0.8, lines: "3" },
+            { time: 1.6, lines: "2" },
+            { time: 1.8, lines: "3" },
             // Check 2
-            { time: 1.55, lines: "2" },
-            { time: 1.82, lines: "3" },
+            { time: 2.55, lines: "2" },
+            { time: 2.82, lines: "3" },
             // Check 4
-            { time: 2.6, lines: "2" },
-            { time: 3, lines: "3" },
+            { time: 3.6, lines: "2" },
+            { time: 4, lines: "3" },
             // Check 6
-            { time: 3.8, lines: "2" },
-            { time: 4.2, lines: "3" },
-            { time: 5, lines: "4" },
+            { time: 4.8, lines: "2" },
+            { time: 5.2, lines: "3" },
+            { time: 6, lines: "4" },
             // return
             { time: 7, lines: "11" },
         ];
