@@ -58,6 +58,8 @@ class LinearSearch(Scene):
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
 
+        self.wait(1)
+
         # Show the key visually
         target_text = Text(f"Target = {target}", color=SELCOL, font=FONT).scale(1.2).next_to(visuals, UP, buff=1.6)
         self.play(Write(target_text), run_time=0.4)

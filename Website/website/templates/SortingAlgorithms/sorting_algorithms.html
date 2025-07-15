@@ -1,0 +1,215 @@
+{% extends "content.html" %} {% block title %} Sorting Algorithms {% endblock %} {% block main_content %}
+<h1>Sorting Algorithms</h1>
+<p>
+    <strong>Sorting Algorithms</strong> involve arranging a collection of data elements into a specific order, typically
+    numerical or lexicographical. An algorithmic problem, like sorting, is defined by describing the complete set of
+    inputs it must work on and its expected output after running on one of these instances. For sorting, the input is a
+    sequence of <em>n</em> keys (e.g., <code>a1, a2, ..., an</code>), and the output is a reordering of this sequence
+    such that the elements are in non-decreasing order (e.g., <code>a'1 &lt;= a'2 &lt;= ... &lt;= a'n</code>). The
+    efficiency of sorting algorithms is measured by their <strong>time complexity</strong>, which describes how the
+    number of operations grows with the size of the input.
+</p>
+
+<div class="subcontent">
+    <h3>When to Use Sorting</h3>
+    <p>
+        Sorting is considered a <strong>fundamental problem in computer science</strong> and is ubiquitous in various
+        applications:
+    </p>
+    <ul>
+        <li>
+            <strong>Data Organization and Retrieval</strong>:
+            <ul>
+                <li>
+                    Many applications inherently require sorting information, such as banks needing to sort checks by
+                    check number to prepare customer statements.
+                </li>
+                <li>
+                    It is crucial for algorithms that require data to be in a specific order, such as
+                    <strong>binary search</strong>, which only works on a <strong>sorted list of elements</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>As a Key Subroutine</strong>: Algorithms often use sorting as an intermediate or key subroutine.
+            Examples include:
+            <ul>
+                <li>
+                    A program that renders graphical objects layered on top of each other might sort them according to
+                    an "above" relation to ensure they are drawn from bottom to top.
+                </li>
+                <li>
+                    Finding the <em>i</em>-th order statistic, like the median of a set of numbers, can be achieved by
+                    sorting the set and then indexing the <em>i</em>-th element.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Efficiency Analysis and Algorithmic Design</strong>:
+            <ul>
+                <li>
+                    Different sorting algorithms can vary dramatically in their efficiency, sometimes more significantly
+                    than differences due to hardware and software. This makes them excellent subjects for studying
+                    <strong>algorithm performance and trade-offs</strong>.
+                </li>
+                <li>
+                    The development of sorting algorithms has introduced a rich set of techniques and holds historical
+                    interest in algorithm design.
+                </li>
+                <li>
+                    Sorting problems help in proving <strong>lower bounds</strong> on comparison-based algorithms, which
+                    can demonstrate the asymptotic optimality of certain sorting methods.
+                </li>
+                <li>
+                    Implementing sorting algorithms brings many <strong>engineering issues</strong> to the forefront,
+                    such as considerations of memory hierarchy (caches and virtual memory) and the software environment.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Types of Sorting Algorithms</h3>
+    <p>
+        Numerous sorting algorithms exist, each with its own approach and performance characteristics. They can broadly
+        be categorised based on whether they rely on comparisons between elements:
+    </p>
+    <ul>
+        <li>
+            <p><strong>Comparison Sorts</strong> (rely on comparing elements to determine order):</p>
+            <ul>
+                <li>
+                    <strong><a href="{{ url_for('views.bubble_sort') }}">Bubble Sort</a></strong
+                    >: A simple method that repeatedly compares and swaps adjacent elements if they are in the wrong
+                    order. It is a <strong>stable</strong> sort.
+                </li>
+                <li>
+                    <strong><a href="Merge%20Sort">Merge Sort</a></strong
+                    >: A <strong>divide-and-conquer</strong> algorithm that recursively splits a list into halves, sorts
+                    them, and then merges the sorted halves. It consistently achieves <strong>O(n log n)</strong> time
+                    complexity in all cases. It is a <strong>stable</strong> sort.
+                </li>
+                <li>
+                    <strong><a href="Insertion%20Sort">Insertion Sort</a></strong
+                    >: Works by building a sorted array one element at a time, inserting each new element into its
+                    correct position within the already sorted portion. It is efficient for small inputs and is a
+                    <strong>stable</strong> sort. Its performance is typically <strong>O(n)</strong>.
+                </li>
+                <li>
+                    <strong><a href="Heap%20Sort">Heap Sort</a></strong
+                    >: Uses a heap data structure to sort elements. It sorts in-place and has an
+                    <strong>O(n log n)</strong> running time. It is generally an <strong>unstable</strong> sort.
+                </li>
+                <li>
+                    <strong><a href="Quick%20Sort">Quick Sort</a></strong
+                    >: A widely used <strong>divide-and-conquer</strong> algorithm that selects a "pivot" element and
+                    partitions the other elements into two sub-arrays according to whether they are less than or greater
+                    than the pivot. While its worst-case running time is $O(n)$, its
+                    <strong>expected (average-case) time is O(n log n)</strong>. It sorts in-place and is often faster
+                    in practice than other <strong>O(n log n)</strong> sorts due to smaller constant factors. It is
+                    generally an <strong>unstable</strong> sort.
+                </li>
+                <li>
+                    <strong><a href="Selection%20Sort">Selection Sort</a></strong
+                    >: Repeatedly finds the minimum (or maximum) element from the unsorted part of the list and swaps it
+                    with the first unsorted element. It has an <strong>$O(n)$</strong> time complexity, making it
+                    inefficient for large lists.
+                </li>
+                <li>
+                    <strong>Odd-Even Sort</strong>: A simple sorting algorithm designed for parallel processors, which
+                    repeatedly compares and swaps adjacent elements in odd/even indexed pairs.
+                </li>
+                <li><strong>Cycle Sort</strong>: (mentioned as a chapter topic in the sources).</li>
+                <li><strong>Tim Sort</strong>: (mentioned as a stable sort).</li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong>Non-Comparison Sorts</strong> (do not rely solely on comparisons between elements and can beat
+                the <strong>$O(n \log{n})$</strong> lower bound for comparison sorts under specific conditions):
+            </p>
+            <ul>
+                <li>
+                    <strong>Counting Sort</strong>: Works by determining, for each input element, the number of elements
+                    less than it, and uses this information to place elements directly into their sorted positions. It
+                    is suitable for integers within a small range (0 to <em>k</em>) and runs in
+                    <strong>$O(n+k)$</strong> time. It is a <strong>stable</strong> sort and is often used as a
+                    subroutine in radix sort.
+                </li>
+                <li>
+                    <strong>Radix Sort</strong>: Sorts numbers by processing individual digits (or bits) using a stable
+                    sorting algorithm (like counting sort) in multiple passes, typically from the least significant
+                    digit to the most significant. It can run in linear time if the number of digits and the range of
+                    digit values are small relative to <em>n</em>. It is a <strong>stable</strong> sort.
+                </li>
+                <li>
+                    <strong>Bucket Sort</strong>: Divides the input range (e.g., <code>[0, 1)</code>) into several
+                    equal-sized "buckets", distributes elements into these buckets, sorts each bucket (often using
+                    insertion sort), and then concatenates the sorted buckets. It assumes a uniform distribution of
+                    input and has an average-case running time of <strong>$O(n)$</strong>. %%
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Stability of Sorting Algorithms</h3>
+    <p>
+        A sorting algorithm's <strong>stability</strong> is a crucial parameter that describes whether it
+        <strong>preserves the relative order of equal elements after sorting</strong>. In simpler terms, if two items in
+        the original input have the same key, a stable sorting algorithm ensures they appear in the same order in the
+        sorted output as they did in the input unsorted array.
+    </p>
+    <p>
+        For example, consider a list of pairs: (1, 2), (9, 7), (3, 4), (8, 6), (9, 3). When sorting this list based on
+        the first element of each pair:
+    </p>
+    <ul>
+        <li>
+            A <strong>stable sorting</strong> algorithm would produce: (1, 2), (3, 4), (8, 6), (9, 7), (9, 3). Here, (9,
+            3) appears after (9, 7) because that was their relative order in the original list.
+        </li>
+        <li>
+            An <strong>unstable sorting</strong> algorithm might produce: (1, 2), (3, 4), (8, 6), (9, 3), (9, 7). An
+            unstable sort <em>may</em> generate the same output as a stable sort but not always.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>How to Determine Stability</h3>
+    <p>
+        Determining if an algorithm is stable involves understanding its comparison and swapping logic. If an
+        algorithm's internal mechanics ensure that elements with identical keys are never reordered relative to each
+        other (i.e., if A and B have the same key and A appears before B in the input, A will appear before B in the
+        output), then it is stable. If there's any scenario where elements with equal keys might change their relative
+        positions, it's unstable.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Examples of Stable and Unstable Sorting Algorithms</h3>
+    <p>The sources provide explicit classifications for several well-known sorting algorithms:</p>
+    <p><strong>Well-known Stable Sorts</strong>:</p>
+    <ul>
+        <li>
+            <strong>Merge Sort</strong>: This algorithm is known to be stable. It guarantees O(n log n) performance in
+            all cases.
+        </li>
+        <li><strong>Insertion Sort</strong>: Insertion sort is also a stable sorting algorithm.</li>
+        <li>
+            %% <strong>Radix Sort</strong>: Radix sort requires its intermediate digit sorts to be stable for it to work
+            correctly.
+        </li>
+        <li><strong>Tim Sort</strong>: This is listed as a stable sort. %%</li>
+        <li><strong>Bubble Sort</strong>: This algorithm is a stable sorting algorithm.</li>
+    </ul>
+    <p><strong>Well-known Unstable Sorts</strong>:</p>
+    <ul>
+        <li><strong>Heap Sort</strong>: This algorithm is unstable.</li>
+        <li><strong>Quick Sort</strong>: Quick sort is an unstable sort.</li>
+    </ul>
+</div>
+{% endblock %}

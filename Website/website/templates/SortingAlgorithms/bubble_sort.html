@@ -1,0 +1,152 @@
+{% extends "content.html" %} {% block title %} Bubble Sort Algorithm {% endblock %} {% block main_content %}
+<h1>Bubble Sort Algorithm</h1>
+<p>Let's delve into Bubble Sort, a foundational sorting algorithm.</p>
+
+<div class="subcontent">
+    <h3>What is Bubble Sort?</h3>
+    <p>
+        <strong>Bubble Sort is a simple sorting algorithm</strong> that works by
+        <strong
+            >repeatedly stepping through the list, comparing each pair of adjacent items and swapping them if they are
+            in the wrong order</strong
+        >. The process continues until no swaps are needed, indicating the list is sorted. It's also known as
+        <strong>Sinking Sort</strong>. The algorithm effectively "bubbles" the largest (or smallest) elements to their
+        correct position at one end of the list with each pass.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications</h3>
+    <p>
+        Due to its inefficiency for larger datasets, Bubble Sort has limited practical applications in modern computing.
+        However, it serves primarily as:
+    </p>
+    <ul>
+        <li>
+            <strong>Educational Tool</strong>: It is often used as a first example of a sorting algorithm in textbooks
+            and courses because of its <strong>simplicity to understand and implement</strong>.
+        </li>
+        <li>
+            <strong>Conceptual Understanding</strong>: It helps in understanding the basic concepts of comparison sorts
+            and the importance of algorithm efficiency.
+        </li>
+        <li>
+            <strong>Small Data Sets</strong>: While not optimal, for <strong>very small lists</strong>, its simplicity
+            might outweigh its performance drawbacks, though other simple sorts like Insertion Sort usually perform
+            better.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <p>
+        The complexity of an algorithm describes how its resource usage (time or space) scales with the input size, 'n'.
+    </p>
+    <h4>Time Complexity</h4>
+    <p>
+        Big O notation describes the upper bound of an algorithm's running time, typically focusing on the worst-case
+        scenario.
+    </p>
+    <ul>
+        <li>
+            <strong>Worst-Case Analysis: $O(n^2)$</strong>
+            <ul>
+                <li>
+                    The worst case for Bubble Sort occurs when the array is sorted in <strong>reverse order</strong>.
+                </li>
+                <li>
+                    In this scenario, the algorithm must perform approximately <code>n</code> comparisons and
+                    <code>n</code> swaps in the first pass, <code>n-1</code> comparisons and swaps in the second, and so
+                    on, until the list is sorted.
+                </li>
+                <li>
+                    The total number of comparisons and swaps sums up to an arithmetic series,
+                    <code>n + (n-1) + ... + 1</code>, which is <code>n(n+1)/2</code>. This simplifies to
+                    <strong>$O(n^2)$</strong>.
+                </li>
+                <li><strong>Bubble Sort is classified as an inefficient sorting algorithm</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Average-Case Analysis: $O(n^2)$</strong>
+            <ul>
+                <li>
+                    On average, Bubble Sort still requires <strong>$O(n^2)$ comparisons and swaps</strong> to sort the
+                    list. Even if the list is partially sorted, the algorithm generally needs to make multiple passes,
+                    with each pass involving a linear scan of a significant portion of the remaining unsorted elements.
+                </li>
+                <li>
+                    The "average case" still involves terms like <code>n * (1/2) * n</code>, which, by ignoring
+                    constants, simplifies to <strong>$O(n^2)$</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Best-Case Analysis: $O(n)$</strong>
+            <ul>
+                <li>The best case occurs when the array is <strong>already sorted</strong>.</li>
+                <li>
+                    If the implementation includes an optimization to detect if no swaps occurred in a full pass
+                    (meaning the list is sorted), the algorithm will make <strong>one full pass</strong> through the
+                    array, performing <code>n-1</code> comparisons, and then terminate.
+                </li>
+                <li>This results in a <strong>linear time complexity of $O(n)$</strong>.</li>
+            </ul>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            Bubble Sort sorts the input array <strong>in-place</strong>. This means it uses only a
+            <strong>constant amount of auxiliary memory</strong>, not counting the array that needs to be sorted.
+        </li>
+        <li>Therefore, its space complexity is <strong>$O(1)$</strong>.</li>
+    </ul>
+    <h4>Stability</h4>
+    <p>Bubble sort is a stable algorithm.</p>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Simplicity</strong>: <strong>Bubble Sort is simple to understand and implement</strong>. Its logic
+            directly translates to code, making it a good entry point for learning about sorting algorithms.
+        </li>
+        <li>
+            <strong>Stability</strong>: It is a <strong>stable sorting algorithm</strong>. A stable sorting algorithm
+            <strong>preserves the relative order of equal elements</strong> in the sorted output as they appeared in the
+            original input.
+        </li>
+        <li>
+            <strong>In-Place Sort</strong>: It sorts the array without requiring significant additional memory space,
+            making it <strong>memory-efficient</strong>.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Inefficiency on Large Data</strong>:
+            <strong>Bubble Sort is highly inefficient for large lists</strong> or datasets because its time complexity
+            is <strong>$O(n^2)$</strong> in the average and worst cases. As the input size 'n' increases, its
+            performance degrades rapidly.
+        </li>
+        <li>
+            <strong>Poor Worst-Case Performance</strong>: For reversed arrays, it performs the maximum number of
+            comparisons and swaps, making it very slow.
+        </li>
+        <li>
+            <strong>Does not Leverage Partial Sortedness</strong>: Unless specifically optimized for early termination
+            (best case), it will still perform <strong>$O(n^2)$</strong> operations even if the array is nearly sorted.
+        </li>
+        <li>
+            <strong>Comparatively Slow</strong>: Other sorting algorithms like Merge Sort ($O(n \log n)$) or Quicksort
+            ($O(n \log n)$ average case) are significantly faster for large inputs.
+        </li>
+    </ul>
+</div>
+{% endblock %}
