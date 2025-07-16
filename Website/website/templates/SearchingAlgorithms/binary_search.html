@@ -1,12 +1,16 @@
 {% extends "content.html" %} {% block title %} Binary Search {% endblock %} {% block main_content %}
 <h1>Binary Search</h1>
-<p>
-    Binary search is a <strong>Divide and Conquer search algorithm</strong> used for finding a particular item within a
-    sorted list or array. It operates by <strong>sequentially checking the middle item</strong> in the list, then
-    eliminating half of the remaining numbers in each step until the desired item is found or the search space is
-    exhausted. This approach requires the input list or search space to be <strong>ordered (sorted)</strong> in some
-    way.
-</p>
+<div class="subcontent">
+    <h3>What is Binary Search Algorithm?</h3>
+    <p>
+        Binary search is a powerful <strong>Divide and Conquer algorithm</strong> used to efficiently locate a specific
+        element within a <strong>sorted list or array</strong>. Instead of scanning each item one by one, it repeatedly
+        <strong>divides the search space in half</strong> by comparing the target value with the middle element. If the
+        middle element is not the target, it discards half the array and continues searching in the remaining half. This
+        process continues until the element is found or the search space is empty.
+        <strong>Binary search requires the input data to be sorted</strong> in ascending or descending order.
+    </p>
+</div>
 
 <div class="subcontent">
     <h3>Python Implementation & Visualization</h3>
@@ -60,34 +64,36 @@
 </div>
 
 <div class="subcontent">
-    <h3 id="use-cases-and-applications">Use Cases and Applications</h3>
-    <p>Binary search is applicable in scenarios where the data is sorted or can be efficiently sorted:</p>
+    <h3>Use Cases and Applications of Binary Search</h3>
+    <p>
+        Binary search is widely used in scenarios where the data is <strong>pre-sorted</strong> or can be sorted
+        efficiently:
+    </p>
     <ul>
         <li>
-            <strong>Efficient Lookups</strong>: It can find the position of an element in a sorted list. For instance,
-            looking up a word in a dictionary or a name in a phone book leverages this principle.
+            <strong>Fast Element Lookup</strong>: Quickly determines the index of a specific value in a
+            <strong>sorted array or list</strong>, similar to finding a word in a dictionary or a contact in a phone
+            book.
         </li>
         <li>
-            <strong>Database Search</strong>: Platforms like Facebook use binary search to verify usernames in their
-            databases, assuming the data is structured to allow such searches.
+            <strong>Database Searching</strong>: Used in systems like <strong>search engines</strong> and social
+            platforms (e.g., Facebook) to verify usernames or entries in structured databases.
         </li>
         <li>
-            <strong>Finding Equilibrium</strong>: In economic problems, such as determining an equilibrium price where
-            supply equals demand, binary search is efficient when the search space is monotonic. A linear search would
-            be infeasible for very large search spaces, such as 1 to 10.
+            <strong>Economic Modeling</strong>: Helps determine <strong>equilibrium points</strong> in economics, such
+            as matching supply with demand when the data trends are <strong>monotonic</strong>.
         </li>
         <li>
-            <strong>Solving Monotone Functions</strong>: It can be extended to solve equations involving monotone
-            functions by halving the search range.
+            <strong>Solving Mathematical Problems</strong>: Efficient for solving problems involving
+            <strong>monotonic functions or equations</strong> by narrowing down the solution space with each step.
         </li>
         <li>
-            <strong>As part of other algorithms</strong>: While not efficient as a standalone sort for unsorted data,
-            binary search is used within algorithms like insertion sort to locate the correct position for an element in
-            an already sorted sub-array.
+            <strong>Used in Hybrid Algorithms</strong>: Plays a role in hybrid algorithms like
+            <strong>binary insertion sort</strong> to quickly find the right position in a sorted sublist.
         </li>
         <li>
-            <strong>Finding Specific Occurrences</strong>: With slight modifications, it can be used to find the
-            smallest or largest occurrence of a value in an array with duplicates.
+            <strong>Handling Duplicate Values</strong>: With slight modifications, binary search can find the
+            <strong>first or last occurrence</strong> of a repeated element in an array.
         </li>
     </ul>
 </div>
