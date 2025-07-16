@@ -1,9 +1,14 @@
 {% extends "content.html" %} {% block title %} Linear Search {% endblock %} {% block main_content %}
 <h1>Linear Search</h1>
-<p>
-    Linear search is a <strong>simple algorithm</strong> used for finding a particular item within a list or array. It
-    operates by <strong>sequentially checking each item</strong> in the list until the desired query has been found.
-</p>
+<div class="subcontent">
+    <h3>What is Linear Search Algorithm?</h3>
+    <p>
+        Linear search, also known as <strong>sequential search</strong>, is a fundamental
+        <strong>search algorithm</strong> used to locate a specific element within an <strong>array or list</strong>. It
+        works by <strong>traversing each element</strong>
+        one by one from the beginning until the target value is found or the list ends.
+    </p>
+</div>
 
 <div class="subcontent">
     <h3>Python Implementation & Visualization</h3>
@@ -49,26 +54,25 @@
 </div>
 
 <div class="subcontent">
-    <h3>Use Cases and Applications</h3>
+    <h3>Use Cases and Applications of Linear Search</h3>
     <ul>
         <li>
-            <strong>Simple lists</strong>: Linear search is suitable for <strong>small lists or unsorted data</strong>,
-            where the overhead of more complex algorithms like binary search (which requires sorted data) is not
-            justified.
+            <strong>Unsorted or Small Lists</strong>: Ideal for <strong>small datasets</strong> or cases where data is
+            <strong>unsorted</strong> and using advanced algorithms like binary search isn’t feasible.
         </li>
         <li>
-            <strong>Searching for elements</strong>: It can be used to
-            <strong>determine if an element <code>x</code> is present</strong> in an array.
+            <strong>Element Lookup in Arrays</strong>: Commonly used to
+            <strong>check if a specific element <code>x</code> exists</strong>
+            in a list or array.
         </li>
         <li>
-            <strong>Checking for absence</strong>: The worst-case scenario for linear search often occurs when the
-            element being sought is <strong>not present</strong> in the array.
+            <strong>Detection of Absence</strong>: Particularly useful when verifying that a value is
+            <strong>not present</strong>
+            in a list, as it checks all elements before concluding.
         </li>
         <li>
-            <strong>Finding an equilibrium price</strong>: In certain economic problems, if the search space is
-            monotonic, binary search is more efficient, implying linear search would be <em>infeasible</em> for very
-            large search spaces like 1 to 10. This highlights that linear search is generally for <em>smaller</em> or
-            <em>unstructured</em> problems where its simplicity is an advantage.
+            <strong>Simple Problem Solving</strong>: Useful for <strong>basic problem-solving tasks</strong> where
+            performance is not critical, and the data set is limited in size or structure.
         </li>
     </ul>
 </div>

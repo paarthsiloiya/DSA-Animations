@@ -1,0 +1,399 @@
+{% extends "content.html" %} {% block title %} Insertion Sort {% endblock %} {% block main_content %}
+<h1>Insertion Sort Algorithms</h1>
+
+<div class="subcontent">
+    <h3>Applications of Insertion Sort</h3>
+    <p>
+        Although the <strong>Insertion Sort algorithm has a time complexity of O(n²)</strong>, making it less efficient
+        for large datasets, it is still highly useful in specific situations due to its simplicity and behavior on
+        certain types of input.
+    </p>
+    <ul>
+        <li>
+            <strong>Efficient for Small Data Sets</strong>: Insertion Sort is often faster than more complex algorithms
+            like Merge Sort or Quick Sort on very small input sizes, making it useful as a fallback in hybrid sorting
+            algorithms.
+        </li>
+        <li>
+            <strong>Best for Nearly Sorted Data</strong>: Insertion Sort performs extremely well when the input is
+            <strong>partially sorted</strong>. In such cases, it can run in nearly linear time, making it ideal for
+            lists that are almost in order or require incremental updates.
+        </li>
+        <li>
+            <strong>Online Sorting</strong>: Because it processes data <strong>one item at a time</strong> while
+            maintaining a sorted sequence, it is suitable for <strong>online algorithms</strong> where elements arrive
+            sequentially.
+        </li>
+        <li>
+            <strong>Teaching Sorting Basics</strong>: Insertion Sort is widely used in computer science education to
+            introduce <strong>sorting algorithm concepts</strong> due to its ease of understanding and implementation.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="14">
+    <code>def insertionSort(arr):
+        for i in range(1, len(arr)):
+            key = arr[i]
+            j = i - 1
+            while j >= 0 and arr[j] > key:
+                arr[j + 1] = arr[j]
+                j -= 1
+            arr[j + 1] = key
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    N = len(arr)
+    x = 6
+    result = search(arr, N, x)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SortingAlgorithms/InsertionSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications</h3>
+    <p>
+        While Insertion Sort is generally
+        <strong>inefficient on large lists due to its $O(n^2)$ time complexity</strong>, it is noted for its
+        <strong>simplicity</strong> and has performance advantages in specific situations.
+    </p>
+    <ul>
+        <li>
+            <strong>Small Input Sizes</strong>: Insertion Sort is an
+            <strong>efficient algorithm for sorting a small number of elements</strong>. Its constant factors are
+            typically smaller than asymptotically faster algorithms like Merge Sort, making it faster in practice for
+            small problem sizes on many machines. This is a common
+            <strong
+                >engineering practice where a well-tuned Quick Sort implementation may fall back to Insertion Sort for
+                small datasets</strong
+            >.
+        </li>
+        <li>
+            <strong>Nearly Sorted Data</strong>: It performs very well when the input array is
+            <strong>already partially or nearly sorted</strong>. In the best-case scenario, where the array is already
+            sorted, it runs in linear time. This makes it suitable for scenarios where only a few elements are out of
+            place or where data is incrementally added to an already sorted list. For example, converting
+            time-of-transaction ordering to check-number ordering, where checks are mostly in order, makes Insertion
+            Sort a good choice.
+        </li>
+        <li>
+            <strong>Online Algorithms</strong>: Because it processes elements one at a time and maintains a sorted
+            prefix, Insertion Sort can be useful in "online" scenarios where elements arrive sequentially and must be
+            immediately placed into the sorted collection.
+        </li>
+        <li>
+            <strong>Educational Tool</strong>: It is often used as the
+            <strong>first example of a sorting algorithm in textbooks</strong> due to its straightforward nature and
+            ease of implementation.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <p>
+        The running time of Insertion Sort depends on the input, specifically how nearly sorted it is. The time is
+        measured in terms of operations performed, which grow with the input size <code>n</code>.
+    </p>
+    <h4>Time Complexity</h4>
+    <ul>
+        <li>
+            <p><strong>Worst-Case Time Complexity: $O(n^2)$ or $\Theta(n^2)$</strong></p>
+            <ul>
+                <li>
+                    The worst case for Insertion Sort occurs when the input array is
+                    <strong>in reverse sorted order</strong> (decreasing order).
+                </li>
+                <li>
+                    In this scenario, for each element <code>A[j]</code>, it must be compared with every element in the
+                    already sorted subarray <code>A[1...j-1]</code> and shifted to the beginning of this subarray.
+                </li>
+                <li>
+                    The inner <code>while</code> loop (lines 5-7 in the python code <code>INSERTION-SORT</code>)
+                    executes <code>j-1</code> times for each <code>j</code>. So, the number of comparisons
+                    <code>t_j</code> for <code>A[j]</code> is <code>j</code>.
+                </li>
+                <li>
+                    The total number of operations for <code>n</code> elements sums up as
+                    <code>1 + 2 + ... + (n-1)</code> comparisons for the inner loop and an equivalent number of shifts.
+                </li>
+                <li>
+                    Specifically, the total time for the <code>while</code> loop (lines 5-7) is proportional to
+                    $\sum_{j=2}^{n} t_j$, where $t_j = j$. This sum is $\sum_{j=2}^{n} j = \frac{n(n+1)}{2} - 1$.
+                </li>
+                <li>
+                    Therefore, the worst-case running time is expressed as $an + bn + c$ for some constants
+                    <code>a</code>, <code>b</code>, and <code>c</code> that depend on statement costs, making it a
+                    <strong>quadratic function of n</strong>.
+                </li>
+                <li>
+                    For example, scanning to locate the insert position and shifting elements in an array of length
+                    <code>n</code> takes linear time ($O(n)$) in the worst case, leading to an overall $O(n^2)$ time.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Best-Case Time Complexity: $O(n)$ or $\Theta(n)$</strong></p>
+            <ul>
+                <li>The best case occurs if the array is <strong>already sorted</strong>.</li>
+                <li>
+                    In this scenario, for each <code>A[j]</code>, the <code>while</code> loop test in line 5 (<code
+                        >A[i] &gt; key</code
+                    >) fails immediately, as <code>A[i]</code> (which is <code>A[j-1]</code>) is less than or equal to
+                    <code>key</code> (<code>A[j]</code>).
+                </li>
+                <li>Thus, $t_j = 1$ for all <code>j</code> from 2 to <code>n</code>.</li>
+                <li>
+                    The total running time becomes proportional to <code>n</code> (specifically, $c_1n + c_2(n-1) +
+                    c_4(n-1) + c_5(n-1) + c_8(n-1)$).
+                </li>
+                <li>This can be expressed as $an + b$, which is a <strong>linear function of n</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Average-Case Time Complexity: $O(n^2)$ or $\Theta(n^2)$</strong></p>
+            <ul>
+                <li>The average case for Insertion Sort is <strong>roughly as bad as the worst case</strong>.</li>
+                <li>
+                    On average, when inserting <code>A[j]</code> into <code>A[1...j-1]</code>, approximately half the
+                    elements in <code>A[1...j-1]</code> are checked (so $t_j$ is about <code>j/2</code>).
+                </li>
+                <li>
+                    This still results in a <strong>quadratic function of the input size</strong>, just like the
+                    worst-case running time. The runtime is $O(n \times 1/2 \times n)$, but constants like $1/2$ are
+                    ignored in Big O notation, leading to $O(n^2)$.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong>Asymptotic Optimality</strong>: The sources classify algorithms like Heap Sort and Merge Sort as
+                asymptotically optimal comparison sorts with $O(n \log n)$ time. Insertion Sort, at $O(n^2)$ in its
+                average and worst cases, is <strong>not asymptotically optimal</strong>.
+            </p>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <strong>Auxiliary Space: $O(1)$</strong>
+            <ul>
+                <li>
+                    Insertion Sort is an <strong>in-place sorting algorithm</strong>. This means it sorts using only a
+                    constant amount of auxiliary memory (not counting the array itself).
+                </li>
+                <li>
+                    The pseudocode <code>INSERTION-SORT.A/</code> only uses a single variable <code>key</code> to store
+                    the element being inserted, and <code>i</code> and <code>j</code> for loop indices, thus requiring
+                    $O(1)$ additional space.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Stability</h3>
+    <p><strong>Insertion Sort is a stable sorting algorithm</strong>.</p>
+    <ul>
+        <li>
+            For example, if you have <code>(9, 7)</code> and <code>(9, 3)</code> in the input, and
+            <code>(9, 7)</code> comes before <code>(9, 3)</code>, a stable sort ensures <code>(9, 7)</code> still comes
+            before <code>(9, 3)</code> in the sorted list.
+        </li>
+        <li>
+            Insertion sort achieves this stability because its <code>while</code> loop typically compares
+            <code>A[i] &gt; key</code>, meaning it only shifts elements strictly greater than the <code>key</code>. If
+            <code>A[i]</code> is equal to <code>key</code>, it stops shifting, placing the <code>key</code> after
+            <code>A[i]</code>, thereby maintaining the relative order of equal elements.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Simplicity</strong>: Insertion Sort is a
+            <strong>straightforward and easy-to-implement</strong> algorithm.
+        </li>
+        <li>
+            <strong>Efficiency for Small Datasets</strong>: It is
+            <strong>efficient for small numbers of elements</strong>, outperforming asymptotically faster algorithms due
+            to smaller constant factors.
+        </li>
+        <li>
+            <strong>Efficiency for Nearly Sorted Data</strong>: It performs well on
+            <strong>inputs that are already sorted or nearly sorted</strong>, achieving $O(n)$ time complexity in the
+            best case.
+        </li>
+        <li>
+            <strong>In-Place Sorting</strong>: It sorts <strong>in place</strong>, requiring only $O(1)$ auxiliary
+            memory. This is a valuable feature in memory-constrained environments, such as embedded systems.
+        </li>
+        <li>
+            <strong>Stability</strong>: It is a <strong>stable sorting algorithm</strong>, preserving the relative order
+            of equal elements. This property is crucial in applications where maintaining the original order of
+            duplicates is important.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Inefficiency for Large, Unsorted Data</strong>: Its primary drawback is its
+            <strong>quadratic time complexity (O(n)) in the worst-case and average-case scenarios</strong>. This makes
+            it highly inefficient for large, randomly ordered, or reverse-sorted datasets.
+        </li>
+        <li>
+            <strong>Many Shifts</strong>: When inserting an element into an array, it may require
+            <strong>shifting many elements</strong> to make space, which is an expensive operation. This contributes to
+            its quadratic time complexity even when binary search is used to find the insertion point.
+        </li>
+        <li>
+            <strong>Not Suitable for Linked Lists with Binary Search</strong>: While Insertion Sort can be implemented
+            with linked lists, it still takes linear time to locate the insert position because linked lists do not
+            support random access needed for binary search. Without binary search optimization, even finding the
+            insertion point is linear.
+        </li>
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("code-video");
+        const codeBlock = document.getElementById("code-block");
+
+        // Time-to-line mapping
+        const highlightMap = [
+            { time: 0.0, lines: "14" },
+            { time: 0.5, lines: "1", label: "def insertionSort(arr):" },
+            { time: 1.1, lines: "2", label: "i = 1" },
+            { time: 1.3, lines: "3", label: "key = 2" },
+            { time: 1.4, lines: "4", label: "j = 0" },
+            { time: 1.9, lines: "5", label: "Comparing 5 > 2" },
+            { time: 2.9, lines: "6", label: "Shifting 5 to position 1" },
+            { time: 3.6, lines: "7", label: "Decrement j to -1" },
+            { time: 3.6, lines: "8", label: "Inserting 2 at position 0" },
+            { time: 4.45, lines: "2", label: "i = 2" },
+            { time: 4.65, lines: "3", label: "key = 4" },
+            { time: 4.75, lines: "4", label: "j = 1" },
+            { time: 5.25, lines: "5", label: "Comparing 5 > 4" },
+            { time: 6.25, lines: "6", label: "Shifting 5 to position 2" },
+            { time: 6.95, lines: "7", label: "Decrement j to 0" },
+            { time: 6.95, lines: "8", label: "Inserting 4 at position 1" },
+            { time: 7.8, lines: "2", label: "i = 3" },
+            { time: 8.0, lines: "3", label: "key = 6" },
+            { time: 8.1, lines: "4", label: "j = 2" },
+            { time: 8.4, lines: "5", label: "Comparing 5 > 6" },
+            { time: 8.6, lines: "8", label: "Inserting 6 at position 3" },
+            { time: 9.45, lines: "2", label: "i = 4" },
+            { time: 9.65, lines: "3", label: "key = 3" },
+            { time: 9.75, lines: "4", label: "j = 3" },
+            { time: 10.25, lines: "5", label: "Comparing 6 > 3" },
+            { time: 11.25, lines: "6", label: "Shifting 6 to position 4" },
+            { time: 11.95, lines: "7", label: "Decrement j to 2" },
+            { time: 12.45, lines: "5", label: "Comparing 5 > 3" },
+            { time: 13.45, lines: "6", label: "Shifting 5 to position 3" },
+            { time: 14.15, lines: "7", label: "Decrement j to 1" },
+            { time: 14.65, lines: "5", label: "Comparing 4 > 3" },
+            { time: 15.65, lines: "6", label: "Shifting 4 to position 2" },
+            { time: 16.35, lines: "7", label: "Decrement j to 0" },
+            { time: 16.35, lines: "8", label: "Inserting 3 at position 1" },
+            { time: 17.2, lines: "2", label: "i = 5" },
+            { time: 17.4, lines: "3", label: "key = 1" },
+            { time: 17.5, lines: "4", label: "j = 4" },
+            { time: 18.0, lines: "5", label: "Comparing 6 > 1" },
+            { time: 19.0, lines: "6", label: "Shifting 6 to position 5" },
+            { time: 19.7, lines: "7", label: "Decrement j to 3" },
+            { time: 20.2, lines: "5", label: "Comparing 5 > 1" },
+            { time: 21.2, lines: "6", label: "Shifting 5 to position 4" },
+            { time: 21.9, lines: "7", label: "Decrement j to 2" },
+            { time: 22.4, lines: "5", label: "Comparing 4 > 1" },
+            { time: 23.4, lines: "6", label: "Shifting 4 to position 3" },
+            { time: 24.1, lines: "7", label: "Decrement j to 1" },
+            { time: 24.6, lines: "5", label: "Comparing 3 > 1" },
+            { time: 25.6, lines: "6", label: "Shifting 3 to position 2" },
+            { time: 26.3, lines: "7", label: "Decrement j to 0" },
+            { time: 26.8, lines: "5", label: "Comparing 2 > 1" },
+            { time: 27.8, lines: "6", label: "Shifting 2 to position 1" },
+            { time: 28.5, lines: "7", label: "Decrement j to -1" },
+            { time: 28.5, lines: "8", label: "Inserting 1 at position 0" },
+            { time: 29.5, lines: "14", label: "Return Sorted Array" },
+        ];
+
+        video.addEventListener("timeupdate", () => {
+            const currentTime = video.currentTime;
+            // console.log(`At ${currentTime.toFixed(3)}s`);
+            let currentHighlight = "";
+
+            for (let i = highlightMap.length - 1; i >= 0; i--) {
+                if (currentTime >= highlightMap[i].time) {
+                    currentHighlight = highlightMap[i].lines;
+                    break;
+                }
+            }
+
+            if (codeBlock.getAttribute("data-line") !== currentHighlight) {
+                codeBlock.setAttribute("data-line", currentHighlight);
+                Prism.highlightElement(codeBlock.querySelector("code"));
+            }
+        });
+    });
+
+    function copyToClipboard(button) {
+        const pre = button.closest(".code-block");
+        const code = pre?.querySelector("code");
+        if (!code) return;
+
+        // Create a temporary textarea to hold the code text
+        const tempTextarea = document.createElement("textarea");
+        tempTextarea.value = code.innerText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextarea);
+
+        // Optionally give user feedback
+        button.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M382-320 155-547l57-57 170 170 366-366 57 57-423 423ZM200-160v-80h560v80H200Z"/></svg>
+        `;
+        setTimeout(() => {
+            button.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+            <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+        </svg>`;
+        }, 1000);
+    }
+</script>
+
+{% endblock %}

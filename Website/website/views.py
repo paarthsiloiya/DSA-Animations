@@ -46,3 +46,7 @@ def sorting_algorithms():
 @views.route('/bubble sort')
 def bubble_sort():
     return render_template('SortingAlgorithms/bubble_sort.html', user=current_user)
+
+@views.route('/insertion sort')
+def insertion_sort():
+    return render_template('SortingAlgorithms/insertion_sort.html', user=current_user)
