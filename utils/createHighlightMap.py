@@ -237,6 +237,111 @@ def quick_sort():
     sort(arr, 0, len(arr) - 1)
     wait(1.0)  # Final hold
 
+
+
+def merge_sort():
+    def recursive_merge_sort(arr, left, right):
+        log(1, f"recursive_merge_sort(arr, {left}, {right})")
+        if left >= right:
+            wait(0.1)
+            log(2, f"Base case reached with left = {left}, right = {right}")
+            wait(0.1)
+            log(3, f"Returning from recursive_merge_sort")
+            return
+        
+        mid = (left + right) // 2
+        wait(0.1)
+        log(4, f"mid = {mid}")
+        play(0.2) # Create Rectangle for arr
+        log(5, f"Recursively sorting left half: arr[{left}:{mid}]")
+        wait(0.1)
+        recursive_merge_sort(arr, left, mid)
+        log(6, f"Recursively sorting right half: arr[{mid + 1}:{right}]")
+        wait(0.1)
+        recursive_merge_sort(arr, mid + 1, right)
+        log(7, f"Merging sorted halves: arr[{left}:{mid}] and arr[{mid + 1}:{right}]")
+        play(0.2) # Fade out Rectangle for arr
+        merge(arr, left, mid, right)
+
+    def merge(arr, left, mid, right):
+        play(0.1) # Create Rectangle for left and right subarrays this is wait(0.3) but i split them to 0.1
+        log(9, f"merge(arr, {left}, {mid}, {right})")
+        wait(0.1)
+        log(10, f"left_vals = {arr[left:mid + 1]}, right_vals = {arr[mid + 1:right + 1]}")
+        left_vals = arr[left:mid + 1]
+        wait(0.1)
+        log(11, f"right_vals = {arr[mid + 1:right + 1]}")
+        right_vals = arr[mid + 1:right + 1]
+        wait(0.1)
+        log(12, f"merged = []")
+        merged = []
+        wait(0.1)
+        log(13, f"i = 0, j = 0")
+        i = j = 0
+
+        while i < len(left_vals) and j < len(right_vals):
+            play(0.2) # Select elements from left and right subarrays
+            log(14, f"Comparing {left_vals[i]} and {right_vals[j]}")
+            wait(0.2)
+            if left_vals[i] <= right_vals[j]:
+                merged.append(left_vals[i])
+                play(0.3) # Write explanation
+                log(15, f"{left_vals[i]} <= {right_vals[j]}")
+                wait(0.6)
+                log(16, f"Appending {left_vals[i]} to merged")
+                play(1.0) # Shift elements to merged array
+                play(0.2) # Clear selection
+                log(17, f"Incrementing i to {i + 1}")
+                play(0.2) # Fade out explanation
+                i += 1
+            else:
+                merged.append(right_vals[j])
+                play(0.3) # Write explanation
+                log(18, f"{left_vals[i]} > {right_vals[j]}")
+                wait(0.6)
+                log(19, f"Appending {right_vals[j]} to merged")
+                play(1.0) # Shift elements to merged array
+                play(0.2) # Clear selection
+                log(20, f"Incrementing j to {j + 1}")
+                play(0.2) # Fade out explanation
+                j += 1
+
+            # play(1.0) # Shift elements to merged array
+            # play(0.2) # Clear selection
+            
+        while i < len(left_vals):
+            log(21, f"i < len(left_vals), appending remaining left element {left_vals[i]}")
+            merged.append(left_vals[i])
+            play(0.2) # Select remaining left element
+            wait(0.2)
+            log(22, f"Appending {left_vals[i]} to merged")
+            play(1) # Shift remaining left element to merged array
+            log(23, f"i += 1")
+            i += 1
+            play(0.2) # Clear selection
+        while j < len(right_vals):
+            log(24, f"j < len(right_vals), appending remaining right element {right_vals[j]}")
+            merged.append(right_vals[j])
+            play(0.2) # Select remaining right element
+            wait(0.2)
+            log(25, f"Appending {right_vals[j]} to merged")
+            play(1) # Shift remaining right element to merged array
+            log(26, f"j += 1")
+            j += 1
+            play(0.2) # Clear selection
+
+        play(0.2) # Fade out left and right subarrays
+        wait(0.2)
+
+        log(27, f"Final merged array: {merged}")
+        play(1) # Shift merged array back to original array
+        arr[left:right + 1] = merged
+
+    arr = [5, 2, 4, 6, 3, 1]
+    wait(0.5)
+    recursive_merge_sort(arr, 0, len(arr) - 1)
+    wait(1.0)  # Final hold
+
 # --- Final output ---
-quick_sort()
+merge_sort()
 print(highlight_map)
