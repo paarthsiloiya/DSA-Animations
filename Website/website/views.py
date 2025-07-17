@@ -58,3 +58,11 @@ def selection_sort():
 @views.route('/quick sort')
 def quick_sort():
     return render_template('SortingAlgorithms/quick_sort.html', user=current_user)
+
+@views.route('/merge sort')
+def merge_sort():
+    return render_template('SortingAlgorithms/merge_sort.html', user=current_user)
+
+@views.route('/heap sort')
+def heap_sort():
+    return render_template('SortingAlgorithms/heap_sort.html', user=current_user)

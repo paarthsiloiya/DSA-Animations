@@ -291,6 +291,7 @@ class MergeSort(Scene):
 
     def recursive_merge_sort(self, arr : list[ListElement], left : int, right : int, buff_adjust):
         if left >= right:
+            self.wait(0.2)
             return
 
         mid = (left + right) // 2
@@ -300,9 +301,11 @@ class MergeSort(Scene):
         self.play(Create(rect), run_time=0.3)
 
         self.recursive_merge_sort(arr, left, mid, buff_adjust-0.12)
+        self.wait(0.1)
         self.recursive_merge_sort(arr, mid + 1, right, buff_adjust-0.12)
-
+        self.wait(0.1)
         self.merge(arr, left, mid, right)
+        
         self.play(FadeOut(rect), run_time=0.2)
 
 
@@ -336,7 +339,7 @@ class MergeSort(Scene):
                 i += 1
             else:
                 merged.append((right_group[j], right_vals[j]))
-                explanatoryText = Text(f"{left_vals[i]} >= {right_vals[j]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
+                explanatoryText = Text(f"{left_vals[i]} > {right_vals[j]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).shift(DOWN * 2.5)
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)

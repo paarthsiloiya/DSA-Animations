@@ -1,0 +1,447 @@
+{% extends "content.html" %} {% block title %} Merge Sort {% endblock %} {% block main_content %}
+<h1>Merge Sort Algorithm</h1>
+
+<div class="subcontent">
+    <h3>What is Merge Sort?</h3>
+    <p>
+        <strong>Merge Sort is a sorting algorithm that follows the divide-and-conquer paradigm</strong>. It operates by
+        <strong
+            >recursively breaking down an unsorted list into smaller sub-lists until each sub-list contains only one
+            element</strong
+        >, which is inherently sorted. Subsequently, these single-element sub-lists are
+        <strong>repeatedly merged to produce new sorted sub-lists until there is only one sorted list remaining</strong
+        >, which is the final sorted output.
+    </p>
+    <p>The process involves three main steps at each level of recursion:</p>
+    <ul>
+        <li>
+            <strong>Divide</strong>: The <code>n</code>-element sequence to be sorted is divided into two subsequences,
+            each with approximately <code>n/2</code> elements. For arrays, this can be done by simply cutting at the
+            middle.
+        </li>
+        <li>
+            <strong>Conquer</strong>: The two subsequences are recursively sorted using Merge Sort. The recursion
+            "bottoms out" when a sequence has a length of 1, as such a sequence is already sorted.
+        </li>
+        <li>
+            <strong>Combine</strong>: The two sorted subsequences are merged to produce a single sorted result. This is
+            the key operation, often handled by an auxiliary <code>MERGE</code> procedure. This procedure compares
+            elements from the two sorted input sequences, taking the smaller one and adding it to the output, a process
+            that continues until both sequences are merged.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="31">
+    <code>def merge_sort(arr, left, right):
+        if left > right:
+            return
+        mid = (left + right) // 2
+        merge_sort(arr, left, mid)
+        merge_sort(arr, mid + 1, right)
+        merge(arr, left, mid, right)
+
+    def merge(arr, left, mid, right):
+        left_arr = arr[left:mid + 1]
+        right_arr = arr[mid + 1:right + 1]
+        merged = []
+        i = j = 0
+        while i < len(left_arr) and j < len(right_arr):
+            if left_arr[i] <= right_arr[j]:
+                merged.append(left_arr[i])
+                i += 1
+            else:
+                merged.append(right_arr[j])
+                j += 1
+        while i < len(left_arr):
+            merged.append(left_arr[i])
+            i += 1
+        while j < len(right_arr):
+            merged.append(right_arr[j])
+            j += 1
+        arr[left:right + 1] = merged
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    result = merge_sort(arr, 0, len(arr) - 1)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SortingAlgorithms/MergeSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications</h3>
+    <p>
+        Merge Sort is a fundamental algorithm with real-world applications, especially when working with large or
+        external datasets:
+    </p>
+    <ul>
+        <li>
+            <strong>Sorting Large Datasets:</strong> Due to its predictable time complexity, Merge Sort is ideal for
+            sorting large collections of data where performance consistency is crucial.
+        </li>
+        <li>
+            <strong>External Sorting:</strong> When dealing with massive datasets that cannot fit into memory (e.g., in
+            database systems), Merge Sort’s ability to work with chunks of data and merge them externally makes it an
+            optimal choice.
+        </li>
+        <li>
+            <strong>Sorting Linked Lists:</strong> Unlike Quick Sort, Merge Sort is more efficient for
+            <strong>linked list sorting</strong> since it does not require random access or in-place swaps.
+        </li>
+        <li>
+            <strong>Parallel and Multithreaded Algorithms:</strong> Its divide-and-conquer nature allows
+            <strong>easy parallelization</strong>, making it effective for multi-core systems and distributed computing.
+        </li>
+        <li>
+            <strong>Utility in Other Algorithms:</strong> Merge Sort is frequently used as a
+            <strong>subroutine in divide-and-conquer strategies</strong> and in algorithms that require stable sorting.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <p>
+        The complexity of an algorithm describes how its resource usage (time or space) scales with the input size,
+        <code>n</code>.
+    </p>
+    <h4>Time Complexity</h4>
+    <p>
+        Merge Sort is known for its consistent performance across all cases due to its deterministic divide-and-conquer
+        nature.
+    </p>
+    <ul>
+        <li>
+            <p><strong>Worst-Case Analysis: $O(n \log n)$ or $\Theta(n \log n)$</strong></p>
+            <ul>
+                <li>
+                    The worst-case running time for Merge Sort is <strong>$\Theta(n \log n)$</strong>. This is because
+                    Merge Sort consistently divides the array into two halves and takes linear time to merge them back
+                    together.
+                </li>
+                <li>
+                    The recurrence relation that describes the worst-case running time <code>T(n)</code> for Merge Sort
+                    on <code>n</code> numbers is given as:
+                    <ul>
+                        <li>
+                            <code>T(n) = Θ(1)</code> if <code>n = 1</code> (base case: sorting one element takes
+                            constant time).
+                        </li>
+                        <li><code>T(n) = 2T(n/2) + Θ(n)</code> if <code>n &gt; 1</code> (recursive case).</li>
+                    </ul>
+                </li>
+                <li>
+                    This recurrence reflects the three steps of the divide-and-conquer paradigm:
+                    <ul>
+                        <li>
+                            <strong>Divide</strong>: Computes the middle of the subarray, taking
+                            <strong>$\Theta(1)$</strong> time.
+                        </li>
+                        <li>
+                            <strong>Conquer</strong>: Recursively solves two subproblems, each of size <code>n/2</code>,
+                            contributing <code>2T(n/2)</code> to the running time.
+                        </li>
+                        <li>
+                            <strong>Combine</strong>: The <code>MERGE</code> procedure on an <code>n</code>-element
+                            subarray takes <strong>$\Theta(n)$</strong> time. Each basic step in the
+                            <code>MERGE</code> procedure (comparing two top cards, placing one onto the output pile)
+                            takes constant time, and it performs <code>n</code> such steps.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    This recurrence can be solved using the <strong>Master Theorem</strong>, which places it in Case II,
+                    resulting in a solution of <strong>$\Theta(n \log n)$</strong>. Alternatively, viewing the recursion
+                    as a tree, there are <code>log n + 1</code> levels, with each level costing <code>cn</code> (linear
+                    time for merging), leading to a total cost of <code>cn(log n + 1)</code>, which simplifies to
+                    <strong>$\Theta(n \log n)$</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Average-Case Analysis: $O(n \log n)$ or $\Theta(n \log n)$</strong></p>
+            <ul>
+                <li>
+                    Similar to the worst-case, the average-case time complexity for Merge Sort is
+                    <strong>$\Theta(n \log n)$</strong>. This is because the algorithm always performs its divisions and
+                    merges in the same manner, regardless of the initial order of elements.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Best-Case Analysis: $O(n \log n)$ or $\Theta(n \log n)$</strong></p>
+            <ul>
+                <li>
+                    Even when the array is already sorted, Merge Sort still executes its full divide-and-merge process,
+                    resulting in a best-case time complexity of <strong>$\Theta(n \log n)$</strong>. This makes Merge
+                    Sort an algorithm with consistent performance across all scenarios.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong>Asymptotic Optimality</strong>: Merge Sort (along with Heapsort) is considered an
+                <strong>asymptotically optimal comparison sort</strong> because its <strong>$O(n \log n)$</strong> upper
+                bound matches the <strong>$\Omega(n \log n)$</strong> theoretical lower bound for any comparison-based
+                sorting algorithm in the worst case.
+            </p>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <strong>Auxiliary Space: $O(n)$</strong>
+            <ul>
+                <li>
+                    The standard <code>MERGE</code> procedure used by Merge Sort
+                    <strong>does not operate in-place</strong>. It typically requires
+                    <strong>$O(n)$ auxiliary memory</strong> to store the merged sub-lists.
+                </li>
+                <li>
+                    Initially, implementations might appear to consume $O(n \log n)$ space due to recursive calls
+                    allocating new arrays. However, this can be optimized to
+                    <strong
+                        >$O(n)$ auxiliary space by pre-allocating a single work area of size <code>n</code> and reusing
+                        it</strong
+                    >
+                    across recursive calls. This optimization also improves performance.
+                </li>
+                <li>
+                    While "in-place" merge sort algorithms exist, they are often more complex to implement and can
+                    sometimes degrade the time complexity to $O(n^2)$ due to necessary data shifts.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Stability</h3>
+    <p>
+        <strong>Merge Sort is a stable sorting algorithm</strong>. This is because the <code>MERGE</code> procedure can
+        be implemented to consistently pick elements from the first sub-list when equal elements are encountered,
+        thereby preserving their original relative order.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Guaranteed Performance</strong>: Provides a
+            <strong>guaranteed $O(n \log n)$ time complexity</strong> in the best, average, and worst cases. This
+            consistency is highly valuable for applications requiring predictable performance.
+        </li>
+        <li>
+            <strong>Stability</strong>: It is a <strong>stable sorting algorithm</strong>, which means it preserves the
+            relative order of equal elements. This property is important in certain applications where the original
+            order of duplicate keys matters.
+        </li>
+        <li>
+            <strong>Effective for Large Data</strong>: Performs well on large datasets where its asymptotic efficiency
+            outweighs the constant factors of simpler algorithms.
+        </li>
+        <li>
+            <strong>Good for Linked Lists</strong>: Its design, which does not require random access, makes it
+            well-suited for <strong>sorting data stored in linked lists</strong> or other structures that are not
+            arrays.
+        </li>
+        <li>
+            <strong>Parallelism</strong>: Its divide-and-conquer structure inherently lends itself to
+            <strong>efficient parallelization</strong>.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Auxiliary Space Requirement</strong>: The most significant disadvantage is its
+            <strong>need for $O(n)$ auxiliary space</strong>. While this can be managed, it can be a concern in
+            memory-constrained environments, unlike in-place sorting algorithms like Heap Sort or (typical) Quick Sort.
+        </li>
+        <li>
+            <strong>Not In-Place</strong>: Standard implementations are not in-place, meaning they require additional
+            memory proportional to the input size. Achieving true in-place merging is complex and can compromise time
+            complexity.
+        </li>
+        <li>
+            <strong>Constant Factor</strong>: For very small input sizes, algorithms like Insertion Sort can sometimes
+            outperform Merge Sort due to smaller constant factors in their running times.
+        </li>
+        <li>
+            <strong>Overhead for Parallel Merging</strong>: While parallelizable, the merging step itself can introduce
+            overhead or become a <strong>parallelism bottleneck</strong> if not carefully implemented for
+            multithreading.
+        </li>
+    </ul>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "31", label: "recursive_merge_sort(arr, 0, 5)" },
+        { time: 0.5, lines: "1", label: "recursive_merge_sort(arr, 0, 5)" },
+        { time: 0.6, lines: "4", label: "mid = 2" },
+        { time: 0.8, lines: "5", label: "Recursively sorting left half: arr[0:2]" },
+        { time: 0.9, lines: "1", label: "recursive_merge_sort(arr, 0, 2)" },
+        { time: 1.0, lines: "4", label: "mid = 1" },
+        { time: 1.2, lines: "5", label: "Recursively sorting left half: arr[0:1]" },
+        { time: 1.3, lines: "1", label: "recursive_merge_sort(arr, 0, 1)" },
+        { time: 1.4, lines: "4", label: "mid = 0" },
+        { time: 1.6, lines: "5", label: "Recursively sorting left half: arr[0:0]" },
+        { time: 1.7, lines: "1", label: "recursive_merge_sort(arr, 0, 0)" },
+        { time: 1.8, lines: "2", label: "Base case reached with left = 0, right = 0" },
+        { time: 1.9, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 1.9, lines: "6", label: "Recursively sorting right half: arr[1:1]" },
+        { time: 2.0, lines: "1", label: "recursive_merge_sort(arr, 1, 1)" },
+        { time: 2.1, lines: "2", label: "Base case reached with left = 1, right = 1" },
+        { time: 2.2, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 2.2, lines: "7", label: "Merging sorted halves: arr[0:0] and arr[1:1]" },
+        { time: 2.5, lines: "9", label: "merge(arr, 0, 0, 1)" },
+        { time: 2.6, lines: "10", label: "left_vals = [5], right_vals = [2]" },
+        { time: 2.7, lines: "11", label: "right_vals = [2]" },
+        { time: 2.8, lines: "12", label: "merged = []" },
+        { time: 2.9, lines: "13", label: "i = 0, j = 0" },
+        { time: 3.1, lines: "14", label: "Comparing 5 and 2" },
+        { time: 3.6, lines: "18", label: "5 > 2" },
+        { time: 4.2, lines: "19", label: "Appending 2 to merged" },
+        { time: 5.4, lines: "20", label: "Incrementing j to 1" },
+        { time: 5.6, lines: "21", label: "i < len(left_vals), appending remaining left element 5" },
+        { time: 6.0, lines: "22", label: "Appending 5 to merged" },
+        { time: 7.0, lines: "23", label: "i += 1" },
+        { time: 7.6, lines: "27", label: "Final merged array: [2, 5]" },
+        { time: 8.6, lines: "6", label: "Recursively sorting right half: arr[2:2]" },
+        { time: 8.7, lines: "1", label: "recursive_merge_sort(arr, 2, 2)" },
+        { time: 8.8, lines: "2", label: "Base case reached with left = 2, right = 2" },
+        { time: 8.9, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 8.9, lines: "7", label: "Merging sorted halves: arr[0:1] and arr[2:2]" },
+        { time: 9.2, lines: "9", label: "merge(arr, 0, 1, 2)" },
+        { time: 9.3, lines: "10", label: "left_vals = [2, 5], right_vals = [4]" },
+        { time: 9.4, lines: "11", label: "right_vals = [4]" },
+        { time: 9.5, lines: "12", label: "merged = []" },
+        { time: 9.6, lines: "13", label: "i = 0, j = 0" },
+        { time: 9.8, lines: "14", label: "Comparing 2 and 4" },
+        { time: 10.3, lines: "15", label: "2 <= 4" },
+        { time: 10.9, lines: "16", label: "Appending 2 to merged" },
+        { time: 12.1, lines: "17", label: "Incrementing i to 1" },
+        { time: 12.5, lines: "14", label: "Comparing 5 and 4" },
+        { time: 13.0, lines: "18", label: "5 > 4" },
+        { time: 13.6, lines: "19", label: "Appending 4 to merged" },
+        { time: 14.8, lines: "20", label: "Incrementing j to 1" },
+        { time: 15.0, lines: "21", label: "i < len(left_vals), appending remaining left element 5" },
+        { time: 15.4, lines: "22", label: "Appending 5 to merged" },
+        { time: 16.4, lines: "23", label: "i += 1" },
+        { time: 17.0, lines: "27", label: "Final merged array: [2, 4, 5]" },
+        { time: 18.0, lines: "6", label: "Recursively sorting right half: arr[3:5]" },
+        { time: 18.1, lines: "1", label: "recursive_merge_sort(arr, 3, 5)" },
+        { time: 18.2, lines: "4", label: "mid = 4" },
+        { time: 18.4, lines: "5", label: "Recursively sorting left half: arr[3:4]" },
+        { time: 18.5, lines: "1", label: "recursive_merge_sort(arr, 3, 4)" },
+        { time: 18.6, lines: "4", label: "mid = 3" },
+        { time: 18.8, lines: "5", label: "Recursively sorting left half: arr[3:3]" },
+        { time: 18.9, lines: "1", label: "recursive_merge_sort(arr, 3, 3)" },
+        { time: 19.0, lines: "2", label: "Base case reached with left = 3, right = 3" },
+        { time: 19.1, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 19.1, lines: "6", label: "Recursively sorting right half: arr[4:4]" },
+        { time: 19.2, lines: "1", label: "recursive_merge_sort(arr, 4, 4)" },
+        { time: 19.3, lines: "2", label: "Base case reached with left = 4, right = 4" },
+        { time: 19.4, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 19.4, lines: "7", label: "Merging sorted halves: arr[3:3] and arr[4:4]" },
+        { time: 19.7, lines: "9", label: "merge(arr, 3, 3, 4)" },
+        { time: 19.8, lines: "10", label: "left_vals = [6], right_vals = [3]" },
+        { time: 19.9, lines: "11", label: "right_vals = [3]" },
+        { time: 20.0, lines: "12", label: "merged = []" },
+        { time: 20.1, lines: "13", label: "i = 0, j = 0" },
+        { time: 20.3, lines: "14", label: "Comparing 6 and 3" },
+        { time: 20.8, lines: "18", label: "6 > 3" },
+        { time: 21.4, lines: "19", label: "Appending 3 to merged" },
+        { time: 22.6, lines: "20", label: "Incrementing j to 1" },
+        { time: 22.8, lines: "21", label: "i < len(left_vals), appending remaining left element 6" },
+        { time: 23.2, lines: "22", label: "Appending 6 to merged" },
+        { time: 24.2, lines: "23", label: "i += 1" },
+        { time: 24.8, lines: "27", label: "Final merged array: [3, 6]" },
+        { time: 25.8, lines: "6", label: "Recursively sorting right half: arr[5:5]" },
+        { time: 25.9, lines: "1", label: "recursive_merge_sort(arr, 5, 5)" },
+        { time: 26.0, lines: "2", label: "Base case reached with left = 5, right = 5" },
+        { time: 26.1, lines: "3", label: "Returning from recursive_merge_sort" },
+        { time: 26.1, lines: "7", label: "Merging sorted halves: arr[3:4] and arr[5:5]" },
+        { time: 26.4, lines: "9", label: "merge(arr, 3, 4, 5)" },
+        { time: 26.5, lines: "10", label: "left_vals = [3, 6], right_vals = [1]" },
+        { time: 26.6, lines: "11", label: "right_vals = [1]" },
+        { time: 26.7, lines: "12", label: "merged = []" },
+        { time: 26.8, lines: "13", label: "i = 0, j = 0" },
+        { time: 27.0, lines: "14", label: "Comparing 3 and 1" },
+        { time: 27.5, lines: "18", label: "3 > 1" },
+        { time: 28.1, lines: "19", label: "Appending 1 to merged" },
+        { time: 29.3, lines: "20", label: "Incrementing j to 1" },
+        { time: 29.5, lines: "21", label: "i < len(left_vals), appending remaining left element 3" },
+        { time: 29.9, lines: "22", label: "Appending 3 to merged" },
+        { time: 30.9, lines: "23", label: "i += 1" },
+        { time: 31.1, lines: "21", label: "i < len(left_vals), appending remaining left element 6" },
+        { time: 31.5, lines: "22", label: "Appending 6 to merged" },
+        { time: 32.5, lines: "23", label: "i += 1" },
+        { time: 33.1, lines: "27", label: "Final merged array: [1, 3, 6]" },
+        { time: 34.1, lines: "7", label: "Merging sorted halves: arr[0:2] and arr[3:5]" },
+        { time: 34.4, lines: "9", label: "merge(arr, 0, 2, 5)" },
+        { time: 34.5, lines: "10", label: "left_vals = [2, 4, 5], right_vals = [1, 3, 6]" },
+        { time: 34.6, lines: "11", label: "right_vals = [1, 3, 6]" },
+        { time: 34.7, lines: "12", label: "merged = []" },
+        { time: 34.8, lines: "13", label: "i = 0, j = 0" },
+        { time: 35.0, lines: "14", label: "Comparing 2 and 1" },
+        { time: 35.5, lines: "18", label: "2 > 1" },
+        { time: 36.1, lines: "19", label: "Appending 1 to merged" },
+        { time: 37.3, lines: "20", label: "Incrementing j to 1" },
+        { time: 37.7, lines: "14", label: "Comparing 2 and 3" },
+        { time: 38.2, lines: "15", label: "2 <= 3" },
+        { time: 38.8, lines: "16", label: "Appending 2 to merged" },
+        { time: 40.0, lines: "17", label: "Incrementing i to 1" },
+        { time: 40.4, lines: "14", label: "Comparing 4 and 3" },
+        { time: 40.9, lines: "18", label: "4 > 3" },
+        { time: 41.5, lines: "19", label: "Appending 3 to merged" },
+        { time: 42.7, lines: "20", label: "Incrementing j to 2" },
+        { time: 43.1, lines: "14", label: "Comparing 4 and 6" },
+        { time: 43.6, lines: "15", label: "4 <= 6" },
+        { time: 44.2, lines: "16", label: "Appending 4 to merged" },
+        { time: 45.4, lines: "17", label: "Incrementing i to 2" },
+        { time: 45.8, lines: "14", label: "Comparing 5 and 6" },
+        { time: 46.3, lines: "15", label: "5 <= 6" },
+        { time: 46.9, lines: "16", label: "Appending 5 to merged" },
+        { time: 48.1, lines: "17", label: "Incrementing i to 3" },
+        { time: 48.3, lines: "24", label: "j < len(right_vals), appending remaining right element 6" },
+        { time: 48.7, lines: "25", label: "Appending 6 to merged" },
+        { time: 49.7, lines: "26", label: "j += 1" },
+        { time: 50.3, lines: "27", label: "Final merged array: [1, 2, 3, 4, 5, 6]" },
+        { time: 50.9, lines: "31", label: "recursive_merge_sort(arr, 0, 5)" },
+    ];
+</script>
+{% endblock %}
