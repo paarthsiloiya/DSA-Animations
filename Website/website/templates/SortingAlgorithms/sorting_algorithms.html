@@ -102,7 +102,7 @@
                     <strong>O(n log n)</strong> running time. It is generally an <strong>unstable</strong> sort.
                 </li>
                 <li>
-                    <strong><a href="Quick%20Sort">Quick Sort</a></strong
+                    <strong><a href="{{ url_for('views.quick_sort') }}">Quick Sort</a></strong
                     >: A widely used <strong>divide-and-conquer</strong> algorithm that selects a "pivot" element and
                     partitions the other elements into two sub-arrays according to whether they are less than or greater
                     than the pivot. While its worst-case running time is $O(n)$, its
@@ -111,7 +111,7 @@
                     generally an <strong>unstable</strong> sort.
                 </li>
                 <li>
-                    <strong><a href="Selection%20Sort">Selection Sort</a></strong
+                    <strong><a href="{{ url_for('views.selection_sort') }}">Selection Sort</a></strong
                     >: Repeatedly finds the minimum (or maximum) element from the unsorted part of the list and swaps it
                     with the first unsorted element. It has an <strong>$O(n)$</strong> time complexity, making it
                     inefficient for large lists.
