@@ -85,7 +85,7 @@
                     order. It is a <strong>stable</strong> sort.
                 </li>
                 <li>
-                    <strong><a href="Merge%20Sort">Merge Sort</a></strong
+                    <strong><a href="{{ url_for('views.merge_sort') }}">Merge Sort</a></strong
                     >: A <strong>divide-and-conquer</strong> algorithm that recursively splits a list into halves, sorts
                     them, and then merges the sorted halves. It consistently achieves <strong>O(n log n)</strong> time
                     complexity in all cases. It is a <strong>stable</strong> sort.
@@ -97,7 +97,7 @@
                     <strong>stable</strong> sort. Its performance is typically <strong>O(n)</strong>.
                 </li>
                 <li>
-                    <strong><a href="Heap%20Sort">Heap Sort</a></strong
+                    <strong><a href="{{ url_for('views.heap_sort') }}">Heap Sort</a></strong
                     >: Uses a heap data structure to sort elements. It sorts in-place and has an
                     <strong>O(n log n)</strong> running time. It is generally an <strong>unstable</strong> sort.
                 </li>
@@ -147,7 +147,7 @@
                     <strong>Bucket Sort</strong>: Divides the input range (e.g., <code>[0, 1)</code>) into several
                     equal-sized "buckets", distributes elements into these buckets, sorts each bucket (often using
                     insertion sort), and then concatenates the sorted buckets. It assumes a uniform distribution of
-                    input and has an average-case running time of <strong>$O(n)$</strong>. %%
+                    input and has an average-case running time of <strong>$O(n)$</strong>.
                 </li>
             </ul>
         </li>
@@ -200,10 +200,10 @@
         </li>
         <li><strong>Insertion Sort</strong>: Insertion sort is also a stable sorting algorithm.</li>
         <li>
-            %% <strong>Radix Sort</strong>: Radix sort requires its intermediate digit sorts to be stable for it to work
+            <strong>Radix Sort</strong>: Radix sort requires its intermediate digit sorts to be stable for it to work
             correctly.
         </li>
-        <li><strong>Tim Sort</strong>: This is listed as a stable sort. %%</li>
+        <li><strong>Tim Sort</strong>: This is listed as a stable sort.</li>
         <li><strong>Bubble Sort</strong>: This algorithm is a stable sorting algorithm.</li>
     </ul>
     <p><strong>Well-known Unstable Sorts</strong>:</p>

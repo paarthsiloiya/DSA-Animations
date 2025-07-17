@@ -381,7 +381,7 @@ p code,
     font-size: 0.9rem;
     background-color: hsl(262, 50%, 90%);
     color: var(--text);
-    padding: var(--spacing-xs) var(--padding-sm);
+    padding: 0.05rem var(--padding-sm);
     border-radius: var(--border-radius-small);
     text-align: center;
     font-family: "JetBrains Mono";
@@ -444,6 +444,7 @@ code[class*="language-"] {
     /* overflow-x: hidden !important; */
     width: 100% !important;
     margin: 0 !important;
+    padding: 0 !important;
     background: var(--background) !important;
 }
 
@@ -458,7 +459,7 @@ pre[class*="language-"].line-numbers {
 
 .line-highlight {
     background: linear-gradient(to right, rgba(122, 91, 175, 0.15), transparent) !important;
-    margin-top: 0.68rem !important;
+    margin-top: 0 !important;
 }
 
 .token.operator,
@@ -480,7 +481,7 @@ pre[class*="language-"] > code .line-highlight {
 }
 
 .line-numbers-rows {
-    margin-top: 0.2rem;
+    /* margin-top: 0.2rem; */
 }
 
 .line-numbers .line-numbers-rows > span:before {
