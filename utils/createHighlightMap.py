@@ -342,6 +342,115 @@ def merge_sort():
     recursive_merge_sort(arr, 0, len(arr) - 1)
     wait(1.0)  # Final hold
 
+
+def heap_sort():
+    def max_heapify(arr, n, k, return_line):
+        wait(0.2)
+        log(1, f"max_heapify(arr, {n}, {k})")
+        wait(0.2)
+        log(2, f"l = 2 * {k} + 1")
+        l = 2 * k + 1
+        wait(0.2)
+        log(3, f"r = 2 * {k} + 2")
+        r = 2 * k + 2
+        wait(0.2)
+        log(4, f"largest = {k}")
+        largest = k
+        wait(0.2)
+        log(5, f"arr[{l}] > arr[{largest}], updating largest to {l}")
+        if l < n and arr[l] > arr[largest]:
+            wait(0.2)
+            log(6, f"largest = {l}")
+            largest = l
+        log(7, f"arr[{r}] > arr[{largest}], updating largest to {r}")
+        if r < n and arr[r] > arr[largest]:
+            wait(0.2)
+            log(8, f"largest = {r}")
+            largest = r
+        
+        if largest == l:
+            wait(0.2)
+        # play(0.3) # Write operation Text
+        # wait(1.5)
+        # play(0.2) # Fade Out operation Text
+        # wait(0.2)
+        # Total is 2.2 so will be divided 7 * 0.2 and 0.8
+        wait(1)
+
+        log(9, f"if largest != {k}")
+        if largest != k:
+            play(0.3) # Write suboperation Text
+            wait(0.3)
+            log(10, f"arr[{k}], arr[{largest}] = arr[{largest}], arr[{k}]")
+            arr[k], arr[largest] = arr[largest], arr[k]
+            play(0.6) # Swap
+            play(0.2) # Fade Out suboperation Text
+            wait(0.2)
+            log(11, f"Calling max_heapify(arr, {n}, {largest})")
+            max_heapify(arr, n, largest, 11)
+
+        wait(0.2)
+        log(return_line, f"Returning from max_heapify")
+
+    def build_max_heap(arr):
+        log(13, f"build_max_heap(arr)")
+        play(0.5) # Write operation Text
+        log(14, f"n = len(arr)")
+        n = len(arr)
+        wait(0.5)
+        for i in range(n // 2 - 1, -1, -1):
+            log(15, f"for i in range(n // 2 - 1, -1, -1)")
+            play(0.3) # Select i
+            log(16, f"Calling max_heapify(arr, {n}, {i})")
+            wait(0.3)
+            max_heapify(arr, n, i, 16)
+            wait(0.1)
+            play(0.3) # Clear selection
+            wait(0.3)
+        wait(0.2)
+        play(0.5) # Fade out operation Text
+
+    def sort(arr):
+        log(18, f"heap_sort(arr)")
+        wait(0.5)
+        log(19, f"Building max heap")
+        play(0.5) # Write operation Text
+        build_max_heap(arr)
+        wait(0.5)
+        log(20, f"n = len(arr)")
+        n = len(arr)
+        for i in range(n - 1, 0, -1):
+            play(0.3) # Write suboperation Text
+            log(21, f"for i in range(n - 1, 0, -1)")
+            wait(0.3)
+            log(22, f"Swapping {arr[i]} and {arr[0]}")
+            arr[i], arr[0] = arr[0], arr[i]
+            play(0.6) #Swap
+            wait(0.2)
+            play(0.2) # Fade out suboperation Text
+            play(0.3) # Marks as sorted
+            wait(0.3)
+            play(0.3) # Write suboperation Text
+            wait(0.2)
+            log(23, f"Calling max_heapify(arr, {i}, 0)")
+            max_heapify(arr, i, 0, 23)
+            wait(0.1)
+            play(0.2) # Fade out suboperation Text
+            wait(0.2)
+        
+        wait(0.2)
+        play(0.3) # Marks first element as sorted
+        wait(0.2)
+        play(0.5) # Fade out operation Text
+
+    wait(8.4) #initial wait
+    arr = [5, 2, 4, 6, 3, 1]
+    sort(arr)
+    wait(1.8)  # Final hold
+    log(17, f"Final sorted array: {arr}")
+    wait(1) # Final hold after sorting
+
+
 # --- Final output ---
-merge_sort()
+heap_sort()
 print(highlight_map)
