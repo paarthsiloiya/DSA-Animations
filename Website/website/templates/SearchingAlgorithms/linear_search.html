@@ -213,74 +213,27 @@
     </ul>
 </div>
 
+{% endblock %} {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const video = document.getElementById("code-video");
-        const codeBlock = document.getElementById("code-block");
-
-        // Time-to-line mapping
-        const highlightMap = [
-            { time: 0.0, lines: "11" },
-            { time: 1.0, lines: "1" },
-            //Check 5
-            { time: 1.6, lines: "2" },
-            { time: 1.8, lines: "3" },
-            // Check 2
-            { time: 2.55, lines: "2" },
-            { time: 2.82, lines: "3" },
-            // Check 4
-            { time: 3.6, lines: "2" },
-            { time: 4, lines: "3" },
-            // Check 6
-            { time: 4.8, lines: "2" },
-            { time: 5.2, lines: "3" },
-            { time: 6, lines: "4" },
-            // return
-            { time: 7, lines: "11" },
-        ];
-
-        video.addEventListener("timeupdate", () => {
-            const currentTime = video.currentTime;
-            // console.log(`At ${currentTime.toFixed(3)}s`);
-            let currentHighlight = "";
-
-            for (let i = highlightMap.length - 1; i >= 0; i--) {
-                if (currentTime >= highlightMap[i].time) {
-                    currentHighlight = highlightMap[i].lines;
-                    break;
-                }
-            }
-
-            if (codeBlock.getAttribute("data-line") !== currentHighlight) {
-                codeBlock.setAttribute("data-line", currentHighlight);
-                Prism.highlightElement(codeBlock.querySelector("code"));
-            }
-        });
-    });
-
-    function copyToClipboard(button) {
-        const pre = button.closest(".code-block");
-        const code = pre?.querySelector("code");
-        if (!code) return;
-
-        // Create a temporary textarea to hold the code text
-        const tempTextarea = document.createElement("textarea");
-        tempTextarea.value = code.innerText;
-        document.body.appendChild(tempTextarea);
-        tempTextarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempTextarea);
-
-        // Optionally give user feedback
-        button.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M382-320 155-547l57-57 170 170 366-366 57 57-423 423ZM200-160v-80h560v80H200Z"/></svg>
-        `;
-        setTimeout(() => {
-            button.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-            <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
-        </svg>`;
-        }, 1000);
-    }
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "11" },
+        { time: 1.0, lines: "1" },
+        //Check 5
+        { time: 1.6, lines: "2" },
+        { time: 1.8, lines: "3" },
+        // Check 2
+        { time: 2.55, lines: "2" },
+        { time: 2.82, lines: "3" },
+        // Check 4
+        { time: 3.6, lines: "2" },
+        { time: 4, lines: "3" },
+        // Check 6
+        { time: 4.8, lines: "2" },
+        { time: 5.2, lines: "3" },
+        { time: 6, lines: "4" },
+        // return
+        { time: 7, lines: "11" },
+    ];
 </script>
 {% endblock %}

@@ -1,0 +1,280 @@
+{% extends "content.html" %} {% block title %} Selection Sort {% endblock %} {% block main_content %}
+<h1>Selection Sort Algorithm</h1>
+<div class="subcontent">
+    <h3>What is Selection Sort Algorithm?</h3>
+    <p>
+        <strong>Selection Sort is a simple comparison-based sorting algorithm</strong> that sorts an array
+        <strong>in place</strong> without requiring additional memory. It works by
+        <strong>repeatedly selecting the minimum (or maximum) element</strong> from the unsorted portion of the list and
+        placing it at the beginning of the sorted portion. The process continues until the entire array is sorted.
+    </p>
+    <p>The algorithm conceptually divides the input list into two parts:</p>
+    <ul>
+        <li><strong>A sorted sublist</strong>, built from left to right at the front of the list.</li>
+        <li><strong>An unsorted sublist</strong>, consisting of the remaining elements.</li>
+    </ul>
+    <p>
+        Initially, the entire list is considered unsorted. On each pass, the smallest element in the unsorted sublist is
+        identified and <strong>swapped with the leftmost unsorted element</strong>. The boundary between the sorted and
+        unsorted sublists is then moved one element to the right. This process continues until all elements are in
+        order.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="12">
+    <code>def selection_sort(arr):
+        n = len(arr)
+        for i in range(n - 1):
+            min_idx = i
+            for j in range(i + 1, n):
+                if arr[j] < arr[min_idx]:
+                    min_idx = j
+            arr[i], arr[min_idx] = arr[min_idx], arr[i]
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    result = selection_sort(arr)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SortingAlgorithms/SelectionSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Applications of Selection Sort</h3>
+    <p>
+        Although Selection Sort has a time complexity of <code>O(n²)</code>, making it inefficient for large datasets,
+        it is still relevant in specific contexts due to its simplicity and in-place operation:
+    </p>
+    <ul>
+        <li>
+            <strong>Educational Use</strong>: Often introduced in computer science courses as a basic sorting method due
+            to its <strong>straightforward logic</strong> and <strong>ease of implementation</strong>.
+        </li>
+        <li>
+            <strong>Low-Memory Environments</strong>: Since Selection Sort is an <strong>in-place algorithm</strong> and
+            requires only a <strong>constant amount of additional memory</strong>, it is suitable for systems with
+            constrained resources.
+        </li>
+        <li>
+            <strong>Minimal Swap Requirements</strong>: Selection Sort performs at most <code>n</code> swaps, making it
+            useful in scenarios where <strong>write operations are expensive</strong> or should be minimized.
+        </li>
+        <li>
+            <strong>Algorithmic Foundation</strong>: Learning Selection Sort helps build foundational understanding for
+            more advanced sorting algorithms like <strong>Heap Sort</strong> or <strong>Quick Sort</strong>.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <p>
+        The running time of Selection Sort is consistent across best, worst, and average cases, primarily due to its
+        inherent structure of always performing a full scan to find the next minimum.
+    </p>
+    <h4>Time Complexity: $O(n^2)$ or $\Theta(n^2)$</h4>
+    <p>Selection Sort exhibits <strong>quadratic time complexity</strong> in all scenarios:</p>
+    <ul>
+        <li><strong>Worst-Case Time Complexity: $O(n^2)$ or $\Theta(n^2)$</strong>.</li>
+        <li><strong>Best-Case Time Complexity: $O(n^2)$ or $\Theta(n^2)$</strong>.</li>
+        <li><strong>Average-Case Time Complexity: $O(n^2)$ or $\Theta(n^2)$</strong>.</li>
+    </ul>
+    <p>
+        <strong>Calculation for $O(n^2)$</strong>: The algorithm always scans the unsorted part of the array to find the
+        minimum element.
+    </p>
+    <ul>
+        <li>In the first pass, it searches through <code>n</code> elements.</li>
+        <li>In the second pass, it searches through <code>n-1</code> elements.</li>
+        <li>This continues until the last pass, where it searches through 1 element.</li>
+    </ul>
+    <p>
+        The total number of comparisons (or operations proportional to <code>n</code>) can be represented as the sum of
+        an arithmetic series: <code>n + (n-1) + (n-2) + ... + 1</code>. This sum equals <code>n(n+1)/2</code>. When
+        simplified, <code>n(n+1)/2</code> is <code>(n + n)/2</code>. In Big O notation, constant factors (like
+        <code>1/2</code>) and lower-order terms (like <code>n</code>) are ignored for large values of <code>n</code>.
+        Therefore, the running time is <strong>$O(n^2)$</strong>. This quadratic growth makes it
+        <strong>inefficient on large lists</strong>.
+    </p>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <p>
+                <strong>Auxiliary Space: $O(1)$</strong> Selection Sort is an
+                <strong>in-place sorting algorithm</strong>. This means it sorts by rearranging elements within the
+                original input array itself and requires only a small,
+                <strong>constant amount of auxiliary memory</strong> (memory beyond the input array) for a few variables
+                like temporary storage during swaps.
+            </p>
+            <p>
+                <em>Self-correction:</em> One source lists "Auxiliary Space: $O(n)$" for Selection Sort, but this
+                contradicts the definition of an "in-place" algorithm and the general understanding and typical
+                implementations of Selection Sort. Given the strong emphasis on "in-place" and the pseudocode, the
+                $O(n)$ in appears to be an error or refers to a non-standard variant not explained in the provided
+                context. Therefore, the more accurate auxiliary space complexity is <strong>$O(1)$</strong>.
+            </p>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Stability</h3>
+    <p><strong>Selection Sort is not a stable sorting algorithm.</strong></p>
+    <ul>
+        <li>
+            Selection Sort's mechanism involves swapping the smallest element found in the unsorted portion with the
+            element at the beginning of that unsorted portion. This process can alter the relative order of equal
+            elements. For example, if you have <code>[5a, 2, 5b]</code> and <code>5a</code> appears before
+            <code>5b</code>, finding <code>2</code> as the minimum and swapping it with <code>5a</code> would result in
+            <code>[2, 5a, 5b]</code>. However, if the minimum were <code>5b</code> and it was swapped with
+            <code>5a</code>, their relative order might change. While the provided sources explicitly list Quick Sort
+            and Heap Sort as unstable, they do not explicitly state Selection Sort's stability. However, the nature of
+            its swaps typically leads to instability.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Simplicity</strong>: It is conceptually straightforward and
+            <strong>easy to understand and implement</strong>. This makes it a popular choice for teaching basic sorting
+            concepts.
+        </li>
+        <li>
+            <strong>In-Place Sorting</strong>: It is an <strong>in-place algorithm</strong>, meaning it requires
+            <strong>$O(1)$ auxiliary memory</strong>. This is advantageous in environments with limited memory or when
+            sorting very large datasets where creating copies is impractical.
+        </li>
+        <li>
+            <strong>Predictable Performance</strong>: Its <strong>$O(n^2)$ running time is consistent</strong> across
+            best, worst, and average cases. This predictability can be an advantage in systems where consistent
+            performance is critical, even if that performance is not optimal.
+        </li>
+        <li>
+            <strong>Minimal Swaps</strong>: It performs a relatively small number of swaps (exactly
+            <code>n-1</code> swaps) compared to other quadratic sorting algorithms like Bubble Sort or Insertion Sort.
+            This can be beneficial in situations where write operations (swaps) are significantly more expensive than
+            read operations (comparisons).
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Inefficiency for Large Datasets</strong>: Its primary drawback is its
+            <strong>quadratic time complexity ($O(n^2)$)</strong>, which makes it
+            <strong>highly inefficient for large inputs</strong>. As the input size grows, the number of operations
+            increases dramatically.
+        </li>
+        <li>
+            <strong>Not Stable</strong>: Selection Sort
+            <strong>does not guarantee the preservation of the relative order of equal elements</strong>. This can be a
+            significant issue in applications where stability is a requirement.
+        </li>
+        <li>
+            <strong>Consistent but Slow Performance</strong>: While its consistent $O(n^2)$ performance can be seen as
+            an advantage for predictability, it's also a major disadvantage because it
+            <strong>never achieves better performance</strong>. Unlike Insertion Sort, which can run in $O(n)$ in its
+            best case (already sorted array), Selection Sort always performs $O(n^2)$ operations regardless of the
+            input's initial order.
+        </li>
+        <li>
+            <strong>Generally Slower than Insertion Sort</strong>: Despite its simplicity,
+            <strong>Selection Sort generally performs worse than the similar Insertion Sort</strong> due to its higher
+            number of comparisons, especially on nearly sorted data.
+        </li>
+    </ul>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "12" },
+        { time: 1.0, lines: "3", label: "i = 0" },
+        { time: 1.3, lines: "4", label: "min_idx = 0" },
+        { time: 1.4, lines: "5", label: "j = 1" },
+        { time: 1.6, lines: "6", label: "Comparing 2 < 5" },
+        { time: 2.1, lines: "7", label: "New min_idx = 1" },
+        { time: 3.2, lines: "5", label: "j = 2" },
+        { time: 3.4, lines: "6", label: "Comparing 4 < 2" },
+        { time: 4.0, lines: "5", label: "j = 3" },
+        { time: 4.2, lines: "6", label: "Comparing 6 < 2" },
+        { time: 4.8, lines: "5", label: "j = 4" },
+        { time: 5.0, lines: "6", label: "Comparing 3 < 2" },
+        { time: 5.6, lines: "5", label: "j = 5" },
+        { time: 5.8, lines: "6", label: "Comparing 1 < 2" },
+        { time: 6.3, lines: "7", label: "New min_idx = 5" },
+        { time: 8.4, lines: "8", label: "Swapping 5 and 1" },
+        { time: 9.5, lines: "3", label: "i = 1" },
+        { time: 9.8, lines: "4", label: "min_idx = 1" },
+        { time: 9.9, lines: "5", label: "j = 2" },
+        { time: 10.1, lines: "6", label: "Comparing 4 < 2" },
+        { time: 10.7, lines: "5", label: "j = 3" },
+        { time: 10.9, lines: "6", label: "Comparing 6 < 2" },
+        { time: 11.5, lines: "5", label: "j = 4" },
+        { time: 11.7, lines: "6", label: "Comparing 3 < 2" },
+        { time: 12.3, lines: "5", label: "j = 5" },
+        { time: 12.5, lines: "6", label: "Comparing 5 < 2" },
+        { time: 13.5, lines: "8", label: "No swap needed for 2" },
+        { time: 14.8, lines: "3", label: "i = 2" },
+        { time: 15.1, lines: "4", label: "min_idx = 2" },
+        { time: 15.2, lines: "5", label: "j = 3" },
+        { time: 15.4, lines: "6", label: "Comparing 6 < 4" },
+        { time: 16.0, lines: "5", label: "j = 4" },
+        { time: 16.2, lines: "6", label: "Comparing 3 < 4" },
+        { time: 16.7, lines: "7", label: "New min_idx = 4" },
+        { time: 17.8, lines: "5", label: "j = 5" },
+        { time: 18.0, lines: "6", label: "Comparing 5 < 3" },
+        { time: 19.6, lines: "8", label: "Swapping 4 and 3" },
+        { time: 20.7, lines: "3", label: "i = 3" },
+        { time: 21.0, lines: "4", label: "min_idx = 3" },
+        { time: 21.1, lines: "5", label: "j = 4" },
+        { time: 21.3, lines: "6", label: "Comparing 4 < 6" },
+        { time: 21.8, lines: "7", label: "New min_idx = 4" },
+        { time: 22.9, lines: "5", label: "j = 5" },
+        { time: 23.1, lines: "6", label: "Comparing 5 < 4" },
+        { time: 24.7, lines: "8", label: "Swapping 6 and 4" },
+        { time: 25.8, lines: "3", label: "i = 4" },
+        { time: 26.1, lines: "4", label: "min_idx = 4" },
+        { time: 26.2, lines: "5", label: "j = 5" },
+        { time: 26.4, lines: "6", label: "Comparing 5 < 6" },
+        { time: 26.9, lines: "7", label: "New min_idx = 5" },
+        { time: 29.0, lines: "8", label: "Swapping 6 and 5" },
+        { time: 30.1, lines: "3", label: "i = 5" },
+        { time: 30.4, lines: "4", label: "min_idx = 5" },
+        { time: 30.9, lines: "8", label: "No swap needed for 6" },
+        { time: 32.0, lines: "12", label: "Return Sorted Array" },
+    ];
+</script>
+{% endblock %}

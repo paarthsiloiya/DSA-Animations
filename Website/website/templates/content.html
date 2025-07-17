@@ -30,8 +30,8 @@
             <ul>
                 <li><a href="{{ url_for('views.bubble_sort') }}">Bubble Sort</a></li>
                 <li><a href="{{ url_for('views.insertion_sort') }}">Insertion Sort</a></li>
-                <li><a href="/selection_sort">Selection Sort</a></li>
-                <li><a href="/quick_sort">Quick Sort</a></li>
+                <li><a href="{{ url_for('views.selection_sort') }}">Selection Sort</a></li>
+                <li><a href="{{ url_for('views.quick_sort') }}">Quick Sort</a></li>
                 <li><a href="/merge_sort">Merge Sort</a></li>
                 <li><a href="/heap_sort">Heap Sort</a></li>
             </ul>
@@ -93,4 +93,39 @@
     <div class="content">{% block main_content %} {% endblock %}</div>
 </div>
 
-{% endblock %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("code-video");
+        const codeBlock = document.getElementById("code-block");
+        if (!video || !codeBlock || typeof highlightMap === "undefined") return;
+
+        let lastLine = "";
+        setInterval(() => {
+            const currentTime = video.currentTime;
+            let currentHighlight = "";
+
+            for (let i = highlightMap.length - 1; i >= 0; i--) {
+                if (currentTime >= highlightMap[i].time) {
+                    currentHighlight = highlightMap[i].lines;
+                    break;
+                }
+            }
+
+            if (currentHighlight !== lastLine) {
+                codeBlock.setAttribute("data-line", currentHighlight);
+                Prism.highlightElement(codeBlock.querySelector("code"));
+                lastLine = currentHighlight;
+            }
+        }, 100);
+    });
+
+    function copyToClipboard(button) {
+        const code = button.nextElementSibling.querySelector("code").innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            button.innerText = "Copied!";
+            setTimeout(() => (button.innerText = "Copy"), 1500);
+        });
+    }
+</script>
+
+{% block scripts %}{% endblock %} {% endblock %}

@@ -50,3 +50,11 @@ def bubble_sort():
 @views.route('/insertion sort')
 def insertion_sort():
     return render_template('SortingAlgorithms/insertion_sort.html', user=current_user)
+
+@views.route('/selection sort')
+def selection_sort():
+    return render_template('SortingAlgorithms/selection_sort.html', user=current_user)
+
+@views.route('/quick sort')
+def quick_sort():
+    return render_template('SortingAlgorithms/quick_sort.html', user=current_user)

@@ -212,18 +212,23 @@ class SelectionSort(Scene):
                     return base + RIGHT * 0.3
             return base
 
+        self.wait(1)
         for i in range(len(values)):
             min_index = i
             i_index_group = make_arrow(i, "i").move_to(get_arrow_position(i, "i", i, min_index))
             min_index_group = make_arrow(min_index, "Min").move_to(get_arrow_position(min_index, "Min", i, min_index))
-            self.play(Create(min_index_group), Create(i_index_group))           
+            self.play(Create(min_index_group), Create(i_index_group), run_time=0.3)           
             for j in range(i + 1, len(values)):
                 self.play(list_elements[j].SelectElement(), run_time=0.2)
                 if values[j] < values[min_index]:
+                    self.wait(0.3)
+                    compare_text = Text(f"{values[j]} < {values[min_index]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(visuals, DOWN, buff=1.5)
+                    self.play(Write(compare_text), run_time=0.2)
                     min_index = j
                     self.wait(0.3)
                     # Move "Min" arrow, check for overlap with "i"
                     self.play(min_index_group.animate.move_to(get_arrow_position(min_index, "Min", i, min_index)), i_index_group.animate.move_to(get_arrow_position(i, "i", i, min_index)), run_time=0.3)
+                    self.play(FadeOut(compare_text), run_time=0.2)
                 self.wait(0.2)
                 self.play(list_elements[j].ClearSelection(), run_time=0.2)
                 self.wait(0.1)
@@ -394,12 +399,13 @@ class QuickSort(Scene):
         visuals = VGroup(*[el.getListElement() for el in list_elements]).set_z_index(10)
         visuals.arrange(RIGHT, buff=0.6)
         self.add(visuals)
-        self.wait(0.5)
+        self.wait(1)
         self.quickSort(list_elements, 0, len(values) - 1, 0.35)
         self.wait(1)
     
 
     def quickSort(self, arr : list[ListElement], low : int, high : int, buff_adj : int):
+        self.wait(0.3)
         if low < high:
             pi = self.partition(arr, low, high)
 
@@ -463,8 +469,8 @@ class QuickSort(Scene):
             else:
                 self.play(j_group.animate.move_to(arr[j].getListElement().get_center() + (UP * 1.7)), run_time=0.3)
             self.wait(0.2)
-            if array[j] <= pivot:
-                explanatoryText1 = Text(f"{array[j]} <= {pivot} :", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
+            if array[j] < pivot:
+                explanatoryText1 = Text(f"{array[j]} < {pivot} :", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
                 explanatoryText2 = Text("i++ => Swap i and j", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE)
                 explanatoryText = VGroup(explanatoryText1, explanatoryText2).arrange(DOWN, buff=0.3).shift(DOWN * 3)
                 self.play(Write(explanatoryText), run_time=0.3)
@@ -503,7 +509,7 @@ class QuickSort(Scene):
         array[i + 1], array[high] = array[high], array[i + 1]
         self.wait(0.2)
 
-        self.play(*(arr[i+1].MarkSorted()))
+        self.play(*(arr[i+1].MarkSorted()), run_time=0.2)
         self.wait(0.2)
 
         self.play(FadeOut(i_group), run_time=0.2)
