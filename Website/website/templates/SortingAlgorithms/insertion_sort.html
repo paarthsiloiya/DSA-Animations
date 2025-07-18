@@ -2,33 +2,27 @@
 <h1>Insertion Sort Algorithms</h1>
 
 <div class="subcontent">
-    <h3>Applications of Insertion Sort</h3>
+    <h3>What is Insertion Sort Algorithm?</h3>
     <p>
-        Although the <strong>Insertion Sort algorithm has a time complexity of O(n²)</strong>, making it less efficient
-        for large datasets, it is still highly useful in specific situations due to its simplicity and behavior on
-        certain types of input.
+        <strong>Insertion Sort is a simple comparison-based sorting algorithm</strong> that builds the final sorted
+        array or list <strong>one element at a time</strong>. It works by
+        <strong>taking elements from the input and inserting them into their correct position</strong>
+        within the already sorted portion of the list. The algorithm mimics how people often sort a hand of playing
+        cards: start with an empty hand, pick up one card at a time, and insert it into the correct position among the
+        cards already held.
     </p>
-    <ul>
-        <li>
-            <strong>Efficient for Small Data Sets</strong>: Insertion Sort is often faster than more complex algorithms
-            like Merge Sort or Quick Sort on very small input sizes, making it useful as a fallback in hybrid sorting
-            algorithms.
-        </li>
-        <li>
-            <strong>Best for Nearly Sorted Data</strong>: Insertion Sort performs extremely well when the input is
-            <strong>partially sorted</strong>. In such cases, it can run in nearly linear time, making it ideal for
-            lists that are almost in order or require incremental updates.
-        </li>
-        <li>
-            <strong>Online Sorting</strong>: Because it processes data <strong>one item at a time</strong> while
-            maintaining a sorted sequence, it is suitable for <strong>online algorithms</strong> where elements arrive
-            sequentially.
-        </li>
-        <li>
-            <strong>Teaching Sorting Basics</strong>: Insertion Sort is widely used in computer science education to
-            introduce <strong>sorting algorithm concepts</strong> due to its ease of understanding and implementation.
-        </li>
-    </ul>
+    <p>
+        Insertion Sort divides the array into two parts: a <strong>sorted sublist</strong> on the left and an
+        <strong>unsorted sublist</strong> on the right. With each iteration, it moves one element from the unsorted
+        sublist into the sorted sublist by shifting larger elements to the right. It performs the sorting
+        <strong>in place</strong>, requiring only a constant amount of additional memory.
+    </p>
+    <p>
+        The standard implementation uses a <code>for</code> loop to iterate from the second element
+        <code>(j = 2)</code> through the end of the array. At each step, the current element (often referred to as
+        <code>key</code>) is inserted into the correct position within the sorted portion <code>A[1...j-1]</code> using
+        a nested <code>while</code> loop that shifts larger elements one position to the right.
+    </p>
 </div>
 
 <div class="subcontent">
