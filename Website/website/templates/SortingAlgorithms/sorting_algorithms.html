@@ -85,21 +85,16 @@
                     order. It is a <strong>stable</strong> sort.
                 </li>
                 <li>
-                    <strong><a href="{{ url_for('views.merge_sort') }}">Merge Sort</a></strong
-                    >: A <strong>divide-and-conquer</strong> algorithm that recursively splits a list into halves, sorts
-                    them, and then merges the sorted halves. It consistently achieves <strong>O(n log n)</strong> time
-                    complexity in all cases. It is a <strong>stable</strong> sort.
-                </li>
-                <li>
                     <strong><a href="{{ url_for('views.insertion_sort') }}">Insertion Sort</a></strong
                     >: Works by building a sorted array one element at a time, inserting each new element into its
                     correct position within the already sorted portion. It is efficient for small inputs and is a
                     <strong>stable</strong> sort. Its performance is typically <strong>O(n)</strong>.
                 </li>
                 <li>
-                    <strong><a href="{{ url_for('views.heap_sort') }}">Heap Sort</a></strong
-                    >: Uses a heap data structure to sort elements. It sorts in-place and has an
-                    <strong>O(n log n)</strong> running time. It is generally an <strong>unstable</strong> sort.
+                    <strong><a href="{{ url_for('views.selection_sort') }}">Selection Sort</a></strong
+                    >: Repeatedly finds the minimum (or maximum) element from the unsorted part of the list and swaps it
+                    with the first unsorted element. It has an <strong>$O(n)$</strong> time complexity, making it
+                    inefficient for large lists.
                 </li>
                 <li>
                     <strong><a href="{{ url_for('views.quick_sort') }}">Quick Sort</a></strong
@@ -111,10 +106,15 @@
                     generally an <strong>unstable</strong> sort.
                 </li>
                 <li>
-                    <strong><a href="{{ url_for('views.selection_sort') }}">Selection Sort</a></strong
-                    >: Repeatedly finds the minimum (or maximum) element from the unsorted part of the list and swaps it
-                    with the first unsorted element. It has an <strong>$O(n)$</strong> time complexity, making it
-                    inefficient for large lists.
+                    <strong><a href="{{ url_for('views.merge_sort') }}">Merge Sort</a></strong
+                    >: A <strong>divide-and-conquer</strong> algorithm that recursively splits a list into halves, sorts
+                    them, and then merges the sorted halves. It consistently achieves <strong>O(n log n)</strong> time
+                    complexity in all cases. It is a <strong>stable</strong> sort.
+                </li>
+                <li>
+                    <strong><a href="{{ url_for('views.heap_sort') }}">Heap Sort</a></strong
+                    >: Uses a heap data structure to sort elements. It sorts in-place and has an
+                    <strong>O(n log n)</strong> running time. It is generally an <strong>unstable</strong> sort.
                 </li>
                 <li>
                     <strong>Odd-Even Sort</strong>: A simple sorting algorithm designed for parallel processors, which
