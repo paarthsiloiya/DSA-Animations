@@ -1,0 +1,263 @@
+{% extends "content.html" %} {% block title %} Bubble Sort {% endblock %} {% block main_content %}
+<h1>Bubble Sort Algorithm</h1>
+
+<div class="subcontent">
+    <h3>What is Bubble Sort Algorithm?</h3>
+    <p>
+        <strong>Bubble Sort is a basic comparison-based sorting algorithm</strong> that repeatedly steps through the
+        list, <strong>compares adjacent elements</strong>, and
+        <strong>swaps them if they are in the wrong order</strong>. This process is repeated until the entire list is
+        sorted. With each pass, the largest (or smallest) unsorted element "bubbles" to its correct position at the end
+        of the array. Bubble Sort is also referred to as <strong>Sinking Sort</strong> due to the way smaller elements
+        sink toward the start of the list.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="14">
+    <code>def bubbleSort(arr):
+        n = len(arr)
+        for i in range(n):
+            swapped = False
+            for j in range(0, n-i-1):
+                if arr[j] > arr[j+1]:
+                    arr[j], arr[j+1] = arr[j+1], arr[j]
+                    swapped = True
+            if (swapped == False):
+                break
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    result = bubbleSort(arr)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SortingAlgorithms/BubbleSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications of Bubble Sort</h3>
+    <p>
+        While <strong>Bubble Sort</strong> is rarely used in production environments due to its poor performance on
+        large datasets (<code>O(n²)</code> time complexity), it remains useful in several contexts:
+    </p>
+    <ul>
+        <li>
+            <strong>Teaching Basic Sorting Concepts</strong>: Bubble Sort is a popular introductory algorithm in
+            computer science due to its <strong>simplicity and visual appeal</strong>, making it ideal for explaining
+            how sorting works.
+        </li>
+        <li>
+            <strong>Understanding Algorithm Efficiency</strong>: Helps learners understand why more advanced algorithms
+            like <strong>Merge Sort</strong> or <strong>Quick Sort</strong> are preferred for real-world applications.
+        </li>
+        <li>
+            <strong>Sorting Very Small Lists</strong>: In limited cases with very small datasets, where performance is
+            not critical, Bubble Sort may be acceptable—although <strong>Insertion Sort</strong> usually performs better
+            even in these scenarios.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <h4>Time Complexity</h4>
+    <p>
+        Big O notation describes the upper bound of an algorithm's running time, typically focusing on the worst-case
+        scenario.
+    </p>
+    <ul>
+        <li>
+            <strong>Worst-Case Analysis: $O(n^2)$</strong>
+            <ul>
+                <li>
+                    The worst case for Bubble Sort occurs when the array is sorted in <strong>reverse order</strong>.
+                </li>
+                <li>
+                    In this scenario, the algorithm must perform approximately <code>n</code> comparisons and
+                    <code>n</code> swaps in the first pass, <code>n-1</code> comparisons and swaps in the second, and so
+                    on, until the list is sorted.
+                </li>
+                <li>
+                    The total number of comparisons and swaps sums up to an arithmetic series,
+                    <code>n + (n-1) + ... + 1</code>, which is <code>n(n+1)/2</code>. This simplifies to
+                    <strong>$O(n^2)$</strong>.
+                </li>
+                <li><strong>Bubble Sort is classified as an inefficient sorting algorithm</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Average-Case Analysis: $O(n^2)$</strong>
+            <ul>
+                <li>
+                    On average, Bubble Sort still requires <strong>$O(n^2)$ comparisons and swaps</strong> to sort the
+                    list. Even if the list is partially sorted, the algorithm generally needs to make multiple passes,
+                    with each pass involving a linear scan of a significant portion of the remaining unsorted elements.
+                </li>
+                <li>
+                    The "average case" still involves terms like <code>n * (1/2) * n</code>, which, by ignoring
+                    constants, simplifies to <strong>$O(n^2)$</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Best-Case Analysis: $O(n)$</strong>
+            <ul>
+                <li>The best case occurs when the array is <strong>already sorted</strong>.</li>
+                <li>
+                    If the implementation includes an optimization to detect if no swaps occurred in a full pass
+                    (meaning the list is sorted), the algorithm will make <strong>one full pass</strong> through the
+                    array, performing <code>n-1</code> comparisons, and then terminate.
+                </li>
+                <li>This results in a <strong>linear time complexity of $O(n)$</strong>.</li>
+            </ul>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            Bubble Sort sorts the input array <strong>in-place</strong>. This means it uses only a
+            <strong>constant amount of auxiliary memory</strong>, not counting the array that needs to be sorted.
+        </li>
+        <li>Therefore, its space complexity is <strong>$O(1)$</strong>.</li>
+    </ul>
+    <h4>Stability</h4>
+    <p>Bubble sort is a stable algorithm.</p>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Simplicity</strong>: <strong>Bubble Sort is simple to understand and implement</strong>. Its logic
+            directly translates to code, making it a good entry point for learning about sorting algorithms.
+        </li>
+        <li>
+            <strong>Stability</strong>: It is a <strong>stable sorting algorithm</strong>. A stable sorting algorithm
+            <strong>preserves the relative order of equal elements</strong> in the sorted output as they appeared in the
+            original input.
+        </li>
+        <li>
+            <strong>In-Place Sort</strong>: It sorts the array without requiring significant additional memory space,
+            making it <strong>memory-efficient</strong>.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Inefficiency on Large Data</strong>:
+            <strong>Bubble Sort is highly inefficient for large lists</strong> or datasets because its time complexity
+            is <strong>$O(n^2)$</strong> in the average and worst cases. As the input size 'n' increases, its
+            performance degrades rapidly.
+        </li>
+        <li>
+            <strong>Poor Worst-Case Performance</strong>: For reversed arrays, it performs the maximum number of
+            comparisons and swaps, making it very slow.
+        </li>
+        <li>
+            <strong>Does not Leverage Partial Sortedness</strong>: Unless specifically optimized for early termination
+            (best case), it will still perform <strong>$O(n^2)$</strong> operations even if the array is nearly sorted.
+        </li>
+        <li>
+            <strong>Comparatively Slow</strong>: Other sorting algorithms like Merge Sort ($O(n \log n)$) or Quicksort
+            ($O(n \log n)$ average case) are significantly faster for large inputs.
+        </li>
+    </ul>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "14" },
+        { time: 0.2, lines: "1" },
+        { time: 0.4, lines: "2" },
+        { time: 0.6, lines: "3" },
+        { time: 1.0, lines: "5", label: "j loop end" },
+        { time: 1.2, lines: "6", label: "Select elements 5 and 2" },
+        { time: 2.3, lines: "7", label: "Swapping elements 5 and 2" },
+        { time: 3.2, lines: "5", label: "j loop end" },
+        { time: 3.7, lines: "6", label: "Select elements 5 and 4" },
+        { time: 4.8, lines: "7", label: "Swapping elements 5 and 4" },
+        { time: 5.7, lines: "5", label: "j loop end" },
+        { time: 6.2, lines: "6", label: "Select elements 5 and 6" },
+        { time: 7.0, lines: "5", label: "j loop end" },
+        { time: 7.5, lines: "6", label: "Select elements 6 and 3" },
+        { time: 8.6, lines: "7", label: "Swapping elements 6 and 3" },
+        { time: 9.5, lines: "5", label: "j loop end" },
+        { time: 10.0, lines: "6", label: "Select elements 6 and 1" },
+        { time: 11.1, lines: "7", label: "Swapping elements 6 and 1" },
+        { time: 12.0, lines: "5", label: "j loop end" },
+        { time: 12.3, lines: "3", label: "i loop end" },
+        { time: 12.5, lines: "4", label: "swapped=False" },
+        { time: 12.6, lines: "5", label: "j loop end" },
+        { time: 12.8, lines: "6", label: "Select elements 2 and 4" },
+        { time: 13.6, lines: "5", label: "j loop end" },
+        { time: 14.1, lines: "6", label: "Select elements 4 and 5" },
+        { time: 14.9, lines: "5", label: "j loop end" },
+        { time: 15.4, lines: "6", label: "Select elements 5 and 3" },
+        { time: 16.5, lines: "7", label: "Swapping elements 5 and 3" },
+        { time: 17.4, lines: "5", label: "j loop end" },
+        { time: 17.9, lines: "6", label: "Select elements 5 and 1" },
+        { time: 19.0, lines: "7", label: "Swapping elements 5 and 1" },
+        { time: 19.9, lines: "5", label: "j loop end" },
+        { time: 20.2, lines: "3", label: "i loop end" },
+        { time: 20.4, lines: "4", label: "swapped=False" },
+        { time: 20.5, lines: "5", label: "j loop end" },
+        { time: 20.7, lines: "6", label: "Select elements 2 and 4" },
+        { time: 21.5, lines: "5", label: "j loop end" },
+        { time: 22.0, lines: "6", label: "Select elements 4 and 3" },
+        { time: 23.1, lines: "7", label: "Swapping elements 4 and 3" },
+        { time: 24.0, lines: "5", label: "j loop end" },
+        { time: 24.5, lines: "6", label: "Select elements 4 and 1" },
+        { time: 25.6, lines: "7", label: "Swapping elements 4 and 1" },
+        { time: 26.5, lines: "5", label: "j loop end" },
+        { time: 26.8, lines: "3", label: "i loop end" },
+        { time: 27.0, lines: "4", label: "swapped=False" },
+        { time: 27.1, lines: "5", label: "j loop end" },
+        { time: 27.3, lines: "6", label: "Select elements 2 and 3" },
+        { time: 28.1, lines: "5", label: "j loop end" },
+        { time: 28.6, lines: "6", label: "Select elements 3 and 1" },
+        { time: 29.7, lines: "7", label: "Swapping elements 3 and 1" },
+        { time: 30.6, lines: "5", label: "j loop end" },
+        { time: 30.9, lines: "3", label: "i loop end" },
+        { time: 31.1, lines: "4", label: "swapped=False" },
+        { time: 31.2, lines: "5", label: "j loop end" },
+        { time: 31.4, lines: "6", label: "Select elements 2 and 1" },
+        { time: 32.5, lines: "7", label: "Swapping elements 2 and 1" },
+        { time: 33.4, lines: "5", label: "j loop end" },
+        { time: 33.7, lines: "3", label: "i loop end" },
+        { time: 33.9, lines: "4", label: "swapped=False" },
+        { time: 34.0, lines: "5", label: "j loop end" },
+        { time: 34.0, lines: "3", label: "i loop end" },
+        { time: 34.2, lines: "14", label: "end loop i" },
+    ];
+</script>
+{% endblock %}

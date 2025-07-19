@@ -1,0 +1,411 @@
+{% extends "content.html" %} {% block title %} Heap Sort {% endblock %} {% block main_content %}
+<h1>Heap Sort Algorithm</h1>
+
+<div class="subcontent">
+    <h3>What is Heap Sort?</h3>
+    <p>
+        Heap Sort is a <strong>comparison-based sorting technique</strong> that operates on a
+        <strong>binary heap data structure</strong>. It is an <strong>in-place sorting algorithm</strong>, meaning it
+        sorts elements within the original array without requiring significant additional memory.
+    </p>
+    <p>The algorithm's operation can be conceptualized in two main phases:</p>
+    <ul>
+        <li>
+            <strong>Building a Heap</strong>: It first transforms the input array into a max-heap (or min-heap,
+            depending on the desired sort order). In a max-heap, the largest element is always at the root. This is
+            achieved by calling a <code>BUILD-MAX-HEAP</code> procedure.
+        </li>
+        <li>
+            <strong>Sorting</strong>: After the heap is built, the largest element (at the root) is swapped with the
+            last element of the heap. The heap size is then reduced by one, and the heap property is restored for the
+            remaining elements by calling <code>MAX-HEAPIFY</code> on the new root. This process is repeated until the
+            entire array is sorted. This makes it similar to Selection Sort, which repeatedly finds the maximum element
+            and places it at the end.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="27">
+    <code>def max_heapify(arr, n, k):
+        l = 2 * k + 1
+        r = 2 * k + 2
+        largest = k
+        if l < n and arr[l] > arr[largest]:
+            largest = l
+        if r < n and arr[r] > arr[largest]:
+            largest = r
+        if largest != k:
+            arr[k], arr[largest] = arr[largest], arr[k]
+            max_heapify(arr, n, largest)
+
+    def build_max_heap(arr):
+        n = len(arr)
+        for i in range(n // 2 - 1, -1, -1):
+            max_heapify(arr, n, i)
+
+    def heap_sort(arr):
+        build_max_heap(arr)
+        n = len(arr)
+        for i in range(n - 1, 0, -1):
+            arr[i], arr[0] = arr[0], arr[i]
+            max_heapify(arr, i, 0)
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    result = heap_sort(arr, 0, len(arr) - 1)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SortingAlgorithms/HeapSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications</h3>
+    <p>Heap Sort's characteristics make it suitable for specific applications:</p>
+    <ul>
+        <li>
+            <strong>General-Purpose Sorting</strong>: It offers guaranteed $O(n \log n)$ performance, making it a
+            reliable choice for sorting various datasets where predictable performance is crucial.
+        </li>
+        <li>
+            <strong>Memory-Limited Environments</strong>: Since it is an <strong>in-place sorting algorithm</strong>,
+            requiring only $O(1)$ auxiliary memory, it is advantageous in scenarios where memory resources are
+            constrained.
+        </li>
+        <li>
+            <strong>Priority Queues</strong>: The underlying heap data structure is highly efficient for implementing
+            <strong>priority queues</strong>. This is useful in algorithms that repeatedly need to extract the minimum
+            or maximum element, such as in certain graph algorithms like <strong>Prim's algorithm</strong> and
+            <strong>Dijkstra's algorithm</strong>.
+        </li>
+        <li>
+            <strong>Systems Requiring Guaranteed Performance</strong>: Unlike Quick Sort, which has a worst-case
+            $O(n^2)$ time complexity, Heap Sort's $O(n \log n)$ performance is consistent across all cases, offering a
+            dependable upper bound on its running time.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Analysis</h3>
+    <p>
+        Heap Sort consistently performs with $O(n \log n)$ time complexity across all cases due to its structured
+        approach.
+    </p>
+    <h4>Time Complexity: $O(n \log n)$ or $\Theta(n \log n)$</h4>
+    <ul>
+        <li><strong>Worst-Case Time Complexity: $O(n \log n)$</strong>.</li>
+        <li><strong>Best-Case Time Complexity: $O(n \log n)$</strong>.</li>
+        <li>
+            <strong>Average-Case Time Complexity: $O(n \log n)$</strong>. The sources generally don't provide a separate
+            average-case analysis for Heap Sort, often stating $O(n \log n)$ as its complexity in all cases.
+        </li>
+    </ul>
+    <p>
+        <strong>Calculation for $O(n \log n)$</strong>: The <code>HEAPSORT</code> procedure consists of two main steps:
+    </p>
+    <ol>
+        <li>
+            <strong>Building the Max-Heap (<code>BUILD-MAX-HEAP</code>)</strong>: This procedure takes an unordered
+            array and converts it into a max-heap. It does this by iterating from the last non-leaf node up to the root,
+            calling <code>MAX-HEAPIFY</code> on each node. While each <code>MAX-HEAPIFY</code> call takes $O(\log n)$
+            time, the <code>BUILD-MAX-HEAP</code> procedure itself has a tighter bound of <strong>$O(n)$</strong> time.
+            This is because <code>MAX-HEAPIFY</code> on nodes lower in the tree (closer to leaves) takes less time, and
+            there are more such nodes. The total cost can be represented as a sum that resolves to $O(n)$.
+        </li>
+        <li>
+            <strong>Sorting Loop</strong>: After building the heap, the algorithm performs <code>n-1</code> extraction
+            operations. In each iteration:
+            <ul>
+                <li>
+                    The maximum element (at <code>A</code>) is swapped with the last element in the current heap
+                    (<code>A[i]</code>). This takes $O(1)$ time.
+                </li>
+                <li>The heap size is decreased.</li>
+                <li>
+                    <code>MAX-HEAPIFY</code> is called on the new root (<code>A</code>) to restore the heap property on
+                    the remaining <code>i-1</code> elements. This operation takes <strong>$O(\log n)$</strong> time
+                    because the height of a heap with <code>n</code> elements is $O(\log n)$.
+                </li>
+            </ul>
+        </li>
+    </ol>
+    <p>
+        Since there are <code>n-1</code> such iterations, the total time for the sorting loop is $(n-1) \times O(\log n)
+        = O(n \log n)$.
+    </p>
+    <p>
+        Combining both steps, the total running time of Heap Sort is $O(n) + O(n \log n) = O(n \log n)$. This makes Heap
+        Sort <strong>asymptotically optimal</strong> for comparison-based sorts, matching the theoretical lower bound of
+        $\Omega(n \log n)$.
+    </p>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <strong>Auxiliary Space: $O(1)$</strong>. Heap Sort is an <strong>in-place sorting algorithm</strong>. It
+            rearranges elements within the original input array and uses only a constant amount of auxiliary memory for
+            temporary variables during swaps and heap operations.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Stability</h3>
+    <p>
+        <strong>Heap Sort is not a stable sorting algorithm</strong>. Heap Sort's operation, particularly the
+        <code>MAX-HEAPIFY</code> procedure and the swaps it performs, can change the relative order of elements with
+        identical values. For instance, when the largest element is swapped with the last element in the heap, this swap
+        can disrupt the original relative order of equal elements not involved in the direct swap, or even if one of the
+        swapped elements is equal to another element elsewhere in the array.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Optimal Time Complexity</strong>: It guarantees $O(n \log n)$ time complexity in
+            <strong>all cases</strong> (best, worst, and average), which is asymptotically optimal for comparison-based
+            sorting algorithms. This predictability is a significant advantage over algorithms like Quick Sort, which
+            can degrade to $O(n^2)$ in the worst case.
+        </li>
+        <li>
+            <strong>In-Place Sorting</strong>: It requires only $O(1)$ auxiliary space, making it highly
+            memory-efficient. This is crucial for sorting large datasets or in environments with limited memory.
+        </li>
+        <li>
+            <strong>Foundation for Priority Queues</strong>: The heap data structure, integral to Heap Sort, is also
+            fundamental for efficiently implementing <strong>priority queues</strong>, which are used in various other
+            algorithms.
+        </li>
+        <li>
+            <strong>Predictable Performance</strong>: Its consistent performance profile across different input
+            distributions makes it a reliable choice for applications requiring predictable execution times.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Not Stable</strong>: As discussed, Heap Sort is <strong>not a stable algorithm</strong>, which can
+            be a drawback in applications where the original relative order of equal elements must be preserved.
+        </li>
+        <li>
+            <strong>Practical Performance</strong>: While asymptotically optimal, Heap Sort often performs
+            <strong>slower than Quick Sort in practice</strong>. This is generally attributed to larger constant factors
+            in its operations and potentially poorer cache performance due to less sequential memory access patterns
+            compared to algorithms like Quick Sort.
+        </li>
+        <li>
+            <strong>Complexity of Implementation</strong>: While conceptually straightforward, the implementation of
+            heap operations (like <code>Heapify</code> and <code>Build-Heap</code>) can be more intricate than simpler
+            algorithms like Insertion Sort.
+        </li>
+    </ul>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "27" },
+        { time: 8.4, lines: "18", label: "heap_sort(arr)" },
+        { time: 8.9, lines: "19", label: "Building max heap" },
+        { time: 9.4, lines: "13", label: "build_max_heap(arr)" },
+        { time: 9.9, lines: "14", label: "n = len(arr)" },
+        { time: 10.4, lines: "15", label: "for i in range(n // 2 - 1, -1, -1)" },
+        { time: 10.7, lines: "16", label: "Calling max_heapify(arr, 6, 2)" },
+        { time: 11.2, lines: "1", label: "max_heapify(arr, 6, 2)" },
+        { time: 11.4, lines: "2", label: "l = 2 * 2 + 1" },
+        { time: 11.6, lines: "3", label: "r = 2 * 2 + 2" },
+        { time: 11.8, lines: "4", label: "largest = 2" },
+        { time: 12.0, lines: "5", label: "arr[5] > arr[2], updating largest to 5" },
+        { time: 12.0, lines: "7", label: "arr[6] > arr[2], updating largest to 6" },
+        { time: 13.0, lines: "9", label: "if largest != 2" },
+        { time: 13.2, lines: "16", label: "Returning from max_heapify" },
+        { time: 13.9, lines: "15", label: "for i in range(n // 2 - 1, -1, -1)" },
+        { time: 14.2, lines: "16", label: "Calling max_heapify(arr, 6, 1)" },
+        { time: 14.7, lines: "1", label: "max_heapify(arr, 6, 1)" },
+        { time: 14.9, lines: "2", label: "l = 2 * 1 + 1" },
+        { time: 15.1, lines: "3", label: "r = 2 * 1 + 2" },
+        { time: 15.3, lines: "4", label: "largest = 1" },
+        { time: 15.5, lines: "5", label: "arr[3] > arr[1], updating largest to 3" },
+        { time: 15.7, lines: "6", label: "largest = 3" },
+        { time: 15.7, lines: "7", label: "arr[4] > arr[3], updating largest to 4" },
+        { time: 16.9, lines: "9", label: "if largest != 1" },
+        { time: 17.5, lines: "10", label: "arr[1], arr[3] = arr[3], arr[1]" },
+        { time: 18.5, lines: "11", label: "Calling max_heapify(arr, 6, 3)" },
+        { time: 18.7, lines: "1", label: "max_heapify(arr, 6, 3)" },
+        { time: 18.9, lines: "2", label: "l = 2 * 3 + 1" },
+        { time: 19.1, lines: "3", label: "r = 2 * 3 + 2" },
+        { time: 19.3, lines: "4", label: "largest = 3" },
+        { time: 19.5, lines: "5", label: "arr[7] > arr[3], updating largest to 7" },
+        { time: 19.5, lines: "7", label: "arr[8] > arr[3], updating largest to 8" },
+        { time: 20.5, lines: "9", label: "if largest != 3" },
+        { time: 20.7, lines: "11", label: "Returning from max_heapify" },
+        { time: 20.9, lines: "16", label: "Returning from max_heapify" },
+        { time: 21.6, lines: "15", label: "for i in range(n // 2 - 1, -1, -1)" },
+        { time: 21.9, lines: "16", label: "Calling max_heapify(arr, 6, 0)" },
+        { time: 22.4, lines: "1", label: "max_heapify(arr, 6, 0)" },
+        { time: 22.6, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 22.8, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 23.0, lines: "4", label: "largest = 0" },
+        { time: 23.2, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 23.4, lines: "6", label: "largest = 1" },
+        { time: 23.4, lines: "7", label: "arr[2] > arr[1], updating largest to 2" },
+        { time: 24.6, lines: "9", label: "if largest != 0" },
+        { time: 25.2, lines: "10", label: "arr[0], arr[1] = arr[1], arr[0]" },
+        { time: 26.2, lines: "11", label: "Calling max_heapify(arr, 6, 1)" },
+        { time: 26.4, lines: "1", label: "max_heapify(arr, 6, 1)" },
+        { time: 26.6, lines: "2", label: "l = 2 * 1 + 1" },
+        { time: 26.8, lines: "3", label: "r = 2 * 1 + 2" },
+        { time: 27.0, lines: "4", label: "largest = 1" },
+        { time: 27.2, lines: "5", label: "arr[3] > arr[1], updating largest to 3" },
+        { time: 27.2, lines: "7", label: "arr[4] > arr[1], updating largest to 4" },
+        { time: 28.2, lines: "9", label: "if largest != 1" },
+        { time: 28.4, lines: "11", label: "Returning from max_heapify" },
+        { time: 28.6, lines: "16", label: "Returning from max_heapify" },
+        { time: 30.5, lines: "20", label: "n = len(arr)" },
+        { time: 30.8, lines: "21", label: "for i in range(n - 1, 0, -1)" },
+        { time: 31.1, lines: "22", label: "Swapping 1 and 6" },
+        { time: 33.2, lines: "23", label: "Calling max_heapify(arr, 5, 0)" },
+        { time: 33.4, lines: "1", label: "max_heapify(arr, 5, 0)" },
+        { time: 33.6, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 33.8, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 34.0, lines: "4", label: "largest = 0" },
+        { time: 34.2, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 34.4, lines: "6", label: "largest = 1" },
+        { time: 34.4, lines: "7", label: "arr[2] > arr[1], updating largest to 2" },
+        { time: 35.6, lines: "9", label: "if largest != 0" },
+        { time: 36.2, lines: "10", label: "arr[0], arr[1] = arr[1], arr[0]" },
+        { time: 37.2, lines: "11", label: "Calling max_heapify(arr, 5, 1)" },
+        { time: 37.4, lines: "1", label: "max_heapify(arr, 5, 1)" },
+        { time: 37.6, lines: "2", label: "l = 2 * 1 + 1" },
+        { time: 37.8, lines: "3", label: "r = 2 * 1 + 2" },
+        { time: 38.0, lines: "4", label: "largest = 1" },
+        { time: 38.2, lines: "5", label: "arr[3] > arr[1], updating largest to 3" },
+        { time: 38.4, lines: "6", label: "largest = 3" },
+        { time: 38.4, lines: "7", label: "arr[4] > arr[3], updating largest to 4" },
+        { time: 38.6, lines: "8", label: "largest = 4" },
+        { time: 39.6, lines: "9", label: "if largest != 1" },
+        { time: 40.2, lines: "10", label: "arr[1], arr[4] = arr[4], arr[1]" },
+        { time: 41.2, lines: "11", label: "Calling max_heapify(arr, 5, 4)" },
+        { time: 41.4, lines: "1", label: "max_heapify(arr, 5, 4)" },
+        { time: 41.6, lines: "2", label: "l = 2 * 4 + 1" },
+        { time: 41.8, lines: "3", label: "r = 2 * 4 + 2" },
+        { time: 42.0, lines: "4", label: "largest = 4" },
+        { time: 42.2, lines: "5", label: "arr[9] > arr[4], updating largest to 9" },
+        { time: 42.2, lines: "7", label: "arr[10] > arr[4], updating largest to 10" },
+        { time: 43.2, lines: "9", label: "if largest != 4" },
+        { time: 43.4, lines: "11", label: "Returning from max_heapify" },
+        { time: 43.6, lines: "11", label: "Returning from max_heapify" },
+        { time: 43.8, lines: "23", label: "Returning from max_heapify" },
+        { time: 44.6, lines: "21", label: "for i in range(n - 1, 0, -1)" },
+        { time: 44.9, lines: "22", label: "Swapping 1 and 5" },
+        { time: 47.0, lines: "23", label: "Calling max_heapify(arr, 4, 0)" },
+        { time: 47.2, lines: "1", label: "max_heapify(arr, 4, 0)" },
+        { time: 47.4, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 47.6, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 47.8, lines: "4", label: "largest = 0" },
+        { time: 48.0, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 48.2, lines: "6", label: "largest = 1" },
+        { time: 48.2, lines: "7", label: "arr[2] > arr[1], updating largest to 2" },
+        { time: 48.4, lines: "8", label: "largest = 2" },
+        { time: 49.4, lines: "9", label: "if largest != 0" },
+        { time: 50.0, lines: "10", label: "arr[0], arr[2] = arr[2], arr[0]" },
+        { time: 51.0, lines: "11", label: "Calling max_heapify(arr, 4, 2)" },
+        { time: 51.2, lines: "1", label: "max_heapify(arr, 4, 2)" },
+        { time: 51.4, lines: "2", label: "l = 2 * 2 + 1" },
+        { time: 51.6, lines: "3", label: "r = 2 * 2 + 2" },
+        { time: 51.8, lines: "4", label: "largest = 2" },
+        { time: 52.0, lines: "5", label: "arr[5] > arr[2], updating largest to 5" },
+        { time: 52.0, lines: "7", label: "arr[6] > arr[2], updating largest to 6" },
+        { time: 53.0, lines: "9", label: "if largest != 2" },
+        { time: 53.2, lines: "11", label: "Returning from max_heapify" },
+        { time: 53.4, lines: "23", label: "Returning from max_heapify" },
+        { time: 54.2, lines: "21", label: "for i in range(n - 1, 0, -1)" },
+        { time: 54.5, lines: "22", label: "Swapping 2 and 4" },
+        { time: 56.6, lines: "23", label: "Calling max_heapify(arr, 3, 0)" },
+        { time: 56.8, lines: "1", label: "max_heapify(arr, 3, 0)" },
+        { time: 57.0, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 57.2, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 57.4, lines: "4", label: "largest = 0" },
+        { time: 57.6, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 57.8, lines: "6", label: "largest = 1" },
+        { time: 57.8, lines: "7", label: "arr[2] > arr[1], updating largest to 2" },
+        { time: 59.0, lines: "9", label: "if largest != 0" },
+        { time: 59.6, lines: "10", label: "arr[0], arr[1] = arr[1], arr[0]" },
+        { time: 60.6, lines: "11", label: "Calling max_heapify(arr, 3, 1)" },
+        { time: 60.8, lines: "1", label: "max_heapify(arr, 3, 1)" },
+        { time: 61.0, lines: "2", label: "l = 2 * 1 + 1" },
+        { time: 61.2, lines: "3", label: "r = 2 * 1 + 2" },
+        { time: 61.4, lines: "4", label: "largest = 1" },
+        { time: 61.6, lines: "5", label: "arr[3] > arr[1], updating largest to 3" },
+        { time: 61.6, lines: "7", label: "arr[4] > arr[1], updating largest to 4" },
+        { time: 62.6, lines: "9", label: "if largest != 1" },
+        { time: 62.8, lines: "11", label: "Returning from max_heapify" },
+        { time: 63.0, lines: "23", label: "Returning from max_heapify" },
+        { time: 63.8, lines: "21", label: "for i in range(n - 1, 0, -1)" },
+        { time: 64.1, lines: "22", label: "Swapping 1 and 3" },
+        { time: 66.2, lines: "23", label: "Calling max_heapify(arr, 2, 0)" },
+        { time: 66.4, lines: "1", label: "max_heapify(arr, 2, 0)" },
+        { time: 66.6, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 66.8, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 67.0, lines: "4", label: "largest = 0" },
+        { time: 67.2, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 67.4, lines: "6", label: "largest = 1" },
+        { time: 67.4, lines: "7", label: "arr[2] > arr[1], updating largest to 2" },
+        { time: 68.6, lines: "9", label: "if largest != 0" },
+        { time: 69.2, lines: "10", label: "arr[0], arr[1] = arr[1], arr[0]" },
+        { time: 70.2, lines: "11", label: "Calling max_heapify(arr, 2, 1)" },
+        { time: 70.4, lines: "1", label: "max_heapify(arr, 2, 1)" },
+        { time: 70.6, lines: "2", label: "l = 2 * 1 + 1" },
+        { time: 70.8, lines: "3", label: "r = 2 * 1 + 2" },
+        { time: 71.0, lines: "4", label: "largest = 1" },
+        { time: 71.2, lines: "5", label: "arr[3] > arr[1], updating largest to 3" },
+        { time: 71.2, lines: "7", label: "arr[4] > arr[1], updating largest to 4" },
+        { time: 72.2, lines: "9", label: "if largest != 1" },
+        { time: 72.4, lines: "11", label: "Returning from max_heapify" },
+        { time: 72.6, lines: "23", label: "Returning from max_heapify" },
+        { time: 73.4, lines: "21", label: "for i in range(n - 1, 0, -1)" },
+        { time: 73.7, lines: "22", label: "Swapping 1 and 2" },
+        { time: 75.8, lines: "23", label: "Calling max_heapify(arr, 1, 0)" },
+        { time: 76.0, lines: "1", label: "max_heapify(arr, 1, 0)" },
+        { time: 76.2, lines: "2", label: "l = 2 * 0 + 1" },
+        { time: 76.4, lines: "3", label: "r = 2 * 0 + 2" },
+        { time: 76.6, lines: "4", label: "largest = 0" },
+        { time: 76.8, lines: "5", label: "arr[1] > arr[0], updating largest to 1" },
+        { time: 76.8, lines: "7", label: "arr[2] > arr[0], updating largest to 2" },
+        { time: 77.8, lines: "9", label: "if largest != 0" },
+        { time: 78.0, lines: "23", label: "Returning from max_heapify" },
+        { time: 81.5, lines: "27", label: "Final sorted array: [1, 2, 3, 4, 5, 6]" },
+    ];
+</script>
+{% endblock %}
