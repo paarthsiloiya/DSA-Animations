@@ -1,0 +1,204 @@
+{% extends "content.html" %} {% block title %} 2D Arrays {% endblock %} {% block main_content %}
+<h1>2D Arrays</h1>
+<p>
+    Two-dimensional (2D) arrays are a foundational data structure that can be conceptualized as a grid or table,
+    comprising rows and columns. They are a direct extension of one-dimensional arrays, which store sequences of
+    elements in contiguous memory locations, akin to "buckets" or "drawers".
+</p>
+
+<div class="subcontent">
+    <h3>Memory Storage of 2D Arrays</h3>
+    <p>
+        When a 2D array is used, its elements are typically stored <strong>contiguously in memory</strong>, similar to
+        how one-dimensional arrays are stored. While the sources do not explicitly detail "row-major" or "column-major"
+        order for 2D arrays, the representation of matrices as 2D arrays implies a linear mapping of this grid-like
+        structure onto a single, contiguous block of memory. Each "drawer" or slot in memory has a unique address. For
+        instance, a record can store its elements such that their relative locations allow for the computation of any
+        element's position based on a starting byte number. This contiguous allocation, fundamental to arrays, allows
+        for direct calculation of an element's memory address given its indices.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Indexing in 2D Arrays</h3>
+    <p>
+        Elements within a 2D array are accessed using <strong>two indices</strong>: one for the row and one for the
+        column. Following the standard convention for arrays, this numbering typically <strong>starts from 0</strong>.
+        For example, <code>A[i][j]</code> would refer to the element at row <code>i</code> and column <code>j</code>.
+        The first element would be at <code>A</code>.
+    </p>
+    <p>
+        The sources do not detail a concept of "backward indexing" using negative numbers (e.g., <code>-1</code> for the
+        last element) as seen in some programming languages. However, operations can involve
+        <strong>traversal in reverse order</strong> or calculating indices from the "right" end of a structure. For
+        instance, in sorting algorithms, loops might iterate backward, such as
+        <code>for (int i = numbers.size() - 1; i &gt;= 0; i--)</code>. In a "paired-array sequence," accessing elements
+        might involve indexing from the "right" of one of the internal arrays, using calculations like
+        <code>n - i + 1</code> where <code>n</code> is the size and <code>i</code> is the desired index.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>2D Arrays as Matrices</h3>
+    <p>
+        2D arrays are a natural and common way to <strong>represent matrices</strong> in computing. A matrix, by
+        definition, is a rectangular array of numbers, and its rows and columns align perfectly with the structure of a
+        2D array.
+    </p>
+    <p><strong>Common Applications as Matrices:</strong></p>
+    <ul>
+        <li>
+            <strong>Adjacency Matrix</strong>: A widely used application is to store graphs. An adjacency matrix is a
+            <strong>square matrix</strong> (a 2D array) where elements indicate whether pairs of vertices (nodes) are
+            adjacent or connected in a graph. If a path exists from node A to node B, then
+            <code>Matrix[A][B]</code> would reflect this connection, often by storing a <code>1</code> or the cost of
+            the edge. For directed graphs, if a connection exists from <code>n1</code> to <code>n2</code>,
+            <code>Matrix[n1][n2]</code> would be set, but not necessarily <code>Matrix[n2][n1]</code>.
+        </li>
+        <li>
+            <strong>Dynamic Programming Tables</strong>: Many dynamic programming problems, which break down larger
+            problems into smaller, overlapping subproblems, utilize 2D arrays as tables or "grids" to store the results
+            of these subproblems. Examples include:
+            <ul>
+                <li>
+                    <strong>Knapsack Problem</strong>: Uses a grid where rows represent items and columns represent
+                    knapsack weights.
+                </li>
+                <li>
+                    <strong>Longest Common Subsequence (LCS)</strong>: Uses a 2D table to record the optimal solution
+                    for substrings, with rows and columns corresponding to characters of the input strings.
+                </li>
+                <li>
+                    <strong>Edit Distance</strong>: Transforms one string into another using a 2D array
+                    <code>dp[n+1][m+1]</code> to track conversion costs.
+                </li>
+                <li>
+                    <strong>Matrix-Chain Multiplication</strong>: Uses 2D tables (<code>m</code> and <code>s</code>) to
+                    store the minimum number of scalar multiplications needed and the optimal split points for chains of
+                    matrices.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Different Operations</h3>
+    <p>Operations on 2D arrays often align with standard matrix operations:</p>
+    <ul>
+        <li>
+            <strong>Access/Read</strong>: Accessing an element at a specific <code>[i][j]</code> location is
+            <strong>very fast</strong>, typically taking <strong>$O(1)$ time</strong>. This random access capability is
+            a significant advantage of arrays. For an adjacency matrix, finding the connection between two nodes
+            <code>u</code> and <code>v</code> is straightforward and efficient.
+        </li>
+        <li>
+            <strong>Addition and Subtraction</strong>: While not explicitly detailed with pseudocode for general 2D
+            arrays, matrix addition and subtraction are conceptually <strong>element-wise operations</strong>. For
+            instance, in matrix multiplication based on submatrices, additions of submatrices are performed. Adding two
+            polynomials (which can be represented by arrays of coefficients) takes $O(n)$ time.
+        </li>
+        <li>
+            <strong>Multiplication</strong>: Matrix multiplication is a more complex operation.
+            <ul>
+                <li>
+                    <strong>Standard Method</strong>: For two <code>n x n</code> matrices, the standard multiplication
+                    <code>SQUARE-MATRIX-MULTIPLY</code> involves <strong>triply-nested loops</strong> and takes
+                    <strong>$O(n)$ time</strong>.
+                </li>
+                <li>
+                    <strong>Divide-and-Conquer</strong>: A recursive approach divides <code>n x n</code> matrices into
+                    four <code>n/2 x n/2</code> submatrices, leading to eight recursive multiplications and matrix
+                    additions.
+                </li>
+                <li>
+                    <strong>Strassen's Algorithm</strong>: This advanced divide-and-conquer algorithm significantly
+                    improves the asymptotic running time to <strong>$O(n.81)$</strong> by recursively computing seven
+                    <code>n/2 x n/2</code> matrix products instead of eight.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Transpose</strong>: The transpose of a matrix <code>A</code> (denoted <code>A</code>) is obtained by
+            swapping its row and column indices. For a directed graph's adjacency matrix, its transpose
+            <code>G</code> involves reversing all edges. Multithreaded algorithms like <code>P-TRANSPOSE</code> can
+            transpose an <code>n x n</code> matrix in place.
+        </li>
+        <li>
+            <strong>Other Operations</strong>:
+            <ul>
+                <li>
+                    <strong>Printing</strong>: Algorithms exist to print matrices in specific patterns, such as
+                    "square-wise".
+                </li>
+                <li>
+                    <strong>Searching</strong>: For sorted 2D arrays (matrices), specialized search algorithms exist,
+                    extending binary search to 2D.
+                </li>
+                <li>
+                    <strong>Seam Carving</strong>: A problem in image compression that involves manipulating an
+                    <code>m x n</code> array of pixels.
+                </li>
+                <li>
+                    <strong>Matrix Exponentiation</strong>: Used to solve recursive relations by finding the
+                    <code>nth</code> power of a matrix.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages of 2D Arrays</h3>
+    <ul>
+        <li>
+            <strong>Fast Random Access</strong>: Like 1D arrays, 2D arrays allow
+            <strong>instant $O(1)$ access</strong> to any element via its row and column indices. This is crucial for
+            many algorithms that require direct element lookup.
+        </li>
+        <li>
+            <strong>Contiguous Memory Allocation</strong>: The contiguous storage can lead to
+            <strong>better cache performance</strong> because related data is stored together, potentially reducing
+            memory access times.
+        </li>
+        <li>
+            <strong>Direct Representation of Grids/Tables</strong>: They provide a natural and intuitive way to model
+            grid-based problems, such as mazes, image data, or game boards.
+        </li>
+        <li>
+            <strong>In-Place Operations</strong>: Some algorithms can modify the 2D array directly without requiring
+            significant additional memory, similar to in-place sorting for 1D arrays.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages of 2D Arrays</h3>
+    <ul>
+        <li>
+            <strong>Fixed Size</strong>: When a 2D array is declared, its size is typically fixed. If the number of
+            elements grows beyond the initial capacity, the entire array often needs to be
+            <strong>reallocated to a larger memory block and its contents copied</strong>, which can be a
+            <strong>slow and expensive process</strong>.
+        </li>
+        <li>
+            <strong>Memory Overhead (for Sparse Data)</strong>: For applications like representing
+            <strong>sparse graphs</strong> (graphs with relatively few edges), an adjacency matrix will still require
+            <code>N * N</code> memory slots, where <code>N</code> is the number of nodes. This can lead to a
+            <strong>huge waste of memory</strong> if most connections do not exist. For a graph with 10,000 nodes, an
+            adjacency matrix could consume around 381 megabytes, even if it has few edges.
+        </li>
+        <li>
+            <strong>Slow Insertions/Deletions (Non-Terminal)</strong>: While less common for matrix-like operations
+            where values are often overwritten rather than inserted/deleted, if elements needed to be inserted or
+            deleted in the middle of a row or column (and the structure was meant to be dynamic in that way), it would
+            require <strong>shifting elements</strong>, similar to 1D arrays, leading to $O(n)$ time complexity.
+        </li>
+        <li>
+            <strong>Homogeneous Elements</strong>: Typically, arrays are designed to store elements of the same data
+            type.
+        </li>
+    </ul>
+</div>
+
+{% endblock %}

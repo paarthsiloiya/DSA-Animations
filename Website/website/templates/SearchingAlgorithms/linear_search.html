@@ -1,0 +1,239 @@
+{% extends "content.html" %} {% block title %} Linear Search {% endblock %} {% block main_content %}
+<h1>Linear Search</h1>
+<div class="subcontent">
+    <h3>What is Linear Search Algorithm?</h3>
+    <p>
+        Linear search, also known as <strong>sequential search</strong>, is a fundamental
+        <strong>search algorithm</strong> used to locate a specific element within an <strong>array or list</strong>. It
+        works by <strong>traversing each element</strong>
+        one by one from the beginning until the target value is found or the list ends.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Python Implementation & Visualization</h3>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="11">
+    <code>def search(arr, N, x):
+        for i in range(0, N):
+            if (arr[i] == x):
+                return i
+        return -1
+
+    # Function call
+    arr = [5, 2, 4, 6, 3, 1]
+    N = len(arr)
+    x = 6
+    result = search(arr, N, x)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='videos/SearchingAlgorithms/LinearSearch.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases and Applications of Linear Search</h3>
+    <ul>
+        <li>
+            <strong>Unsorted or Small Lists</strong>: Ideal for <strong>small datasets</strong> or cases where data is
+            <strong>unsorted</strong> and using advanced algorithms like binary search isn’t feasible.
+        </li>
+        <li>
+            <strong>Element Lookup in Arrays</strong>: Commonly used to
+            <strong>check if a specific element <code>x</code> exists</strong>
+            in a list or array.
+        </li>
+        <li>
+            <strong>Detection of Absence</strong>: Particularly useful when verifying that a value is
+            <strong>not present</strong>
+            in a list, as it checks all elements before concluding.
+        </li>
+        <li>
+            <strong>Simple Problem Solving</strong>: Useful for <strong>basic problem-solving tasks</strong> where
+            performance is not critical, and the data set is limited in size or structure.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Time Complexity</h3>
+    <p>
+        The time complexity of an algorithm indicates how its running time increases with the size of the input, usually
+        denoted as <code>N</code>.
+    </p>
+    <ul>
+        <li>
+            <strong>General Complexity: $O(n)$</strong>
+            <ul>
+                <li>
+                    Linear search is categorised as a
+                    <strong>linear algorithm</strong>, with a complexity of <strong>$O(n)$</strong>. This means the
+                    number of operations performed is directly proportional to the number of items <code>N</code> to be
+                    traversed.
+                </li>
+                <li>
+                    Big O notation focuses on the
+                    <strong>worst-case scenario</strong> to provide a reassurance that the algorithm will never be
+                    slower than the stated time.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Worst-Case Analysis: $\Theta(n)$</strong>
+            <ul>
+                <li>
+                    In the worst case, the element being searched for is
+                    <strong>not present in the array</strong>. Alternatively, it could be the
+                    <strong>very last element</strong> in the list.
+                </li>
+                <li>
+                    The <code>search()</code> function compares the target element with
+                    <strong>all <code>N</code> elements</strong> of the array, one by one.
+                </li>
+                <li>
+                    Therefore, the worst-case time complexity of linear search is
+                    <strong>$\Theta(n)$</strong>. This provides an <strong>upper bound</strong> on the running time,
+                    guaranteeing the algorithm will never take longer.
+                </li>
+                <li>
+                    For example, searching a list of 4 billion numbers could take up to 4 billion comparisons in linear
+                    time.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Average-Case Analysis: $\Theta(n)$</strong>
+            <ul>
+                <li>
+                    In average-case analysis, the computing time is calculated by considering
+                    <strong>all possible inputs</strong>.
+                </li>
+                <li>
+                    Assuming that all cases are
+                    <strong>uniformly distributed</strong> (including the case where the element is not present), the
+                    average case involves summing the times for all possibilities and dividing by the total number of
+                    inputs (n+1 for linear search).
+                </li>
+                <li>
+                    The average-case running time for linear search is a
+                    <strong>quadratic function</strong> of the input size (if you consider the total work, but in terms
+                    of Big O, it simplifies to $O(n)$).
+                </li>
+                <li>
+                    Thus, the average-case time complexity of linear search is
+                    <strong>$\Theta(n)$</strong>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Best-Case Analysis: $\Theta(1)$</strong>
+            <ul>
+                <li>
+                    The best case occurs when the element <code>x</code> is found at the
+                    <strong>first location</strong> in the array.
+                </li>
+                <li>
+                    The number of operations in this scenario is
+                    <strong>constant</strong> (not dependent on <code>N</code>).
+                </li>
+                <li>So, the best-case time complexity is <strong>$\Theta(1)$</strong>.</li>
+                <li>
+                    However, the best-case analysis is generally considered "bogus" because guaranteeing a lower bound
+                    provides
+                    <strong>little useful information</strong>, as an algorithm might still take a very long time in its
+                    worst case.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Space Complexity</h3>
+    <ul>
+        <li>
+            Linear search typically uses a
+            <strong>constant amount of auxiliary memory</strong>, which means its space complexity is
+            <strong>$O(1)$</strong>. It does not require additional data structures that grow with the input size.
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Advantages</h3>
+    <ul>
+        <li>
+            <strong>Simplicity</strong>: Linear search is a <strong>simple algorithm</strong> to understand and
+            implement.
+        </li>
+        <li>
+            <strong>No Sorting Required</strong>: Unlike binary search, linear search
+            <strong>does not require the input list to be sorted</strong>. This is crucial for unsorted data, where
+            pre-sorting would add significant time complexity (e.g., $O(n \log{n})$ for sorting).
+        </li>
+        <li><strong>Guaranteed to find</strong>: If the element exists in the list, it will eventually be found.</li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Disadvantages</h3>
+    <ul>
+        <li>
+            <strong>Inefficiency on Large Data</strong>: Linear search is
+            <strong>inefficient for large lists</strong> or search spaces because its running time grows linearly with
+            the input size.
+        </li>
+        <li>
+            <strong>Worst-Case Performance</strong>: In the worst case, it has to traverse the entire list, making it
+            very slow for practical applications on large datasets.
+        </li>
+        <li>
+            <strong>Cannot leverage sorted data</strong>: Even if the data is sorted, linear search does not take
+            advantage of this order to speed up the search process, unlike binary search.
+        </li>
+    </ul>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "11" },
+        { time: 1.0, lines: "1" },
+        //Check 5
+        { time: 1.6, lines: "2" },
+        { time: 1.8, lines: "3" },
+        // Check 2
+        { time: 2.55, lines: "2" },
+        { time: 2.82, lines: "3" },
+        // Check 4
+        { time: 3.6, lines: "2" },
+        { time: 4, lines: "3" },
+        // Check 6
+        { time: 4.8, lines: "2" },
+        { time: 5.2, lines: "3" },
+        { time: 6, lines: "4" },
+        // return
+        { time: 7, lines: "11" },
+    ];
+</script>
+{% endblock %}

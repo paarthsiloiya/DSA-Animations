@@ -1,0 +1,130 @@
+{% extends "content.html" %} {% block title %} Arrays {% endblock %} {% block main_content %}
+<h1>Arrays</h1>
+<p>
+    Arrays are fundamental data structures that function as containers for multiple elements. They store a sequence of
+    elements in contiguous memory locations, akin to a row of adjacent "buckets" or "drawers" in a computer's memory,
+    each with a unique address.
+</p>
+<div class="subcontent">
+    <h3>Memory Storage</h3>
+    <p>
+        When you use an array, all your elements are stored contiguously (right next to each other) in memory. Each
+        "drawer" or slot in memory has an address, and when you store an item, the computer assigns an address. If you
+        need to store multiple items in an array, they occupy a continuous block of memory. This contiguous allocation
+        means that if an array needs to expand beyond its initially allocated space, it often requires relocating all
+        its elements to a new, larger contiguous block of memory, which can be a slow process.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Indexing</h3>
+    <p>
+        Elements in an array are accessed using their <strong>index</strong>, which denotes their position within the
+        array. The numbering of these positions typically <strong>starts from 0</strong>, not 1. For example, in an
+        array, the first element is at index 0, the second at index 1, and so on. You access array elements by
+        specifying the array name followed by the index in square brackets, such as <code>A[i]</code>.
+    </p>
+    <p>
+        The sources primarily describe this 0-based forward indexing. While some algorithms iterate through arrays in
+        reverse (e.g., <code>downto</code> loops), a general concept of "backward indexing" (like using negative indices
+        to count from the end) for arrays is not detailed in these sources. However, in specific hybrid data structures
+        like a paired-array sequence, accessing elements might involve calculations that effectively index from the
+        "right" of a conceptually reversed array segment.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Operations</h3>
+    <p>Arrays support various operations, with their efficiency (running time) varying based on the operation:</p>
+    <ul>
+        <li>
+            <strong>Access/Reads</strong>: Arrays excel at <strong>random access</strong>. Because elements are stored
+            contiguously and their addresses can be calculated directly from their index and the starting address, you
+            can instantly look up any element in an array. This operation generally takes <strong>$O(1)$ time</strong>.
+            For instance, to find the <strong>5th</strong> element in an array starting at address <code>00</code>, you
+            know it's at address <code>04</code>.
+        </li>
+        <li>
+            <strong>Insertion</strong>: Inserting elements into an array can be <strong>slow</strong>, especially if the
+            array is full or if the insertion is at the beginning or middle.
+            <ul>
+                <li>
+                    If an array runs out of space, a new, larger array might need to be allocated, and all existing
+                    elements copied over, which is "really slow".
+                </li>
+                <li>
+                    To insert an element into the middle or at the beginning of an array, all subsequent elements must
+                    be
+                    <strong>shifted down</strong> to make space. This shifting process takes
+                    <strong>$O(n)$ time</strong>, where 'n' is the number of elements.
+                </li>
+                <li>Inserting at the end of an array (if space is available) can be $O(1)$.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Deletion</strong>: Deleting an element from an array also requires shifting the remaining elements
+            to fill the gap created by the removed element. This operation can take <strong>$O(n)$ time</strong> in the
+            worst case, depending on the position of the deleted element.
+        </li>
+        <li>
+            <strong>Other Operations</strong>:
+            <ul>
+                <li>
+                    Finding the maximum element in an array involves iterating through all elements, taking
+                    <strong>$O(n)$ time</strong>.
+                </li>
+                <li>
+                    Many algorithms, such as matrix multiplication (<a href="{{ url_for('views._2Darrays') }}"
+                        >2D Arrays</a
+                    >) and sorting algorithms like Bubble Sort, Selection Sort, Quick Sort, Merge Sort, Counting Sort,
+                    Heap Sort, Cycle Sort, and Odd-Even Sort, are implemented using arrays.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Advantages of Arrays</h3>
+    <ul>
+        <li>
+            <strong>Fast Random Access</strong>: As noted, arrays allow <strong>instant access</strong> to any element
+            using its index, which is a significant advantage for retrieval-heavy operations.
+        </li>
+        <li>
+            <strong>Cache Efficiency</strong>: Due to their contiguous memory layout, arrays can benefit from CPU
+            caching, as related data is stored together.
+        </li>
+        <li>
+            <strong>In-Place Operations</strong>: Many algorithms, particularly sorting ones like insertion sort and
+            quicksort, can operate "in place" on arrays, meaning they rearrange numbers within the array without
+            requiring substantial additional memory. This is particularly valuable in environments with limited memory.
+        </li>
+        <li><strong>Simplicity</strong>: The basic concept and implementation of arrays are straightforward.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Disadvantages of Arrays</h3>
+    <ul>
+        <li>
+            <strong>Fixed Size</strong>: Arrays are typically declared with a fixed size. If more elements need to be
+            stored than the declared capacity, the array must be resized by allocating a new, larger block of memory and
+            copying all elements, which is inefficient.
+        </li>
+        <li>
+            <strong>Slow Insertions and Deletions</strong>: As discussed, inserting or deleting elements in the middle
+            or at the beginning of an array is slow due to the necessity of shifting other elements.
+        </li>
+        <li>
+            <strong>Memory Overhead (for pre-allocation)</strong>: To mitigate the slowness of resizing, arrays are
+            often over-allocated ("holding seats"), which can lead to wasted memory if the extra space is not used.
+        </li>
+        <li>
+            <strong>Homogeneous Elements</strong>: Typically, arrays are designed to store elements of the same data
+            type.
+        </li>
+    </ul>
+</div>
+
+{% endblock %}
