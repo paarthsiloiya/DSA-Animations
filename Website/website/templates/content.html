@@ -38,13 +38,13 @@
         </details>
 
         <details open>
-            <summary><a href="/">Linked List</a></summary>
+            <summary><a href="{{ url_for('views.linked_list') }}">Linked List</a></summary>
             <ul>
-                <li><a href="/node_explanation">Node Explanation</a></li>
-                <li><a href="/linked_list_creation">Linked List Creation</a></li>
-                <li><a href="/traversal">Traversal</a></li>
-                <li><a href="/insertion">Insertion</a></li>
-                <li><a href="/deletion">Deletion</a></li>
+                <li><a href="{{ url_for('views.singly_linked_list') }}">Singly Linked List</a></li>
+                <li><a href="{{ url_for('views.singly_linked_list') }}#length">Traversal</a></li>
+                <li><a href="{{ url_for('views.singly_linked_list') }}#insertion">Insertion</a></li>
+                <li><a href="{{ url_for('views.singly_linked_list') }}#deletion">Deletion</a></li>
+                <li><a href="{{ url_for('views.doubly_linked_list') }}">Doubly Linked List</a></li>
                 <li><a href="/rotation">Rotation</a></li>
             </ul>
         </details>

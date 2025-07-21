@@ -66,3 +66,15 @@ def merge_sort():
 @views.route('/heap sort')
 def heap_sort():
     return render_template('SortingAlgorithms/heap_sort.html', user=current_user)
+
+@views.route('/linked list')
+def linked_list():
+    return render_template('LinkedList/linked_list.html', user=current_user)
+
+@views.route('/singly linked list')
+def singly_linked_list():
+    return render_template('LinkedList/singly_linked_list.html', user=current_user)
+
+@views.route('/doubly linked list')
+def doubly_linked_list():
+    return render_template('LinkedList/doubly_linked_list.html', user=current_user)
