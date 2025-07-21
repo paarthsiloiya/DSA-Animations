@@ -218,7 +218,7 @@ class CreateLinkedList(Scene):
             arrow = VGroup(arrowCurve, arrowhead)
             self.play(Create(arrow), run_time=0.6)
             self.play(prev.updateNext(newNode), run_time=0.5)
-
+            self.wait(0.5)
 
         self.wait(1)
 
@@ -237,6 +237,176 @@ class CreateLinkedList(Scene):
         self.play(Write(explanatorText), run_time=0.5)
         self.wait(0.3)
         self.play(FadeOut(surroundingRectangleNode), FadeOut(explanatorText), run_time=0.3)
+
+        self.wait(1)
+
+
+class TraverseLinkedList(Scene):
+    def construct(self):
+        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
+            def updater(curve):
+                start = start_mobj.get_right() + offset_start
+                end = end_mobj.get_left() + offset_end
+                control1 = start + RIGHT
+                control2 = end + LEFT
+                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
+            return updater
+        
+
+        def make_arrowhead_updater(bezier_curve, offset=0.01):
+            def updater(arrowhead):
+                end_point = bezier_curve.point_from_proportion(1)
+                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
+                arrowhead.move_to(end_point)
+                arrowhead.set_angle(angle_of_vector(direction))
+            return updater
+
+        values = [5, 2, 4, 6, 3, 1]
+        nodes : list[Node] = []
+        head : Node = None
+        current : Node = None
+
+        nodeGroup = VGroup()
+        arrows = VGroup()
+        curves = VGroup()
+
+        for value in values:
+            newNode = Node(value)
+            newNode.setValues()
+            nodes.append(newNode)
+            nodeGroup.add(newNode)
+
+        nodeGroup.arrange(RIGHT, 1)
+        self.play(FadeIn(nodeGroup))
+
+        for i, node in enumerate(nodes[:-1]):
+            
+            start = node.nextAddressGroup.get_right()
+            end = nodes[i + 1].selfAddressGroup.get_left() + (LEFT * 0.1)
+            arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
+            arrowCurve.add_updater(make_dynamic_bezier_updater(node.nextAddressGroup, nodes[i + 1].selfAddressGroup, 0, LEFT * 0.1))
+            arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
+            arrowhead.move_to(end)
+            arrowhead.rotate(angle_of_vector(RIGHT))
+            arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
+
+            curves.add(arrowCurve)
+            arrow = VGroup(arrowCurve, arrowhead)
+            arrows.add(arrow)
+            self.play(Create(arrow), run_time=0.6)
+
+            self.play(node.updateNext(nodes[i + 1]), run_time=0.1)
+
+        self.wait(0.7)
+
+        surroundingRectangleNode = DashedVMobject(SurroundingRectangle(nodes[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        self.play(Create(surroundingRectangleNode))
+        self.wait(0.5)
+
+        for arrow,node in zip(curves, nodes[1:]):
+            pulse_dot = Dot(radius=0.15, color=WHITE)
+            self.add(pulse_dot)
+
+            self.play(
+                MoveAlongPath(pulse_dot, arrow),
+                run_time=1.2,
+                rate_func=linear
+            )
+
+            self.remove(pulse_dot)
+            self.wait(0.1)
+            self.play(surroundingRectangleNode.animate.move_to(node), run_time=0.3)
+            self.wait(0.3)
+
+        self.play(FadeOut(surroundingRectangleNode))
+
+        self.wait(1)
+
+
+class LinkedListLength(Scene):
+    def construct(self):
+        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
+            def updater(curve):
+                start = start_mobj.get_right() + offset_start
+                end = end_mobj.get_left() + offset_end
+                control1 = start + RIGHT
+                control2 = end + LEFT
+                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
+            return updater
+        
+
+        def make_arrowhead_updater(bezier_curve, offset=0.01):
+            def updater(arrowhead):
+                end_point = bezier_curve.point_from_proportion(1)
+                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
+                arrowhead.move_to(end_point)
+                arrowhead.set_angle(angle_of_vector(direction))
+            return updater
+
+        values = [5, 2, 4, 6, 3, 1]
+        nodes : list[Node] = []
+        head : Node = None
+        current : Node = None
+
+        nodeGroup = VGroup()
+        arrows = VGroup()
+        curves = VGroup()
+        
+        for value in values:
+            newNode = Node(value)
+            newNode.setValues()
+            nodes.append(newNode)
+            nodeGroup.add(newNode)
+
+        nodeGroup.arrange(RIGHT, 1)
+        self.play(FadeIn(nodeGroup))
+
+        for i, node in enumerate(nodes[:-1]):
+            
+            start = node.nextAddressGroup.get_right()
+            end = nodes[i + 1].selfAddressGroup.get_left() + (LEFT * 0.1)
+            arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
+            arrowCurve.add_updater(make_dynamic_bezier_updater(node.nextAddressGroup, nodes[i + 1].selfAddressGroup, 0, LEFT * 0.1))
+            arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
+            arrowhead.move_to(end)
+            arrowhead.rotate(angle_of_vector(RIGHT))
+            arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
+
+            curves.add(arrowCurve)
+            arrow = VGroup(arrowCurve, arrowhead)
+            arrows.add(arrow)
+            self.play(Create(arrow), run_time=0.6)
+
+            self.play(node.updateNext(nodes[i + 1]), run_time=0.1)
+
+        self.wait(0.7)
+
+        surroundingRectangleNode = DashedVMobject(SurroundingRectangle(nodes[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        self.play(Create(surroundingRectangleNode))
+        self.wait(0.5)
+
+        LengthText = Text(f"Length: 1", color=TEXTCOL, font=FONT, font_size=FSIZE).to_edge(UP, buff=1.0)
+        self.play(Write(LengthText))
+        i = 1
+
+        for arrow,node in zip(curves, nodes[1:]):
+            pulse_dot = Dot(radius=0.15, color=WHITE)
+            self.add(pulse_dot)
+
+            self.play(
+                MoveAlongPath(pulse_dot, arrow),
+                run_time=0.5,
+                rate_func=linear
+            )
+
+            self.remove(pulse_dot)
+            self.wait(0.1)
+            i += 1
+            self.play(surroundingRectangleNode.animate.move_to(node), run_time=0.3)
+            self.play(LengthText.animate.become(Text(f"Length: {i}", color=TEXTCOL, font=FONT, font_size=FSIZE).to_edge(UP, buff=1.0)))
+            self.wait(0.3)
+
+        self.play(FadeOut(surroundingRectangleNode))
 
         self.wait(1)
 
@@ -321,26 +491,7 @@ class InsertNode(Scene):
             self.play(itterationRectangle.animate.move_to(nodes[i]), run_time=0.2)
             self.wait(0.2)
 
-        self.play(Uncreate(arrows[pos]), run_time=0.3)
-        self.wait(0.2)
-
-        start = prevNode.nextAddressGroup.get_right()
-        end = newNode.selfAddressGroup.get_left() + (LEFT * 0.1)
-        arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
-        arrowCurve.add_updater(make_dynamic_bezier_updater(prevNode.nextAddressGroup, newNode.selfAddressGroup, 0, LEFT * 0.1))
-        arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
-        arrowhead.move_to(end)
-        arrowhead.rotate(angle_of_vector(RIGHT))
-        arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
-
-        arrow = VGroup(arrowCurve, arrowhead)
-        arrows.insert(pos, arrow)
-        self.play(Create(arrow), run_time=0.6)
-
-        self.play(prevNode.updateNext(newNode), run_time=0.3)
-
-        self.wait(0.6)
-        self.play(itterationRectangle.animate.move_to(newNode), run_time=0.3)
+        # self.play(itterationRectangle.animate.move_to(newNode), run_time=0.3)
         self.wait(0.4)
 
         start = newNode.nextAddressGroup.get_right()
@@ -359,10 +510,29 @@ class InsertNode(Scene):
         self.play(newNode.updateNext(nextNode), run_time=0.3)
 
         self.wait(1)
-        self.play(Uncreate(itterationRectangle), run_time=0.3)
-        self.wait(0.5)
 
         nodeGroup.insert(pos+1, newNode)
+
+        self.play(Uncreate(arrows[pos+1]), run_time=0.3)
+        self.wait(0.2)
+
+        start = prevNode.nextAddressGroup.get_right()
+        end = newNode.selfAddressGroup.get_left() + (LEFT * 0.1)
+        arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
+        arrowCurve.add_updater(make_dynamic_bezier_updater(prevNode.nextAddressGroup, newNode.selfAddressGroup, 0, LEFT * 0.1))
+        arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
+        arrowhead.move_to(end)
+        arrowhead.rotate(angle_of_vector(RIGHT))
+        arrowhead.add_updater(make_arrowhead_updater(arrowCurve))
+
+        arrow = VGroup(arrowCurve, arrowhead)
+        arrows.insert(pos, arrow)
+        self.play(Create(arrow), run_time=0.6)
+
+        self.play(prevNode.updateNext(newNode), run_time=0.3)
+        self.wait(0.5)
+        self.play(Uncreate(itterationRectangle), run_time=0.3)
+        self.wait(0.6)
         self.play(nodeGroup.animate.arrange(RIGHT, 1), run_time=0.5)
 
         self.wait(1)

@@ -1,0 +1,672 @@
+{% extends "content.html" %} {% block title %} Singly Linked Lists {% endblock %} {% block main_content %}
+<h1>Singly Linked Lists</h1>
+
+<div class="subcontent">
+    <h3>What is a Singly Linked List?</h3>
+    <p>
+        A <strong>singly linked list</strong> is a fundamental data structure in computer science, where data elements
+        are organised in a linear sequence, but unlike arrays, they are not stored in contiguous memory locations.
+        Instead, the order is determined by <strong>pointers</strong> that link one element to the next.
+    </p>
+    <p>
+        Each element in a singly linked list is typically referred to as a <strong>node</strong>. A node comprises two
+        main parts:
+    </p>
+    <ul>
+        <li>A <strong>key</strong> or <strong>data</strong> attribute, which holds the actual value.</li>
+        <li>
+            A <strong>next</strong> pointer (or reference), which stores the memory address of the subsequent node in
+            the sequence.
+        </li>
+    </ul>
+    <p>
+        The list itself often maintains a pointer to its <strong>head</strong> (the first node). The last node in the
+        list has its <code>next</code> pointer set to <strong>NIL</strong> (or null), indicating the end of the list. A
+        list can also be empty, denoted by NIL or an empty list <code>[]</code>.
+    </p>
+    <p>
+        The structure can be recursively defined: a list is either empty, or it contains an element and is linked with a
+        sub-list. This linked nature means that elements of a list do not need to be physically adjacent in memory; they
+        can be scattered throughout and connected logically by their pointers.
+    </p>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre
+                id="code-block-create"
+                class="line-numbers language-python line-highlight"
+                data-start="1"
+                data-line="6"
+            >
+    <code>class Node:
+        def __init__(self, x):
+            self.data = x
+            self.next = None
+
+    head = Node(5)
+    head.next = Node(2)
+    head.next.next = Node(4)
+    head.next.next.next = Node(6)
+    head.next.next.next.next = Node(3)
+    head.next.next.next.next.next = Node(1)</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video-create" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/LinkedList/CreateLinkedList.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Common Operations on Singly Linked Lists</h3>
+    <p>
+        Here is an in-depth explanation of common operations performed on singly linked lists, along with their time
+        complexities:
+    </p>
+    <ol>
+        <li id="length">
+            <p><strong>Length Calculation (<code>length</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: To determine the number of elements in a singly linked list, you must
+                    traverse the list from its head, incrementing a counter for each node encountered until you reach
+                    the <code>NIL</code> pointer at the end.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li><strong>Best Case</strong>: $O(n)$.</li>
+                        <li><strong>Worst Case</strong>: $O(n)$.</li>
+                        <li><strong>Average Case</strong>: $O(n)$.</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="visualization-container">
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24px"
+                            viewBox="0 -960 960 960"
+                            width="24px"
+                            fill="#e3e3e3"
+                        >
+                            <path
+                                d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                            />
+                        </svg>
+                    </button>
+                    <pre
+                        id="code-block-length"
+                        class="line-numbers language-python line-highlight"
+                        data-start="1"
+                        data-line="15"
+                    >
+    <code>class Node:
+        def __init__(self, x):
+            self.data = x
+            self.next = None
+
+    def get_length(head):
+        length = 0
+        curr = head
+        while curr is not None:
+            length += 1
+            curr = curr.next
+        return length
+    
+    # Function call
+    head = Node(5)
+    head.next = Node(2)
+    head.next.next = Node(4)
+    head.next.next.next = Node(6)
+    head.next.next.next.next = Node(3)
+    head.next.next.next.next.next = Node(1)
+    head = get_length(head)</code>
+    </pre>
+                </div>
+                <div class="video-container">
+                    <video id="code-video-length" width="640" controls>
+                        <source
+                            src="{{ url_for('static', filename='Videos/LinkedList/LinkedListLength.webm') }}"
+                            type="video/webm"
+                        />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </li>
+        <li>
+            <p>
+                <strong
+                    >Accessing/Searching an Element (<code>getAt</code>, <code>elem</code>,
+                    <code>LIST-SEARCH</code>)</strong
+                >
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: To find an element with a specific key <code>k</code> or to access an
+                    element at a particular index <code>i</code>, the list must be traversed sequentially starting from
+                    the head. Each node's key is checked until the desired element is found or the end of the list is
+                    reached.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>Best Case</strong>: <strong>$O(1)$</strong>. This occurs when the target element is
+                            the first node in the list. Only one comparison is needed.
+                        </li>
+                        <li>
+                            <strong>Worst Case</strong>: <strong>$O(n)$</strong>. This occurs when the target element is
+                            the last node in the list, or if it is not present at all. In such cases, the algorithm must
+                            examine all <code>n</code> elements. For <code>getAt i</code>, the worst case is $O(n)$ if
+                            <code>i</code> is close to <code>n</code>.
+                        </li>
+                        <li>
+                            <strong>Average Case</strong>: <strong>$O(n)$</strong>. Assuming the element is equally
+                            likely to be at any position in the list (or not present), the average number of elements
+                            examined for a successful search is approximately <code>(n+1)/2</code>, which simplifies to
+                            $O(n)$.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li id="insertion">
+            <p>
+                <strong>Insertion of an Element (<code>insert</code>, <code>LIST-INSERT</code>)</strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>:
+                    <ul>
+                        <li>
+                            <strong>At the Head</strong>: A new node <code>x</code> is created, its
+                            <code>next</code> pointer is set to the current head of the list, and then
+                            <code>x</code> becomes the new head.
+                        </li>
+                        <li>
+                            <strong>At the Tail</strong>: This requires traversing the entire list to find the last
+                            node, then updating its <code>next</code> pointer to point to the new node.
+                        </li>
+                        <li>
+                            <strong>In the Middle</strong>: For a sorted list, you traverse until the correct insertion
+                            point is found (i.e., <code>x</code> is between <code>y</code> and <code>y.next</code>), and
+                            then update <code>y.next</code> to point to <code>x</code>, and <code>x.next</code> to point
+                            to <code>y.next</code>'s original value. For an unsorted list, insertion at an arbitrary
+                            middle position also requires traversal to that position.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>At Head</strong>: <strong>$O(1)$</strong>. This is a constant-time operation because
+                            it only involves changing a few pointers at the beginning of the list.
+                        </li>
+                        <li>
+                            <strong>At Tail or In Middle (general case)</strong>: <strong>$O(n)$</strong>. Unless a
+                            direct pointer to the insertion point is available (which is not typically the case without
+                            prior search), inserting into the middle or at the tail necessitates traversing up to
+                            <code>n</code> elements in the worst case to locate the insertion position.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="visualization-container">
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24px"
+                            viewBox="0 -960 960 960"
+                            width="24px"
+                            fill="#e3e3e3"
+                        >
+                            <path
+                                d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                            />
+                        </svg>
+                    </button>
+                    <pre
+                        id="code-block-insert"
+                        class="line-numbers language-python line-highlight"
+                        data-start="1"
+                        data-line="27"
+                    >
+    <code>class Node:
+        def __init__(self, x):
+            self.data = x
+            self.next = None
+
+    def insert_pos(head, pos, data):
+        # position given is valid or not.
+        if pos < 1:
+            return head
+        
+        new_node = Node(data)
+        if pos == 1:
+            new_node.next = head
+            return new_node
+        curr = head
+        for _ in range(pos):
+            if curr == None:
+                break
+            curr = curr.next
+        if curr is None:
+            return head
+        new_node.next = curr.next
+        curr.next = new_node
+        return head
+    
+    # Function call
+    head = Node(5)
+    head.next = Node(2)
+    head.next.next = Node(6)
+    head.next.next.next = Node(3)
+    head.next.next.next.next = Node(1)
+    head = insert_pos(head, 2, 4)</code>
+    </pre>
+                </div>
+                <div class="video-container">
+                    <video id="code-video-insert" width="640" controls>
+                        <source
+                            src="{{ url_for('static', filename='Videos/LinkedList/InsertNode.webm') }}"
+                            type="video/webm"
+                        />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </li>
+        <li id="deletion">
+            <p>
+                <strong
+                    >Deletion of an Element (<code>delAt</code>, <code>delete</code>, <code>LIST-DELETE</code>)</strong
+                >
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: To remove a node <code>x</code>, the <code>next</code> pointer of
+                    <code>x</code>'s <em>predecessor</em> node must be updated to point to <code>x</code>'s successor.
+                    If <code>x</code> is the head, the list's head pointer is updated to <code>x</code>'s successor.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>If given a pointer to <code>x</code>'s predecessor</strong>:
+                            <strong>$O(1)$</strong>. This is a direct pointer update.
+                        </li>
+                        <li><strong>If deleting the head</strong>: <strong>$O(1)$</strong>.</li>
+                        <li>
+                            <strong
+                                >If deleting by key (or by a pointer to <code>x</code> without its predecessor)</strong
+                            >: <strong>$O(n)$</strong>. Since singly linked lists do not have
+                            <code>pre</code> (previous) pointers, to delete a node given only a pointer to the node
+                            itself (and not its predecessor), you must first traverse the list from the head to find the
+                            predecessor. This search takes $O(n)$ time in the worst case.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="visualization-container">
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24px"
+                            viewBox="0 -960 960 960"
+                            width="24px"
+                            fill="#e3e3e3"
+                        >
+                            <path
+                                d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                            />
+                        </svg>
+                    </button>
+                    <pre
+                        id="code-block-delete"
+                        class="line-numbers language-python line-highlight"
+                        data-start="1"
+                        data-line="25"
+                    >
+    <code>class Node:
+        def __init__(self, x):
+            self.data = x
+            self.next = None
+
+    def deleteNode(head, pos):
+        temp = head
+        prev = None
+
+        if temp is None:
+            return head
+        if pos == 1:
+            head = temp.next
+            return head
+        for i in range(pos):
+            prev = temp
+            temp = temp.next
+            if temp is None:
+                return head
+        if temp is not None:
+            prev.next = temp.next
+        return head
+    
+    # Function call
+    head = Node(5)
+    head.next = Node(2)
+    head.next.next = Node(4)
+    head.next.next.next = Node(6)
+    head.next.next.next.next = Node(3)
+    head.next.next.next.next.next = Node(1)
+    head = insert_pos(head, 2)</code>
+    </pre>
+                </div>
+                <div class="video-container">
+                    <video id="code-video-delete" width="640" controls>
+                        <source
+                            src="{{ url_for('static', filename='Videos/LinkedList/Deletion.webm') }}"
+                            type="video/webm"
+                        />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </li>
+        <li>
+            <p><strong>Concatenation (<code>xs+ys</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: This operation appends one singly linked list (<code>ys</code>) to the
+                    end of another (<code>xs</code>).
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>: <strong>$O(n)$</strong>, where <code>n</code> is the length of
+                    <code>xs</code>. To concatenate, you must traverse <code>xs</code> all the way to its last node to
+                    link it to the head of <code>ys</code>.
+                </li>
+                <li><strong>Best Case</strong>: $O(1)$ if <code>xs</code> is empty.</li>
+                <li><strong>Worst Case</strong>: $O(n)$ if <code>xs</code> is long.</li>
+                <li><strong>Average Case</strong>: $O(n)$.</li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong><code>head</code> / <code>tail</code> (<code>first</code> / <code>rest</code>)</strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>:
+                    <ul>
+                        <li><code>head</code> (<code>first</code>): Returns the first element of the list.</li>
+                        <li>
+                            <code>tail</code> (<code>rest</code>): Returns the rest of the list, which is the sub-list
+                            starting from the second element.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>Best/Worst/Average Case</strong>: <strong>$O(1)$</strong>. These operations involve
+                            direct access to pointers.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong><code>last</code> / <code>init</code></strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>:
+                    <ul>
+                        <li><code>last</code>: Returns the final element of the list.</li>
+                        <li><code>init</code>: Returns the list excluding its final element.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>Best/Worst/Average Case</strong>: <strong>$O(n)$</strong>. Both operations require
+                            traversing the entire list (or almost the entire list, in the case of <code>init</code>) to
+                            reach the target node or the end.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong><code>take</code> / <code>drop</code></strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>:
+                    <ul>
+                        <li>
+                            <code>take n X</code>: Extracts the first <code>n</code> elements of list <code>X</code>.
+                        </li>
+                        <li>
+                            <code>drop n X</code>: Discards the first <code>n</code> elements of list <code>X</code>,
+                            returning the rest.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>: <strong>$O(n)$</strong>. In the worst case, to
+                    <code>take</code> or <code>drop</code> <code>n</code> elements, the algorithm must traverse through
+                    <code>n</code> nodes.
+                </li>
+                <ul>
+                    <li><strong>Best Case</strong>: $O(1)$ if <code>n=0</code>.</li>
+                    <li><strong>Worst Case</strong>: $O(n)$.</li>
+                    <li><strong>Average Case</strong>: $O(n)$.</li>
+                </ul>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<div class="subcontent">
+    <h3>Comparison to Arrays</h3>
+    <p>Singly linked lists offer advantages and disadvantages when compared to arrays:</p>
+    <ul>
+        <li>
+            <strong>Random Access</strong>: Arrays provide <strong>$O(1)$</strong> (constant time) random access to any
+            element using its index. In contrast, singly linked lists provide only <strong>sequential access</strong>,
+            meaning to reach the <em>i</em>-th element, you must traverse the first <em>i</em>-1 elements, leading to
+            <strong>$O(i)$</strong> or <strong>$O(n)$</strong> worst-case time.
+        </li>
+        <li>
+            <strong>Memory Management</strong>: Arrays require a contiguous block of memory. If memory is fragmented,
+            allocating a large array might be impossible even if enough total memory exists. Linked lists are more
+            flexible as nodes can be stored anywhere in memory.
+        </li>
+        <li>
+            <strong>Insertions and Deletions in the Middle</strong>: If the exact insertion or deletion point (or a
+            pointer to the preceding node for deletion) is known, singly linked lists can perform these operations in
+            <strong>O(1)</strong> time by just updating pointers. Arrays, however, require shifting elements, which
+            takes <strong>O(n)</strong> time. <strong>However</strong>, if the position is not known (e.g., deleting by
+            key), a search (which is O(n)) is often required for singly linked lists, making the overall operation
+            <strong>O(n)</strong>.
+        </li>
+    </ul>
+    <p>
+        In essence, while arrays are like a structured, numbered filing cabinet allowing instant access to any folder,
+        singly linked lists are like a chain of treasure map clues, where each clue leads you to the next. Finding the
+        start or the next clue is easy, but to find a specific clue in the middle, or the very last clue, you have to
+        follow the entire trail from the beginning.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %}
+
+<script>
+    createHighlightMap = [
+        { time: 0.0, lines: "6", label: "Creating Node with value 5" },
+        { time: 0.8, lines: "7", label: "Creating Node with value 5" },
+        { time: 4.2, lines: "8", label: "Creating Node with value 2" },
+        { time: 7.6, lines: "9", label: "Creating Node with value 4" },
+        { time: 11.0, lines: "10", label: "Creating Node with value 6" },
+        { time: 14.4, lines: "11", label: "Creating Node with value 3" },
+    ];
+
+    lengthHighlightMap = [
+        { time: 0.0, lines: "15", label: "head = Node(5)" },
+        { time: 1.0, lines: "16", label: "Node 1 with value 5" },
+        { time: 1.7, lines: "17", label: "Node 2 with value 2" },
+        { time: 2.4, lines: "18", label: "Node 3 with value 6" },
+        { time: 3.1, lines: "19", label: "Node 4 with value 3" },
+        { time: 3.8, lines: "20", label: "Node 5 with value 1" },
+        { time: 4.5, lines: "21", label: "call function get_length()" },
+        { time: 5.2, lines: "6", label: "go to function get_length()" },
+        { time: 6.2, lines: "7", label: "length = 0" },
+        { time: 7.2, lines: "8", label: "curr = head" },
+        { time: 7.7, lines: "9", label: "while curr is not None" },
+        { time: 8.6, lines: "10", label: "length += 1" },
+        { time: 9.6, lines: "11", label: "curr = curr.next" },
+        { time: 9.9, lines: "9", label: "while curr is not None" },
+        { time: 10.8, lines: "10", label: "length += 1" },
+        { time: 11.8, lines: "11", label: "curr = curr.next" },
+        { time: 12.1, lines: "9", label: "while curr is not None" },
+        { time: 13.0, lines: "10", label: "length += 1" },
+        { time: 14.0, lines: "11", label: "curr = curr.next" },
+        { time: 14.3, lines: "9", label: "while curr is not None" },
+        { time: 15.2, lines: "10", label: "length += 1" },
+        { time: 16.2, lines: "11", label: "curr = curr.next" },
+        { time: 16.5, lines: "9", label: "while curr is not None" },
+        { time: 17.4, lines: "10", label: "length += 1" },
+        { time: 18.4, lines: "11", label: "curr = curr.next" },
+        { time: 19.4, lines: "12", label: "return length" },
+        { time: 20, lines: "21", label: "Returning from get_length()" },
+    ];
+
+    insertHighlightMap = [
+        { time: 0.0, lines: "27", label: "First Line" },
+        { time: 1.0, lines: "28", label: "Node 1 with value 5" },
+        { time: 1.7, lines: "29", label: "Node 2 with value 2" },
+        { time: 2.4, lines: "30", label: "Node 3 with value 6" },
+        { time: 3.1, lines: "31", label: "Node 4 with value 3" },
+        { time: 3.8, lines: "32", label: "Node 5 with value 1" },
+        { time: 5.0, lines: "32", label: "Insert Node" },
+        { time: 6.0, lines: "6", label: "function insertNode(value, curr, prev)" },
+        { time: 7.0, lines: "8", label: "if pos < 1:" },
+        { time: 7.5, lines: "11", label: "newNode = Node(value)" },
+        { time: 10.0, lines: "12", label: "if pos == 1:" },
+        { time: 11.0, lines: "15", label: "curr = head" },
+        { time: 11.2, lines: "16", label: "for i in range(pos):" },
+        { time: 12.2, lines: "17", label: "if curr == None:" },
+        { time: 12.4, lines: "19", label: "curr = curr.next" },
+        { time: 12.6, lines: "17", label: "if curr == None:" },
+        { time: 12.8, lines: "19", label: "curr = curr.next" },
+        { time: 13.0, lines: "20", label: "if curr == None:" },
+        { time: 13.4, lines: "22", label: "newNode.next = curr.next" },
+        { time: 15.3, lines: "23", label: "curr.next = newNode" },
+        { time: 17.2, lines: "24", label: "return head" },
+        { time: 18.8, lines: "32", label: "End of insertNode function" },
+    ];
+
+    deleteHighlightMap = [
+        { time: 0.0, lines: "25", label: "First Line" },
+        { time: 1.0, lines: "26", label: "Node 1 with value 5" },
+        { time: 1.7, lines: "27", label: "Node 2 with value 2" },
+        { time: 2.4, lines: "28", label: "Node 3 with value 4" },
+        { time: 3.1, lines: "29", label: "Node 4 with value 6" },
+        { time: 3.8, lines: "30", label: "Node 5 with value 3" },
+        { time: 4.5, lines: "31", label: "Node 6 with value 1" },
+        { time: 5.2, lines: "6", label: "function insertNode(value, curr, prev)" },
+        { time: 5.7, lines: "7", label: "temp = head" },
+        { time: 5.7, lines: "8", label: "prev = None" },
+        { time: 6.7, lines: "16", label: "prev = temp" },
+        { time: 6.9, lines: "17", label: "temp = temp.next" },
+        { time: 7.0, lines: "18", label: "if temp == None:" },
+        { time: 7.1, lines: "16", label: "prev = temp" },
+        { time: 7.3, lines: "17", label: "temp = temp.next" },
+        { time: 7.4, lines: "18", label: "if temp == None:" },
+        { time: 7.5, lines: "20", label: "if temp is not None:" },
+        { time: 10.9, lines: "21", label: "prev.next = temp.next" },
+        { time: 13.7, lines: "22", label: "return head" },
+        { time: 15.2, lines: "31", label: "go to start of insertNode function" },
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const highlightPairs = [
+            {
+                videoId: "code-video-create",
+                codeBlockId: "code-block-create",
+                mapVar: "createHighlightMap",
+            },
+            {
+                videoId: "code-video-length",
+                codeBlockId: "code-block-length",
+                mapVar: "lengthHighlightMap",
+            },
+            {
+                videoId: "code-video-insert",
+                codeBlockId: "code-block-insert",
+                mapVar: "insertHighlightMap",
+            },
+            {
+                videoId: "code-video-delete",
+                codeBlockId: "code-block-delete",
+                mapVar: "deleteHighlightMap",
+            },
+            // Add more blocks here if needed
+        ];
+
+        highlightPairs.forEach(({ videoId, codeBlockId, mapVar }) => {
+            const video = document.getElementById(videoId);
+            const codeBlock = document.getElementById(codeBlockId);
+            const highlightMap = window[mapVar];
+
+            if (!video || !codeBlock || typeof highlightMap === "undefined") return;
+
+            let lastLine = "";
+            setInterval(() => {
+                const currentTime = video.currentTime;
+                let currentHighlight = "";
+
+                for (let i = highlightMap.length - 1; i >= 0; i--) {
+                    if (currentTime >= highlightMap[i].time) {
+                        currentHighlight = highlightMap[i].lines;
+                        break;
+                    }
+                }
+
+                if (currentHighlight !== lastLine) {
+                    codeBlock.setAttribute("data-line", currentHighlight);
+                    Prism.highlightElement(codeBlock.querySelector("code"));
+                    lastLine = currentHighlight;
+                }
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

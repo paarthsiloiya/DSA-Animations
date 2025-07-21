@@ -1,0 +1,205 @@
+{% extends "content.html" %} {% block title %} Linked Lists {% endblock %} {% block main_content %}
+<h1>Linked Lists</h1>
+
+<div class="subcontent">
+    <h3>What is a Linked List?</h3>
+    <p>
+        A linked list is a fundamental data structure in computer science, representing a collection of objects arranged
+        in a linear order. Unlike arrays where the order is determined by memory indices, in a linked list, the order is
+        defined by pointers within each object.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Nodes</h3>
+    <p>
+        A linked list is composed of <strong>nodes</strong>. A node represents an object and typically contains an
+        <strong>element</strong> (also called a <strong>key</strong>) and a <strong>pointer</strong> (or reference) to
+        the next item in the list. For example, in a Binary Search Tree, each node stores an element of type K. Some
+        sources refer to the key as <code>key</code> and the associated data as <code>data</code>. A node can also have
+        additional pointers, such as a pointer to its parent.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Memory Storage</h3>
+    <p>The way linked lists store elements in memory differs significantly from arrays:</p>
+    <ul>
+        <li>
+            <strong>Non-Contiguous Storage</strong>: In a linked list, items can be stored
+            <strong>anywhere in memory</strong>. Instead of being located contiguously (right next to each other) like
+            array elements, each node contains the address of the next item in the list, effectively linking random
+            memory addresses together. This is analogous to a treasure hunt where each location tells you where to find
+            the next item.
+        </li>
+        <li>
+            <strong>Dynamic Allocation</strong>: When you want to store multiple items, your computer provides an
+            address for each item. For linked lists, you can stick a new item anywhere in memory and then update the
+            address stored with the previous item to link it. This means you
+            <strong>never have to move your items</strong> once they are placed.
+        </li>
+        <li>
+            <strong>Space Usage</strong>: While the elements themselves occupy space, the pointers connecting them also
+            consume memory. However, for an empty list, the <code>NIL</code> (or <code>null</code>) concept supported by
+            many programming environments does not require any allocated memory, unlike an empty array representation
+            that might.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Comparison with Arrays</h3>
+    <p>
+        Linked lists and arrays are both fundamental data structures, but they have distinct characteristics,
+        advantages, and disadvantages:
+    </p>
+    <h4><strong>Differences:</strong></h4>
+    <ul>
+        <li>
+            <strong>Memory Allocation</strong>: Arrays store elements <strong>contiguously</strong> in memory, meaning
+            they are allocated right next to each other. Linked lists, conversely, can store their elements
+            <strong>anywhere in memory</strong>, with nodes linked by pointers.
+        </li>
+        <li>
+            <strong>Size Flexibility</strong>: Arrays are typically bounded with a <strong>fixed size</strong> when
+            declared, though they can be reallocated (often by copying to a larger contiguous block). Linked lists
+            <strong>increase on-demand</strong>, providing a simple and flexible representation for dynamic sets.
+        </li>
+        <li>
+            <strong>Access Type</strong>: Arrays offer <strong>random access</strong>, meaning you can jump directly to
+            any element if you know its index (e.g., the 10th element) in constant time ($O(1)$). Linked lists primarily
+            support <strong>sequential access</strong>, requiring you to traverse from the beginning (e.g., reading the
+            first 9 elements to reach the 10th). This also means that linked lists cannot use binary search to speed up
+            operations that require random access, unlike arrays.
+        </li>
+    </ul>
+    <h4><strong>Advantages of Linked Lists over Arrays:</strong></h4>
+    <ul>
+        <li>
+            <strong>Efficient Insertions/Deletions in the Middle</strong>: When adding or removing elements in the
+            middle of a list, linked lists are generally more efficient. For arrays, this typically requires
+            <strong>shifting all subsequent elements</strong>, which can be an $O(n)$ operation. In linked lists, it's
+            often as simple as changing a few pointers, which can be an $O(1)$ operation if the position is known.
+        </li>
+        <li>
+            <strong>No Resizing Overhead</strong>: Linked lists eliminate the need to copy all elements to a new, larger
+            memory location if the original allocation becomes full, a common issue with arrays. This prevents wasted
+            memory from pre-allocating too many slots or incurring high costs for reallocation.
+        </li>
+        <li>
+            <strong>Memory Fragmentation</strong>: Linked lists are more tolerant of memory fragmentation, as they do
+            not require a large contiguous block of memory. If there's space available, a linked list can use it.
+        </li>
+    </ul>
+    <h4><strong>Disadvantages of Linked Lists compared to Arrays:</strong></h4>
+    <ul>
+        <li>
+            <strong>Slow Random Access</strong>: The inability to directly access elements by index makes random access
+            operations slower ($O(n)$ in the worst case). This means operations like finding the maximum element by
+            scanning the list take linear time ($O(n)$).
+        </li>
+        <li>
+            <strong>Memory Overhead</strong>: Each node in a linked list requires extra memory to store pointers to the
+            next (and sometimes previous) node(s), which is an overhead not present in arrays.
+        </li>
+        <li>
+            <strong>Cache Performance</strong>: Due to their non-contiguous memory allocation, linked lists can exhibit
+            poorer cache performance compared to arrays, as data elements may be scattered in memory, leading to more
+            cache misses (information outside the given sources).
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Types of Linked Lists</h3>
+    <p>Linked lists can be categorised based on how their nodes are linked:</p>
+    <ul>
+        <li>
+            <strong><a href="{{ url_for('views.singly_linked_list') }}">Singly Linked Lists</a></strong
+            >: In a singly linked list, each node contains data and a pointer (<code>next</code>) that points
+            <strong>only to the next node</strong> in the sequence. The last node's pointer typically points to
+            <code>NIL</code> (null).
+        </li>
+        <li>
+            <strong><a href="Doubly%20Linked%20Lists.md">Doubly Linked Lists</a></strong
+            >: A doubly linked list enhances the basic structure by including two pointers in each node:
+            <code>next</code> (to the successor) and <code>prev</code> (to the predecessor). The
+            <code>prev</code> attribute of the head and the <code>next</code> attribute of the tail are
+            <code>NIL</code>.
+        </li>
+        <li>
+            <strong>Circular Linked List</strong>: In a circular linked list, the <code>next</code> pointer of the tail
+            node points back to the head of the list, and in a doubly circular list, the <code>prev</code> pointer of
+            the head points to the tail. This forms a continuous "ring" of elements. Sentinels (dummy objects) can be
+            used to simplify boundary conditions in circular linked lists, where a <code>L:nil</code> object lies
+            between the head and tail, and both <code>L:nil:next</code> and <code>L:nil:prev</code> point to
+            <code>L:nil</code> when the list is empty.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Operations on Linked Lists</h3>
+    <p>
+        Various operations can be performed on linked lists, with their efficiency depending on the list type and
+        specific implementation:
+    </p>
+    <p><strong>General Dynamic Set Operations</strong>:</p>
+    <ul>
+        <li><strong>SEARCH(S, k)</strong>: Finds an element with key <code>k</code> in set <code>S</code>.</li>
+        <li><strong>INSERT(S, x)</strong>: Adds element <code>x</code> to set <code>S</code>.</li>
+        <li><strong>DELETE(S, x)</strong>: Removes element <code>x</code> from set <code>S</code>.</li>
+        <li><strong>MINIMUM(S)</strong>: Returns the element with the smallest key.</li>
+        <li><strong>MAXIMUM(S)</strong>: Returns the element with the largest key.</li>
+        <li><strong>SUCCESSOR(S, x)</strong>: Returns the next larger element than <code>x</code>.</li>
+        <li><strong>PREDECESSOR(S, x)</strong>: Returns the next smaller element than <code>x</code>.</li>
+    </ul>
+    <p><strong>Specific Operations and Efficiency:</strong></p>
+    <ul>
+        <li>
+            <strong>Singly Linked Lists</strong>:
+            <ul>
+                <li>
+                    <strong>Insert at Head</strong>: Can be done in $O(1)$ time by making the new node point to the
+                    current head and then updating the head pointer.
+                </li>
+                <li>
+                    <strong>Append to Tail</strong>: Requires traversing the entire list to find the tail, making it an
+                    $O(n)$ operation.
+                </li>
+                <li>
+                    <strong>Delete</strong>: Deleting an element requires traversing the list to find the element and
+                    its predecessor. If a pointer to the element is given, it's $O(1)$ in a doubly linked list, but in a
+                    singly linked list, it might require $O(n)$ to find the predecessor if only the node itself is
+                    given. Searching for an element by key to delete it typically takes $O(n)$.
+                </li>
+                <li><strong>Search</strong>: A linear search is performed, taking $O(n)$ in the worst case.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Doubly Linked Lists</strong>:
+            <ul>
+                <li>
+                    <strong>Insert</strong>: Inserting at the head or after a given node can be done in $O(1)$ time, by
+                    updating both <code>next</code> and <code>prev</code> pointers.
+                </li>
+                <li>
+                    <strong>Delete</strong>: Deleting a node, given a pointer to it, can be done in $O(1)$ time by
+                    updating the <code>next</code> and <code>prev</code> pointers of its neighbours.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Queue Implementation</strong>: Linked lists are well-suited for implementing queues (First-In,
+            First-Out or FIFO). Operations like <code>ENQUEUE</code> (adding to the tail) and
+            <code>DEQUEUE</code> (removing from the head) can be implemented in <strong>$O(1)$ time</strong> by
+            maintaining pointers to both the head and tail of the list.
+        </li>
+        <li>
+            <strong>Stack Implementation</strong>: Stacks (Last-In, First-Out or LIFO) can also be implemented using
+            singly linked lists. <code>PUSH</code> (inserting at head) and <code>POP</code> (removing from head)
+            operations both take <strong>$O(1)$ time</strong>.
+        </li>
+    </ul>
+</div>
+{% endblock %} {% block scripts %} {% endblock %}
