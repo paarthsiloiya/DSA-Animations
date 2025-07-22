@@ -1,0 +1,369 @@
+{% extends "content.html" %} {% block title %} Doubly Linked Lists {% endblock %} {% block main_content %}
+<h1>Doubly Linked Lists</h1>
+
+<div class="subcontent">
+    <h3>What is a Doubly Linked List?</h3>
+    <p>
+        A <strong>doubly linked list</strong> is an extension of the singly linked list that enhances flexibility by
+        allowing traversal in both forward and backward directions. Unlike a singly linked list, where each node only
+        points to the <em>next</em> node in the sequence, a doubly linked list node includes an additional pointer that
+        refers to the <em>previous</em> node. This addition provides significant benefits for certain operations.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Node Structure</h3>
+    <p>Each <strong>node</strong> in a doubly linked list typically consists of three parts:</p>
+    <ul>
+        <li>A <strong>key</strong> or <strong>data</strong> attribute, which holds the actual value of the element.</li>
+        <li>A <strong>next</strong> pointer, which points to the subsequent node in the sequence.</li>
+        <li>
+            A <strong>pre</strong> (or <strong>prev</strong>) pointer, which points to the preceding node in the
+            sequence.
+        </li>
+    </ul>
+    <p>
+        The list itself often maintains a pointer to its <strong>head</strong> (the first node). For the first node, its
+        <code>pre</code> pointer is <code>None</code> (or null), indicating it has no predecessor. Similarly, the last
+        node in the list has its <code>next</code> pointer set to <code>None</code>, indicating the end of the list. An
+        empty list is denoted by <code>L.head = None</code>. In some implementations, a <strong>sentinel</strong> (dummy
+        object) can be used to simplify boundary conditions, connecting the head and tail in a circular fashion and
+        eliminating the need for <code>None</code> checks at the ends.
+    </p>
+    <div class="visualization-container">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="7">
+    <code>class Node:
+        def __init__(self, data):
+            self.data = data
+            self.prev = None
+            self.next = None
+
+    values = [5, 2, 4, 6, 3, 1]
+    head = Node(values[0])
+    current = head
+
+    for value in values[1:]:
+        new_node = Node(value)
+        current.next = new_node
+        new_node.prev = current
+        current = new_node</code>
+    </pre>
+        </div>
+        <div class="video-container">
+            <video id="code-video" width="640" controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/LinkedList/CreateDoublyLinkedList.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Operations on Doubly Linked Lists and Their Time Complexity</h3>
+    <p>
+        Here is an in-depth explanation of common operations performed on doubly linked lists, along with their best,
+        worst, and average time complexities:
+    </p>
+    <ol>
+        <li>
+            <p><strong>Searching an Element (<code>LIST-SEARCH</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: To find an element with a specific key <code>k</code>, the list must
+                    be traversed sequentially, starting from the head (or the tail if searching backward is desired).
+                    Each node's key is checked until the desired element is found or the end of the list (None) is
+                    reached.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>Best Case</strong>: <strong>$O(1)$</strong>. This occurs when the target element is
+                            the first node in the list. Only one comparison is needed.
+                        </li>
+                        <li>
+                            <strong>Worst Case</strong>: <strong>$O(n)$</strong>. This occurs when the target element is
+                            the last node in the list, or if it is not present at all. In such cases, the algorithm must
+                            examine all <code>n</code> elements.
+                        </li>
+                        <li>
+                            <strong>Average Case</strong>: <strong>$O(n)$</strong>. Assuming the element is equally
+                            likely to be at any position, the average number of elements examined is proportional to
+                            <code>n</code>.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Mathematical Calculation</strong>: The number of comparisons is directly proportional to the
+                    position of the element in the list, up to <code>n</code> comparisons in the worst case.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Accessing an Element by Index (<code>Get-At</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: Similar to searching by key, accessing an element at a particular
+                    index <code>i</code> requires traversing the list from the head (or tail, if closer) until the
+                    <em>i</em>-th element is reached. Unlike arrays, doubly linked lists do not support random access.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li><strong>Best Case</strong>: <strong>$O(1)$</strong>, for the first element.</li>
+                        <li>
+                            <strong>Worst Case</strong>: <strong>$O(n)$</strong>, for the last element, as it requires
+                            <code>n</code> steps of traversal.
+                        </li>
+                        <li>
+                            <strong>Average Case</strong>: <strong>$O(n)$</strong>, as the average number of steps is
+                            proportional to <code>n</code>.
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Mathematical Calculation</strong>: Up to <code>n</code> steps of pointer traversal.</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Insertion of an Element (<code>LIST-INSERT</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: A new node <code>x</code> can be inserted at various positions:
+                    <ul>
+                        <li>
+                            <strong>At the Head</strong>: The new node <code>x</code>'s <code>next</code> pointer is set
+                            to the current head, <code>x</code>'s <code>pre</code> pointer is set to None (or sentinel),
+                            the old head's <code>pre</code> pointer is updated to <code>x</code>, and
+                            <code>x</code> becomes the new head.
+                        </li>
+                        <li>
+                            <strong>At the Tail</strong>: If a <code>tail</code> pointer is maintained for the list (as
+                            seen in some implementations), or if a circular list with a sentinel is used, a new node
+                            <code>x</code> can be appended to the end. <code>x</code>'s <code>pre</code> points to the
+                            old tail, <code>x</code>'s <code>next</code> points to None (or sentinel), and the old
+                            tail's <code>next</code> pointer is updated to <code>x</code>.
+                        </li>
+                        <li>
+                            <strong>In the Middle</strong>: If a pointer to the <em>predecessor</em> node
+                            <code>y</code> (or the node itself <code>y</code>) is known, <code>x</code> can be inserted
+                            between <code>y</code> and <code>y.next</code>. <code>x</code>'s <code>pre</code> points to
+                            <code>y</code>, <code>x</code>'s <code>next</code> points to <code>y.next</code>,
+                            <code>y.next</code>'s <code>pre</code> points to <code>x</code>, and <code>y.next</code> is
+                            updated to <code>x</code>.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>At Head/Tail/Middle (given reference)</strong>: <strong>$O(1)$</strong>. This is a
+                            constant-time operation because it only involves changing a few pointers.
+                        </li>
+                        <li>
+                            <strong>In Middle (by value/index, without direct pointer)</strong>:
+                            <strong>$O(n)$</strong>. This requires a prior search ($O(n)$) to locate the insertion
+                            point.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Mathematical Calculation</strong>: A constant number of pointer updates (e.g., 3-5 updates)
+                    if the insertion point's predecessor is known.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Deletion of an Element (<code>LIST-DELETE</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: To remove a node <code>x</code>:
+                    <ul>
+                        <li>
+                            <strong>If given a pointer to <code>x</code></strong
+                            >: <code>x</code>'s predecessor (<code>x.pre</code>) has its <code>next</code> pointer
+                            updated to <code>x</code>'s successor (<code>x.next</code>), and <code>x</code>'s successor
+                            (<code>x.next</code>) has its <code>pre</code> pointer updated to <code>x</code>'s
+                            predecessor (<code>x.pre</code>). Special handling is needed if <code>x</code> is the head
+                            or tail, or if sentinels are not used.
+                        </li>
+                        <li>
+                            <strong>If deleting by key (or by index)</strong>: The list must first be searched to find
+                            the node <code>x</code> to be deleted.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li>
+                            <strong>If given a pointer to <code>x</code></strong
+                            >: <strong>$O(1)$</strong>. This is a constant-time operation due to the
+                            <code>pre</code> pointer, which allows direct update of both preceding and succeeding nodes.
+                            This is a key advantage over singly linked lists where deleting a node without its
+                            predecessor often takes $O(n)$.
+                        </li>
+                        <li>
+                            <strong>If deleting by key (or by index)</strong>: <strong>$O(n)$</strong>. The search
+                            operation takes $O(n)$ time in the worst case before the $O(1)$ deletion can occur.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Mathematical Calculation</strong>: A constant number of pointer updates (e.g., 2-4 updates)
+                    if the node to be deleted is directly accessible.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong>Finding Minimum/Maximum (<code>MINIMUM</code>, <code>MAXIMUM</code>)</strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: Unless the list is sorted, finding the minimum or maximum element
+                    requires traversing the entire list to compare all elements.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>: <strong>$O(n)$</strong>, as every element must be visited in the
+                    worst case.
+                </li>
+                <li><strong>Mathematical Calculation</strong>: <code>n</code> comparisons.</li>
+            </ul>
+        </li>
+        <li>
+            <p>
+                <strong>Finding Successor/Predecessor (<code>SUCCESSOR</code>, <code>PREDECESSOR</code>)</strong>
+            </p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: Given a pointer to a node <code>x</code>, its successor is
+                    <code>x.next</code> and its predecessor is <code>x.pre</code>.
+                </li>
+                <li><strong>Time Complexity</strong>: <strong>$O(1)$</strong>. This is a direct pointer lookup.</li>
+                <li><strong>Mathematical Calculation</strong>: A constant number of operations.</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Concatenation (<code>UNION</code>)</strong></p>
+            <ul>
+                <li><strong>Description</strong>: Appending one doubly linked list to another.</li>
+                <li>
+                    <strong>Time Complexity</strong>: If both lists are non-empty and <code>tail</code> pointers are
+                    maintained for both, they can be "spliced" together in <strong>$O(1)$</strong> time by updating the
+                    <code>next</code> pointer of the first list's tail to the second list's head, and the
+                    <code>pre</code> pointer of the second list's head to the first list's tail. If
+                    <code>tail</code> pointers are not maintained, it takes <strong>$O(n)$</strong> (where
+                    <code>n</code> is the length of the first list) to traverse to its end.
+                </li>
+                <li>
+                    <strong>Mathematical Calculation</strong>: A constant number of pointer updates (e.g., 2-4 updates)
+                    if <code>tail</code> pointers are present.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Reversing the List</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: Reversing a doubly linked list involves iterating through each node
+                    and swapping its <code>next</code> and <code>pre</code> pointers.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>: <strong>$O(n)$</strong>. This requires visiting every node in the
+                    list. While there are specialized "XOR linked lists" that can reverse in $O(1)$, this is not typical
+                    for a general doubly linked list.
+                </li>
+                <li><strong>Mathematical Calculation</strong>: <code>n</code> sets of pointer swaps.</li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<div class="subcontent">
+    <h3>Comparison to Singly Linked Lists and Arrays</h3>
+    <ul>
+        <li>
+            <strong>Random Access</strong>: Like singly linked lists, doubly linked lists offer only
+            <strong>sequential access</strong>, which means accessing an element by its index still requires $O(n)$ time
+            in the worst case. Arrays, in contrast, provide <strong>$O(1)$</strong> random access.
+        </li>
+        <li>
+            <strong>Insertions and Deletions</strong>: Doubly linked lists excel at insertions and deletions when a
+            pointer to the target node (or its predecessor/successor) is already known. These operations can be done in
+            <strong>$O(1)$</strong> time because both <code>next</code> and <code>pre</code> pointers can be updated
+            efficiently. For singly linked lists, while insertion at the head is $O(1)$, deletion of an arbitrary node
+            (without its predecessor) or insertion/deletion at the tail without a tail pointer can be $O(n)$.
+        </li>
+        <li>
+            <strong>Space Complexity</strong>: Doubly linked lists require more memory per node than singly linked lists
+            (and arrays) due to the extra <code>pre</code> pointer.
+        </li>
+        <li>
+            <strong>Traversal</strong>: Doubly linked lists allow efficient traversal in both forward and backward
+            directions, which can be useful for certain algorithms or specific requirements. Singly linked lists only
+            support forward traversal.
+        </li>
+    </ul>
+    <p>
+        In essence, if a singly linked list is like a string of pearls where each pearl is tied to the
+        <em>next</em> one, allowing you to only move forward along the string, a doubly linked list is like a string of
+        magnetic pearls where each pearl is attracted to both the <em>next</em> and <em>previous</em> pearls. This
+        magnetic connection allows you to pick any pearl and easily find the one before it or after it, making it
+        simpler to add or remove pearls anywhere in the middle without disrupting the entire string, even if it uses a
+        bit more material for each pearl.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+    // Local highlightMap for this page
+    const highlightMap = [
+        { time: 0.0, lines: "7", label: "Start Line" },
+        { time: 0.1, lines: "8", label: "Creating Head Node with value 5" },
+        { time: 0.5, lines: "9", label: "curr = head" },
+        { time: 1.0, lines: "11", label: "for loop" },
+        { time: 2.0, lines: "12", label: "Creating Node with value 2" },
+        { time: 3.0, lines: "13", label: "Updating next pointers" },
+        { time: 3.7, lines: "14", label: "Updating prev pointers" },
+        { time: 4.3, lines: "15", label: "Updating curr to new Node" },
+        { time: 4.4, lines: "11", label: "for loop" },
+        { time: 5.4, lines: "12", label: "Creating Node with value 4" },
+        { time: 6.4, lines: "13", label: "Updating next pointers" },
+        { time: 7.1, lines: "14", label: "Updating prev pointers" },
+        { time: 7.7, lines: "15", label: "Updating curr to new Node" },
+        { time: 7.8, lines: "11", label: "for loop" },
+        { time: 8.8, lines: "12", label: "Creating Node with value 6" },
+        { time: 9.8, lines: "13", label: "Updating next pointers" },
+        { time: 10.5, lines: "14", label: "Updating prev pointers" },
+        { time: 11.1, lines: "15", label: "Updating curr to new Node" },
+        { time: 11.2, lines: "11", label: "for loop" },
+        { time: 12.2, lines: "12", label: "Creating Node with value 3" },
+        { time: 13.2, lines: "13", label: "Updating next pointers" },
+        { time: 13.9, lines: "14", label: "Updating prev pointers" },
+        { time: 14.5, lines: "15", label: "Updating curr to new Node" },
+        { time: 14.6, lines: "11", label: "for loop" },
+        { time: 15.6, lines: "12", label: "Creating Node with value 1" },
+        { time: 16.6, lines: "13", label: "Updating next pointers" },
+        { time: 17.3, lines: "14", label: "Updating prev pointers" },
+        { time: 17.9, lines: "15", label: "Updating curr to new Node" },
+    ];
+</script>
+{% endblock %}

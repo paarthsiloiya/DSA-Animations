@@ -21,8 +21,8 @@
     </ul>
     <p>
         The list itself often maintains a pointer to its <strong>head</strong> (the first node). The last node in the
-        list has its <code>next</code> pointer set to <strong>NIL</strong> (or null), indicating the end of the list. A
-        list can also be empty, denoted by NIL or an empty list <code>[]</code>.
+        list has its <code>next</code> pointer set to <code>None</code> (or null), indicating the end of the list. A
+        list can also be empty, denoted by <code>None</code> or an empty list <code>[]</code>.
     </p>
     <p>
         The structure can be recursively defined: a list is either empty, or it contains an element and is linked with a
@@ -88,7 +88,7 @@
                 <li>
                     <strong>Description</strong>: To determine the number of elements in a singly linked list, you must
                     traverse the list from its head, incrementing a counter for each node encountered until you reach
-                    the <code>NIL</code> pointer at the end.
+                    the <code>None</code> pointer at the end.
                 </li>
                 <li>
                     <strong>Time Complexity</strong>:
