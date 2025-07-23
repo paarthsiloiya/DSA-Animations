@@ -1,0 +1,396 @@
+{% extends "content.html" %} {% block title %} Stack {% endblock %} {% block main_content %}
+<h1>Stack</h1>
+<div class="subcontent">
+    <h3>What is a Stack?</h3>
+    <p>
+        Stacks are fundamental dynamic sets where elements are removed based on a
+        <strong>LIFO (last-in, first-out) policy</strong>. This means the element most recently inserted is always the
+        first one removed. Think of it like a physical stack where items are pushed onto the top, and only the topmost
+        item can be accessed and popped off.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Different Implementations</h3>
+    <p>Stacks can be implemented using various underlying data structures, with two primary approaches:</p>
+    <ul>
+        <li>
+            <strong>Array-based Implementation</strong>:
+            <ul>
+                <li>
+                    A stack can be represented by a <strong>fixed-size array</strong>, say <code>S[1...n]</code>, where
+                    <code>n</code> is the maximum number of elements.
+                </li>
+                <li>
+                    An attribute, typically <code>S.top</code>, tracks the index of the most recently inserted element.
+                    The stack's elements are stored from <code>S</code> up to <code>S[S.top]</code>.
+                </li>
+                <li>An empty stack is indicated when <code>S.top</code> is <code>0</code>.</li>
+                <li>
+                    It is possible to implement <strong>two stacks efficiently within a single array</strong>
+                    <code>A[1...n]</code>, such that neither stack overflows unless their combined element count exceeds
+                    <code>n</code>.
+                </li>
+            </ul>
+        </li>
+        <div class="visualization-container">
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyToClipboard(this)">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#e3e3e3"
+                    >
+                        <path
+                            d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                        />
+                    </svg>
+                </button>
+                <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="11">
+    <code>class Stack:
+        def __init__(self, n):
+            self.n = n
+            self.top = -1
+            self.a = [0] * n
+
+        def push(self, x):
+            if self.top >= self.n - 1:
+                print("Stack Overflow")
+                return False
+            self.top += 1
+            self.a[self.top] = x
+            return True
+
+        def pop(self):
+            if self.top < 0:
+                print("Stack Underflow")
+                return 0
+            popped = self.a[self.top]
+            self.top -= 1
+            return popped
+
+        def peek(self):
+            if self.top < 0:
+                print("Stack is Empty")
+                return 0
+            return self.a[self.top]
+
+        def is_empty(self):
+            return self.top < 0
+
+    s = Stack(5)
+    for data in [1, 2, 5, 6, 4, 7]:
+        s.push(data):
+
+    while not s.is_empty():
+        s.pop()</code>
+    </pre>
+            </div>
+            <div class="video-container">
+                <video id="code-video" width="640" controls>
+                    <source
+                        src="{{ url_for('static', filename='videos/StackAndQueue/Stack.webm') }}"
+                        type="video/webm"
+                    />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <li>
+            <strong>Linked List-based Implementation</strong>:
+            <ul>
+                <li>Stacks can also be implemented using a <strong>singly linked list</strong>.</li>
+                <li>This approach typically involves maintaining pointers to the head (top) of the list.</li>
+                <li>It's also possible to implement a stack using <strong>two queues</strong>.</li>
+                <li>
+                    Furthermore, doubly linked lists can be used to implement queues, which can then conceptually be
+                    part of a stack implementation.
+                </li>
+            </ul>
+        </li>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre id="code-block" class="line-numbers language-python line-highlight" data-start="1" data-line="11">
+    <code>class Node:
+        def __init__(self, new_data):
+            self.data = new_data
+            self.next = None
+
+    class Stack:
+        def __init__(self):
+            self.head = None
+
+        def is_empty(self):
+            return self.head is None
+
+        def push(self, new_data):
+            new_node = Node(new_data)
+            if not new_node:
+                print("\nStack Overflow")
+                return
+            new_node.next = self.head
+            self.head = new_node
+
+        def pop(self):
+            if self.is_empty():
+                print("\nStack Underflow")
+            else:
+                temp = self.head
+                self.head = self.head.next
+                del temp
+
+        def peek(self):
+            if not self.is_empty():
+                return self.head.data
+            else:
+                print("\nStack is empty")
+                return float('-inf')</code>
+    </pre>
+        </div>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases &amp; Applications</h3>
+    <p>Stacks are widely used in computer science for various purposes:</p>
+    <ul>
+        <li>
+            <strong>Call Stack Management</strong>: Your computer uses a call stack internally to
+            <strong>manage function calls</strong>, including those in your programs. Each function call effectively
+            "pushes" a "box" containing its variables onto the top of the stack, and when the function completes, its
+            box is "popped" off. This mechanism is crucial for:
+            <ul>
+                <li>
+                    <strong>Recursive Functions</strong>: Recursive functions heavily rely on the call stack, with each
+                    recursive call adding to the stack.
+                </li>
+                <li>
+                    <strong>Managing Function Execution Flow</strong>: The stack ensures that control returns to the
+                    correct point after a function finishes.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Depth-First Search (DFS)</strong>: Stacks are often employed to implement DFS algorithms,
+            particularly in scenarios like <strong>maze solving</strong>. In a maze, a stack can be used to keep track
+            of "bread crumbs," recording previous decisions. When a path reaches a dead end, the algorithm can "pop"
+            back to the last decision point and explore an alternative path. The stack effectively holds paths in
+            reversed order, from the farthest point back to the starting point.
+        </li>
+        <li>
+            <strong>Memory Management</strong>: Stacks can be used to manage the allocation and deallocation of
+            homogeneous objects in memory. A "free list," which keeps track of unused objects, can be implemented like a
+            stack where the most recently freed object is the next one allocated. Procedures like
+            <code>ALLOCATE-OBJECT</code> and <code>FREE-OBJECT</code> can then utilize stack operations (PUSH and POP).
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Different Operations on Stacks</h3>
+    <p>The primary operations for a stack reflect its LIFO nature:</p>
+    <ul>
+        <li>
+            <code><strong>push(x)</strong></code
+            >: This operation <strong>inserts element <code>x</code> onto the top of stack <code>S</code></strong
+            >.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: <code>S.top</code> is incremented, and <code>x</code> is then placed
+                    at the new <code>S[S.top]</code> position.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>pop()</strong></code
+            >: This operation <strong>removes the top element from stack <code>S</code></strong> and returns it. It does
+            not take an element argument.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: If the stack is not empty, <code>S.top</code> is decremented, and the
+                    element previously at <code>S[S.top + 1]</code> is returned.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>is_empty()</strong></code
+            >: This is a query operation that
+            <strong>checks whether stack <code>S</code> contains any elements</strong>.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: It returns <code>True</code> if <code>S.top</code> is <code>0</code>,
+                    otherwise <code>False</code>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>peek()</strong></code
+            >: This operation <strong>returns the top element of stack <code>S</code></strong> without removing it.
+            <ul>
+                <li><strong>Array-based</strong>: If the stack is not empty, it returns <code>S[S.top]</code>.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Underflow</strong>: An error condition that occurs when an attempt is made to <code>POP</code> an
+            element from an empty stack.
+        </li>
+        <li>
+            <strong>Overflow</strong>: Occurs in array-based implementations if an attempt to <code>PUSH</code> an
+            element would cause <code>S:top</code> to exceed the maximum array capacity <code>n</code>.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity for Each Operation and Implementation</h3>
+    <p>The efficiency of stack operations is analysed in terms of time (best, worst, average) and space complexity.</p>
+    <h4>Time Complexity</h4>
+    <ul>
+        <li>
+            <code><strong>push(x)</strong></code
+            >:
+            <ul>
+                <li><strong>Array-based</strong>: <strong>$O(1)$ time</strong>.</li>
+                <li><strong>Linked List-based</strong>: <strong>$O(1)$ time</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>pop()</strong></code
+            >:
+            <ul>
+                <li><strong>Array-based</strong>: <strong>$O(1)$ time</strong>.</li>
+                <li><strong>Linked List-based</strong>: <strong>$O(1)$ time</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>is_empty()</strong></code
+            >:
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: <strong>$O(1)$ time</strong>. (For linked lists, it's implicitly
+                    $O(1)$ by checking if the head pointer is null).
+                </li>
+            </ul>
+        </li>
+        <li>
+            <code><strong>peek()</strong></code
+            >:
+            <ul>
+                <li><strong>Array-based</strong>: <strong>$O(1)$ time</strong>.</li>
+                <li><strong>Linked List-based</strong>: <strong>$O(1)$ time</strong>.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Call Stack (for recursive functions)</strong>:
+            <ul>
+                <li>
+                    If array parameters are passed by pointers, each recursive call on the stack requires
+                    <strong>$O(1)$ stack space</strong>.
+                </li>
+                <li>
+                    The total time for an algorithm like <code>DFS</code> is <strong>$O(V+E)$</strong>, where V is nodes
+                    and E is edges, because each node and edge is visited once.
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <strong>Array-based Implementation</strong>:
+            <ul>
+                <li>Typically <strong>$O(n)$</strong>, where <code>n</code> is the maximum fixed size of the array.</li>
+                <li>
+                    For implementing two stacks in one array, the total space is still <strong>$O(n)$</strong>,
+                    distributed between the two stacks.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Linked List-based Implementation</strong>:
+            <ul>
+                <li>
+                    <strong>$O(N)$</strong>, where <code>N</code> is the number of elements currently in the stack, as
+                    each element occupies a constant amount of memory for its key and pointers.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Call Stack (for recursion)</strong>:
+            <ul>
+                <li>
+                    The space used by the call stack for recursive procedures, such as quicksort, can vary. In the
+                    <strong>worst case</strong>, it might be <strong>$O(n)$</strong> (linear in input size) for a poorly
+                    chosen pivot. In the <strong>best case</strong>, for a balanced partitioning, it is
+                    <strong>$O(\log n)$</strong>. This is because $O(1)$ stack space is needed for each procedure call
+                    when parameters are passed by pointers.
+                </li>
+                <li>
+                    For the maze-solving DFS problem using a stack, the space required can be <strong>$O(n)$</strong> in
+                    the worst case, where <code>n</code> is the number of connected points.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Advantages and Disadvantages</h3>
+    <p><strong>Advantages</strong>:</p>
+    <ul>
+        <li><strong>Simplicity</strong>: Stacks are among the simplest data structures to understand and implement.</li>
+        <li>
+            <strong>Constant Time Operations</strong>: Basic <code>PUSH</code> and <code>POP</code> operations are
+            highly efficient, typically completing in <strong>$O(1)$ time</strong>.
+        </li>
+        <li>
+            <strong>Natural for Recursion</strong>: They directly mirror the way recursive function calls are handled by
+            compilers on the call stack.
+        </li>
+        <li>
+            <strong>Memory Management</strong>: Stacks can be efficiently used in certain memory management schemes,
+            such as managing free lists for object allocation and deallocation, which also offers
+            <strong>$O(1)$ time</strong> operations.
+        </li>
+        <li>
+            <strong>LIFO Principle</strong>: Their strict LIFO policy is ideal for specific applications like
+            backtracking algorithms (e.g., in DFS for maze solving).
+        </li>
+    </ul>
+    <p><strong>Disadvantages</strong>:</p>
+    <ul>
+        <li>
+            <strong>Fixed Size Limitation (Array-based)</strong>: Array-based stacks have a predetermined maximum
+            capacity, which can lead to <strong>overflow</strong> if more elements are pushed than the array can hold.
+        </li>
+        <li>
+            <strong>Limited Access</strong>: Only the top element of the stack is directly accessible. There is no
+            direct "random access" to elements deeper within the stack.
+        </li>
+        <li>
+            <strong>Memory Consumption (Deep Recursion)</strong>: Deeply nested recursive calls can consume significant
+            memory on the call stack, potentially leading to a "stack overflow" error if the stack grows too large. This
+            sometimes necessitates rewriting recursive code using iterative loops or exploring advanced techniques like
+            tail recursion (which not all languages fully support).
+        </li>
+        <li>
+            <strong>Inefficiency with Secondary Storage</strong>: Directly implementing stacks on slower secondary
+            storage (disks) without careful memory page management can be highly inefficient due to the high cost of
+            disk I/O operations.
+        </li>
+    </ul>
+</div>
+{% endblock %} {% block scripts %} {% endblock %}
