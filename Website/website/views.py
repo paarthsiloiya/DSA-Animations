@@ -67,6 +67,18 @@ def merge_sort():
 def heap_sort():
     return render_template('SortingAlgorithms/heap_sort.html', user=current_user)
 
+@views.route('/stack and queue')
+def stack_and_queue():
+    return render_template('StackAndQueue/stack_and_queue.html', user=current_user)
+
+@views.route('/stack')
+def stack():
+    return render_template('StackAndQueue/stack.html', user=current_user)
+
+@views.route('/queue')
+def queue():
+    return render_template('StackAndQueue/queue.html', user=current_user)
+
 @views.route('/linked list')
 def linked_list():
     return render_template('LinkedList/linked_list.html', user=current_user)

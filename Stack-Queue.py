@@ -318,6 +318,6 @@ class Queue(Scene):
             self.wait(0.1)
 
             for j in range(len(queueElements)):
-                self.play(queueElements[j].animate.shift(RIGHT * 1.15))
+                self.play(queueElements[j].animate.shift(RIGHT * 1.15), run_time=0.5)
 
             self.wait(0.2)

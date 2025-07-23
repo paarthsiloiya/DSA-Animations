@@ -1,0 +1,361 @@
+{% extends "content.html" %} {% block title %} Queue {% endblock %} {% block main_content %}
+<h1>Queue</h1>
+<div class="subcontent">
+    <h3>What is a Queue?</h3>
+    <p>
+        Queues are essential dynamic sets in computer science where elements are removed based on a
+        <strong>FIFO (First-In, First-Out) policy</strong>. This means that the element inserted earliest is always the
+        first one to be removed. Conceptually, a queue operates like a line of customers waiting at a cashier; the first
+        customer in line is the first one served.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Different Implementations</h3>
+    <p>Queues can be implemented using several underlying data structures, each with its own characteristics:</p>
+    <ol>
+        <li>
+            <strong>Array-based (Circular Buffer)</strong>:
+            <ul>
+                <li>A queue can be implemented using a <strong>fixed-size array</strong> <code>Q[1...n]</code>.</li>
+                <li>
+                    It typically uses two attributes: <code>Q:head</code> to index the front of the queue and
+                    <code>Q:tail</code> to index the next location for a new element.
+                </li>
+                <li>
+                    The elements are stored from <code>Q:head</code> up to <code>Q:tail - 1</code>, with a
+                    <strong>"wrap-around" mechanism</strong> where location <code>1</code> follows location
+                    <code>n</code> circularly.
+                </li>
+                <li>
+                    The queue is <strong>empty when <code>Q:head</code> equals <code>Q:tail</code></strong
+                    >.
+                </li>
+                <li>
+                    It is <strong>full when <code>Q:head</code> equals <code>Q:tail + 1</code></strong> (modulo array
+                    size).
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Linked List-based</strong>:
+            <ul>
+                <li>A queue can be efficiently implemented using a <strong>singly linked list</strong>.</li>
+                <li>
+                    To achieve constant-time operations, pointers to both the <strong>head</strong> (for dequeueing) and
+                    the <strong>tail</strong> (for enqueueing) of the list are maintained.
+                </li>
+                <li>
+                    A <strong>sentinel node</strong> can be used to simplify handling an empty queue, where both head
+                    and tail point to this sentinel.
+                </li>
+                <li>
+                    While traditionally <code>ENQUEUE</code> adds to the tail and <code>DEQUEUE</code> removes from the
+                    head, some implementations might "push on head, and pop from tail".
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Paired-List/Paired-Array Queue</strong>:
+            <ul>
+                <li>
+                    This is a more advanced functional implementation that connects two lists (a front list
+                    <code>f</code> and a rear list <code>r</code>).
+                </li>
+                <li>
+                    Elements are pushed onto the head of the rear list <code>r</code> and popped from the tail of the
+                    front list <code>f</code>.
+                </li>
+                <li>
+                    When the front list <code>f</code> becomes empty during <code>pop</code> operations, the rear list
+                    <code>r</code> is <strong>reversed</strong> to become the new front list <code>f</code>, and
+                    <code>r</code> becomes empty. This is referred to as a "balance check and adjustment".
+                </li>
+                <li>
+                    <strong>Real-time Queues</strong> are an advanced form of paired-list queues that guarantee
+                    <strong>constant time for <em>every</em> <code>PUSH</code>/<code>POP</code> operation</strong>, even
+                    those that involve list reversal, by distributing the reversal cost over multiple operations.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Using Two Stacks</strong>:
+            <ul>
+                <li>
+                    A queue can be implemented using two stacks. One stack (<code>stack1</code>) is used for
+                    <code>ENQUEUE</code> operations (pushing elements), and the other (<code>stack2</code>) is used for
+                    <code>DEQUEUE</code> operations.
+                </li>
+                <li>
+                    When <code>DEQUEUE</code> is called and <code>stack2</code> is empty, all elements are popped from
+                    <code>stack1</code> and pushed onto <code>stack2</code> (effectively reversing their order for FIFO
+                    processing). Then, the top element of <code>stack2</code> is popped.
+                </li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<div class="subcontent">
+    <h3>Use Cases &amp; Applications</h3>
+    <p>Queues are widely used across various domains in computer science due to their inherent FIFO property:</p>
+    <ul>
+        <li>
+            <strong>Breadth-First Search (BFS)</strong>: Queues are fundamental to implementing BFS algorithms.
+            <ul>
+                <li>
+                    <strong>Shortest Path Finding</strong>: BFS specifically helps find the
+                    <strong>shortest path in unweighted graphs</strong>. The queue ensures that all nodes at a given
+                    "level" (distance from the source) are explored before moving to the next level. This prevents
+                    finding a longer path when a shorter one exists.
+                </li>
+                <li>
+                    <strong>General Graph Traversal</strong>: It can answer if a path exists between two nodes. For
+                    instance, in a social network, it could find the shortest chain of connections between two people.
+                </li>
+                <li>
+                    <strong>Maze Solving</strong>: While DFS (Depth-First Search) can be used, BFS would find the
+                    shortest path out of a maze.
+                </li>
+                <li>
+                    <strong>Predictive Text Input</strong>: An algorithm for predictive text can use a queue to perform
+                    a breadth-first search of possible digit sequences.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Job Scheduling and Resource Management</strong>: Queues are critical for managing tasks or jobs that
+            need to be processed in the order they arrive.
+            <ul>
+                <li>
+                    <strong>Operating Systems</strong>: In operating systems, queues manage processes waiting for CPU
+                    time, I/O, or other resources.
+                </li>
+                <li>
+                    <strong>Event-driven Simulators</strong>: Min-priority queues, which can be implemented using heap
+                    data structures (related to queue concepts), are used in event-driven simulators where events must
+                    be processed in chronological order.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Buffering and Streaming</strong>: In scenarios involving data streams or buffers, a queue can
+            temporarily hold data as it arrives, processing it in order. For example, a restaurant order system would
+            use a queue where servers add orders to the back, and chefs take them from the front.
+        </li>
+        <li>
+            <strong>Caching Algorithms</strong>: The "paging problem" in memory management, which aims to minimize cache
+            misses, involves managing a cache of <code>k</code> pages where requests are processed in a sequence. While
+            various strategies exist, the idea of processing requests in order (or using a queue for elements to be
+            evicted) is present.
+        </li>
+        <li>
+            <strong>Compiler Design</strong>: Stacks are used for parsing and expression evaluation, while queues might
+            be used for managing symbol tables in specific stages or for token processing.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Different Operations on Queues</h3>
+    <p>The primary operations on a queue follow its FIFO policy:</p>
+    <ul>
+        <li>
+            <strong>ENQUEUE(Q, x)</strong>:
+            <strong>Inserts element <code>x</code> at the tail (or rear) of queue <code>Q</code></strong
+            >. This is also sometimes called <code>PUSH</code> or <code>APPEND</code>.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: <code>Q:tail</code> is updated (incremented and wrapped around if
+                    necessary), and <code>x</code> is placed at the new <code>Q[Q:tail]</code> location.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>DEQUEUE(Q)</strong>:
+            <strong>Removes the element from the head (or front) of queue <code>Q</code></strong> and returns it. It
+            does not take an element argument. This is also sometimes called <code>POP</code>.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: The element at <code>Q[Q:head]</code> is returned, and
+                    <code>Q:head</code> is updated (incremented and wrapped around).
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>EMPTY(Q)</strong>: A query operation to
+            <strong>check if queue <code>Q</code> contains any elements</strong>.
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: Returns <code>TRUE</code> if <code>Q:head</code> equals
+                    <code>Q:tail</code>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Underflow</strong>: An error condition that occurs when an attempt is made to
+            <code>DEQUEUE</code> an element from an empty queue.
+        </li>
+        <li>
+            <strong>Overflow</strong>: Occurs in array-based implementations if an attempt to <code>ENQUEUE</code> an
+            element would cause the queue to exceed its maximum array capacity.
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Complexity for Each Operation and Implementation</h3>
+    <p>
+        The efficiency of queue operations is analyzed in terms of time (best, worst, and average) and space complexity.
+        Queues, by definition, generally do not support efficient random access (e.g., getting the <em>i</em>-th
+        element); elements are processed sequentially from the head.
+    </p>
+    <h4>Time Complexity (Best, Worst, and Average Case)</h4>
+    <ul>
+        <li>
+            <strong>ENQUEUE(Q, x)</strong> and <strong>DEQUEUE(Q)</strong>:
+            <ul>
+                <li>
+                    <strong>Array-based (Circular Buffer)</strong>:
+                    <ul>
+                        <li>
+                            Time: <strong>$O(1)$</strong>. This holds for best, worst, and average cases as it only
+                            involves simple pointer arithmetic and assignment.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Linked List-based (Singly Linked List, with head and tail pointers)</strong>:
+                    <ul>
+                        <li>
+                            Time: <strong>$O(1)$</strong>. This also holds for best, worst, and average cases. If only a
+                            head pointer is maintained, appending to the tail would be $O(N)$ due to traversal.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Paired-List/Paired-Array Queue (Balanced Queue)</strong>:
+                    <ul>
+                        <li>
+                            Time: <strong>Amortized $O(1)$</strong>. The cost of reversing the rear list is distributed
+                            over multiple operations.
+                        </li>
+                        <li>
+                            Worst-case for a single operation: <strong>$O(n)$</strong>, where <code>n</code> is the
+                            number of elements, if a full reversal of the rear list is triggered.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Real-time Queue (Advanced Paired-List)</strong>:
+                    <ul>
+                        <li>
+                            Time: <strong>$O(1)$ worst-case</strong> for every <code>PUSH</code>/<code>POP</code>
+                            operation. The reversal cost is incrementally spread out.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Using two Stacks</strong>:
+                    <ul>
+                        <li>
+                            Time: <strong>Amortized $O(1)$</strong> for both <code>ENQUEUE</code> and
+                            <code>DEQUEUE</code>. While a single <code>DEQUEUE</code> might take
+                            <code>$O(n)$</code> (when <code>stack2</code> is empty and elements are moved), the total
+                            cost over a sequence of <code>n</code> operations averages out to <code>$O(1)$</code> per
+                            operation because each element is pushed and popped between stacks at most twice.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <h4>Space Complexity</h4>
+    <ul>
+        <li>
+            <strong>Array-based Implementation (Circular Buffer)</strong>:
+            <ul>
+                <li>
+                    <strong>$O(n)$</strong>, where <code>n</code> is the maximum fixed size of the array. The space is
+                    pre-allocated.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Linked List-based Implementation</strong>:
+            <ul>
+                <li>
+                    <strong>$O(N)$</strong>, where <code>N</code> is the number of elements currently in the queue. Each
+                    element requires a constant amount of memory for its data and a pointer.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Paired-List/Paired-Array and Real-time Queues</strong>:
+            <ul>
+                <li><strong>$O(N)$</strong>, where <code>N</code> is the number of elements.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Using two Stacks</strong>:
+            <ul>
+                <li>
+                    <strong>$O(N)$</strong>, where <code>N</code> is the number of elements, as all elements are stored
+                    across the two stacks.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Advantages and Disadvantages</h3>
+    <p><strong>Advantages</strong>:</p>
+    <ul>
+        <li>
+            <strong>Strict FIFO Ordering</strong>: This is the primary advantage, making queues ideal for applications
+            that require processing elements in the order of their arrival, such as task scheduling, event handling, and
+            breadth-first searches.
+        </li>
+        <li>
+            <strong>Efficient Basic Operations</strong>: In most efficient implementations (array-based circular buffer,
+            linked list with head/tail pointers, real-time queues), <code>ENQUEUE</code> and
+            <code>DEQUEUE</code> operations run in <strong>constant time ($O(1)$)</strong>.
+        </li>
+        <li>
+            <strong>Dynamic Size (Linked List-based)</strong>: Unlike fixed-size arrays, linked list implementations can
+            grow or shrink dynamically as needed, avoiding the overflow problem unless system memory is exhausted.
+        </li>
+        <li>
+            <strong>Simplicity</strong>: While some advanced implementations can be complex, the core concept and basic
+            implementations are relatively simple to understand.
+        </li>
+    </ul>
+    <p><strong>Disadvantages</strong>:</p>
+    <ul>
+        <li>
+            <strong>Fixed Size Limitation (Array-based)</strong>: Array-based queues require a predetermined maximum
+            capacity. If this capacity is exceeded, an <strong>overflow</strong> error occurs, requiring reallocation
+            and copying, which can be inefficient.
+        </li>
+        <li>
+            <strong>No Random Access</strong>: Queues do not provide efficient random access to elements. To access an
+            element other than the head, one must traverse the queue sequentially, which takes
+            <strong>$O(n)$ time</strong>.
+        </li>
+        <li>
+            <strong>Memory Overhead (Linked List-based)</strong>: Linked list implementations require extra memory for
+            pointers associated with each element, which can be significant for very small data elements.
+        </li>
+        <li>
+            <strong>Worst-Case Variability (for some advanced implementations)</strong>: While amortized analysis shows
+            good average performance, some advanced queue implementations (like simple paired-list queues) can
+            experience <strong>$O(n)$ worst-case time for a single operation</strong> when a full internal
+            reorganization (like a list reversal) is triggered. This might be unacceptable in real-time systems unless a
+            real-time queue is used.
+        </li>
+        <li>
+            <strong>Implementation Complexity</strong>: Advanced queue implementations (e.g., real-time queues, using
+            two stacks) can be more complex to implement correctly compared to basic array or linked list queues.
+        </li>
+    </ul>
+</div>
+{% endblock %} {% block scripts %} {% endblock %}

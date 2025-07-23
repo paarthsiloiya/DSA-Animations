@@ -1,0 +1,180 @@
+{% extends "content.html" %} {% block title %} Stack and Queue {% endblock %} {% block main_content %}
+<h1>Stack and Queue</h1>
+<div class="subcontent">
+    <h3>What are Stack and Queue?</h3>
+    <p>
+        Stacks and queues are fundamental data structures used in computer science for organising dynamic sets of
+        elements. While mathematical sets are static, algorithmic sets can grow, shrink, or change over time.
+    </p>
+</div>
+<div class="subcontent">
+    <h3>What are Stacks and Queues</h3>
+    <ul>
+        <li>
+            <strong><a href="{{ url_for('views.stack') }}">Stacks</a></strong
+            >: A stack is a dynamic set where the element removed is always the one most recently inserted. This is
+            known as a <strong>LIFO (last-in, first-out) policy</strong>. Imagine a physical stack where items are
+            pushed onto the top, and only the topmost item can be read and popped off.
+        </li>
+        <li>
+            <strong><a href="{{ url_for('views.queue') }}">Queues</a></strong
+            >: A queue is a dynamic set where the element removed is always the one that has been in the set for the
+            longest time. This follows a <strong>FIFO (first-in, first-out) policy</strong>. It operates like a line of
+            customers, where the first one in line is the first one served.
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>When to Use Them</h3>
+    <p>These data structures are crucial building blocks for many algorithms and systems:</p>
+    <ul>
+        <li>
+            <strong>Stacks</strong>:
+            <ul>
+                <li>
+                    <strong>Call Stack</strong>: Your computer uses a call stack internally to manage function calls,
+                    saving variables for multiple functions. Each function call adds a "box" to the top of the stack,
+                    and when the function returns, its box is removed. This is particularly important for managing
+                    <strong>recursive functions</strong>, where each recursive call is pushed onto the stack.
+                </li>
+                <li>
+                    <strong>Undo Mechanisms</strong>: Stacks are ideal for implementing undo/redo functionalities in
+                    applications.
+                </li>
+                <li><strong>Expression Evaluation</strong>: Used in compilers to evaluate arithmetic expressions.</li>
+                <li>
+                    <strong>Depth-First Search (DFS)</strong>: While not explicitly stated as an implementation in the
+                    provided sources, stacks are commonly used to implement DFS, as opposed to queues for BFS
+                    (information from outside the provided sources).
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Queues</strong>:
+            <ul>
+                <li>
+                    <strong>Breadth-First Search (BFS)</strong>: Queues are essential for graph-searching algorithms
+                    like Breadth-First Search, ensuring that nodes are processed level by level to find the shortest
+                    path. The search list in BFS needs to be a queue to guarantee finding the shortest path.
+                </li>
+                <li>
+                    <strong>Job Scheduling</strong>: Priority queues, which can be implemented using heap data
+                    structures, are used to schedule jobs on shared computers based on their priorities.
+                </li>
+                <li>
+                    <strong>Event-Driven Simulators</strong>: Min-priority queues can manage events to be simulated in
+                    order of their occurrence time.
+                </li>
+                <li>
+                    <strong>Buffering</strong>: They act as buffers in systems where elements are produced at one rate
+                    and consumed at another.
+                </li>
+                <li>
+                    <strong>Order Management</strong>: In scenarios like restaurant order systems, new orders are added
+                    to the back of the queue, and chefs take orders from the front.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Types of Stacks and Queues</h3>
+    <p>Both stacks and queues can be implemented in various ways:</p>
+    <ul>
+        <li>
+            <strong>Stack Implementations</strong>:
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: A common way to implement a stack uses an array. This involves an
+                    array and an attribute (e.g., <code>S:top</code>) that indexes the most recently inserted element.
+                </li>
+                <li><strong>Linked-list based</strong>: A stack can also be implemented using a singly linked list.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Queue Implementations</strong>:
+            <ul>
+                <li>
+                    <strong>Array-based</strong>: A queue can be implemented using an array, with
+                    <code>Q:head</code> and <code>Q:tail</code> attributes to manage elements, wrapping around
+                    circularly.
+                </li>
+                <li><strong>Linked-list based</strong>: A singly linked list can implement a queue.</li>
+                <li>
+                    <strong>Circular Buffer</strong>: This technique reuses free cells after elements are dequeued,
+                    simplifying enqueue/dequeue with modular operations.
+                </li>
+                <li>
+                    <strong>Paired-list Queue</strong>: This structure connects two lists, a front list (<code>f</code>)
+                    and a rear list (<code>r</code>), where new elements are pushed to the head of <code>r</code> and
+                    popped from the tail of <code>f</code>. If <code>f</code> becomes empty, <code>r</code> is reversed
+                    to replace <code>f</code>.
+                </li>
+                <li>
+                    <strong>Balanced Queue</strong>: An enhancement of the paired-list queue that maintains a balance
+                    rule, ensuring the length of the rear list <code>r</code> is not greater than the front list
+                    <code>f</code>.
+                </li>
+                <li>
+                    <strong>Real-time Queue</strong>: Designed to guarantee constant time for every push/pop operation
+                    by distributing the cost of list concatenation over multiple operations.
+                </li>
+                <li>
+                    <strong>Deque (Double-Ended Queue)</strong>: A more versatile queue type that allows insertion and
+                    deletion of elements at both ends.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="subcontent">
+    <h3>Different Algorithms / Operations</h3>
+    <p>
+        The primary operations for stacks and queues are fundamental, with variations for efficiency or additional
+        functionality:
+    </p>
+    <ul>
+        <li>
+            <strong>Stack Operations</strong>:
+            <ul>
+                <li>
+                    <strong>PUSH(S, x)</strong>: Inserts element <code>x</code> onto stack <code>S</code>. This
+                    operation generally takes <strong>$O(1)$ time</strong>.
+                </li>
+                <li>
+                    <strong>POP(S)</strong>: Removes the top element from stack <code>S</code>. This operation also
+                    generally takes <strong>$O(1)$ time</strong>.
+                </li>
+                <li>
+                    <strong>STACK-EMPTY(S)</strong>: A query operation to check if the stack <code>S</code> contains no
+                    elements. This takes <strong>$O(1)$ time</strong>.
+                </li>
+                <li>
+                    <strong>MULTIPOP(S, k)</strong>: An augmented stack operation that removes <code>k</code> top
+                    objects from stack <code>S</code>, or the entire stack if it contains fewer than
+                    <code>k</code> objects. Its actual running time is linear in the number of POP operations executed.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Queue Operations</strong>:
+            <ul>
+                <li>
+                    <strong>ENQUEUE(Q, x)</strong>: Inserts element <code>x</code> at the tail of queue <code>Q</code>.
+                    This operation takes <strong>$O(1)$ time</strong>.
+                </li>
+                <li>
+                    <strong>DEQUEUE(Q)</strong>: Removes an element from the head of queue <code>Q</code>. This
+                    operation also takes <strong>$O(1)$ time</strong>.
+                </li>
+                <li>
+                    <strong>MINIMUM/MAXIMUM/EXTRACT-MIN/EXTRACT-MAX/INCREASE-KEY/DECREASE-KEY</strong>: These are
+                    operations typically associated with <strong>priority queues</strong>, which are often implemented
+                    using heap data structures. They allow for retrieving and manipulating elements based on their keys
+                    (priority).
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+{% endblock %} {% block scripts %} {% endblock %}
