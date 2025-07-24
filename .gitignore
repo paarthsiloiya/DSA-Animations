@@ -195,17 +195,17 @@ cython_debug/
 
 
 # Ignore all images folders
-media/videos/main/
+Animations/media/videos/main/
 
 # Ignore all partial_movie_files directories
-media/**/partial_movie_files/
+Animations/media/**/partial_movie_files/
 
 # Ignore all images folders
-media/images/
+Animations/media/images/
 
 # Ignore all texts folders
-media/texts/
-media/Tex/
+Animations/media/texts/
+Animations/media/Tex/
 
 IDEAS.md 
 DSA_Project.code-workspace

@@ -1075,15 +1075,11 @@ class AVLNode():
         
         self.node = Node(value).set_z_index(2)
 
-        self.node.text.add_updater(
-            lambda m: m.move_to(self.node.circle.get_center())
-        )
-
         self.balanceFactorText.add_updater(
             lambda m: m.set_value(self.balanceFactor.get_value())
         )
         self.balanceFactorText.add_updater(
-            lambda m: m.next_to(self.node.circle, UP, buff=0.2)
+            lambda m: m.next_to(self.node, UP, buff=0.2)
         )
 
         self.leftPos = Dot(self.node.get_center() + DL, color=BLUE, fill_opacity=0)
@@ -1104,22 +1100,14 @@ class AVLNode():
         )
 
         self.leftPos.add_updater(
-            lambda m, dt: m.move_to(
-                interpolate(
-                    m.get_center(),
-                    self.node.get_center() + DOWN + (LEFT * (self.height - 1)),
-                    0.8
-                )
+            lambda m : m.move_to(
+                    self.node.get_center() + DOWN + (LEFT * (self.height - 1))
             )
         )
 
         self.rightPos.add_updater(
-            lambda m, dt: m.move_to(
-                interpolate(
-                    m.get_center(),
-                    self.node.get_center() + DOWN + (RIGHT * (self.height - 1)),
-                    0.8
-                )
+            lambda m : m.move_to(
+                    self.node.get_center() + DOWN + (RIGHT * (self.height - 1))
             )
         )
 
@@ -1154,7 +1142,6 @@ class AVLNode():
         if self.left is None or self.left.node.updaters:
             return
         
-        self.left.node.move_to(self.leftPos.get_center())
         self.left.node.add_updater(
             lambda m: m.move_to(self.leftPos.get_center())
         )
@@ -1163,19 +1150,18 @@ class AVLNode():
         if self.right is None or self.right.node.updaters:
             return
         
-        self.right.node.move_to(self.rightPos.get_center())
         self.right.node.add_updater(
             lambda m: m.move_to(self.rightPos.get_center())
         )
         
-
+        
 class AVLTreeExplanation(Scene):
     def height(self, node):
         if node is None:
             return 0
         return node.height
     
-    def right_rotate(self, y):
+    def right_rotate(self, y : AVLNode):
         x = y.left
 
         self.play(
@@ -1187,6 +1173,7 @@ class AVLTreeExplanation(Scene):
 
         if y.left is not None:
             y.left.node.clear_updaters()
+            y.left = None
             y.node.clear_updaters()
             self.play(
                 y.node.animate.move_to(x.rightPos.get_center()),
@@ -1194,6 +1181,7 @@ class AVLTreeExplanation(Scene):
 
         if x.right is not None:
             x.right.node.clear_updaters()
+            x.right = None
             x.node.clear_updaters()
             self.play(
                 x.node.animate.move_to(y.leftPos.get_center()),
@@ -1213,6 +1201,8 @@ class AVLTreeExplanation(Scene):
         y.height = max(self.height(y.left), self.height(y.right)) + 1
         x.height = max(self.height(x.left), self.height(x.right)) + 1
 
+        self.recalculate_balance_factors([y, x])
+
         return x
     
     def left_rotate(self, x : AVLNode):
@@ -1227,6 +1217,7 @@ class AVLTreeExplanation(Scene):
 
         if x.right is not None:
             x.right.node.clear_updaters()
+            x.right = None
             x.node.clear_updaters()
             self.play(
                 x.node.animate.move_to(y.leftPos.get_center()),
@@ -1234,6 +1225,7 @@ class AVLTreeExplanation(Scene):
 
         if y.left is not None:
             y.left.node.clear_updaters()
+            y.left = None
             y.node.clear_updaters()
             self.play(
                 y.node.animate.move_to(x.rightPos.get_center()),
@@ -1254,6 +1246,8 @@ class AVLTreeExplanation(Scene):
         x.height = max(self.height(x.left), self.height(x.right)) + 1
         y.height = max(self.height(y.left), self.height(y.right)) + 1
 
+        self.recalculate_balance_factors([x, y])
+
         return y
     
     def get_balance(self, node):
@@ -1266,79 +1260,124 @@ class AVLTreeExplanation(Scene):
             avlnode = AVLNode(value)
             if parent_node is not None:
                 if is_left:
-                    avlnode.node.move_to(parent_node.leftPos.get_center())
+                    avlnode.node.move_to(parent_node.leftPos.get_center() + LEFT)
                 else:
-                    avlnode.node.move_to(parent_node.rightPos.get_center())
+                    avlnode.node.move_to(parent_node.rightPos.get_center() + RIGHT)
             
             self.play(Create(avlnode.node), run_time=0.5)
-            self.play(Create(avlnode.left_edge), Create(avlnode.right_edge), Create(avlnode.balanceFactorText))
             self.add(avlnode.rightPos, avlnode.leftPos)
+            self.play(Create(avlnode.left_edge), Create(avlnode.right_edge), Create(avlnode.balanceFactorText))
             self.nodeGroup.add(avlnode.node)
             self.AVLnodeGroup.append(avlnode)
+            
+            avlnode.balanceFactor.set_value(0)
+            
             self.wait(0.52)
             return avlnode
 
         if value < node.value:
             node.left = self.insert(node.left, value, True, node)
-            self.wait(0.52)
+            node.height = 1 + max(self.height(node.left), self.height(node.right))
             node.set_left()
+            self.wait(0.52)
         elif value > node.value:
             node.right = self.insert(node.right, value, False, node)
-            self.wait(0.52)
+            node.height = 1 + max(self.height(node.left), self.height(node.right))
             node.set_right()
+            self.wait(0.52)
         else:
             return node
         
-        node.height = 1 + max(self.height(node.left), self.height(node.right))
         balance = self.get_balance(node)
 
-
-        self.wait(0.2)
-        self.play(self.nodeGroup.animate.center().shift(UP))
-        self.wait(0.2)
-        self.recalculate_balance_factors()
+        old_balance = node.balanceFactor.get_value()
+        new_balance = self.get_balance(node)
+        if abs(old_balance - new_balance) > 0.001:
+            self.play(Indicate(node.balanceFactorText, color=SELCOL), run_time=0.3)
+            self.wait(0.1)
+            node.balanceFactor.set_value(new_balance)
+            self.wait(0.2)
 
         if balance > 1 and value < node.left.value:
-            self.play(node.node.Highlight(), node.node.Reset())
             return self.right_rotate(node)
         
         if balance < -1 and value > node.right.value:
-            self.play(node.node.Highlight(), node.node.Reset())
             return self.left_rotate(node)
         
         if balance > 1 and value > node.left.value:
-            self.play(node.node.Highlight(), node.node.Reset())
             node.left = self.left_rotate(node.left)
-            self.wait(0.52)
-            self.play(node.node.Highlight(), node.node.Reset())
+            self.wait(1)
             return self.right_rotate(node)
         
         if balance < -1 and value < node.right.value:
-            self.play(node.node.Highlight(), node.node.Reset())
             node.right = self.right_rotate(node.right)
-            self.wait(0.52)
-            self.play(node.node.Highlight(), node.node.Reset())
+            self.wait(1)
             return self.left_rotate(node)
         
         return node
     
-    def recalculate_balance_factors(self):
-        for avl_node in self.AVLnodeGroup:
-            self.play(avl_node.balanceFactor.animate.set_value(self.get_balance(avl_node)), run_time=0.2)
+    def recalculate_balance_factors(self, nodes_to_update=None):
+        if nodes_to_update is None:
+            nodes_to_update = self.AVLnodeGroup
+        
+        for avl_node in nodes_to_update:
+            old_balance = avl_node.balanceFactor.get_value()
+            new_balance = self.get_balance(avl_node)
+            
+            if abs(old_balance - new_balance) > 0.001:  # Use abs for better floating point comparison
+                self.play(Indicate(avl_node.balanceFactorText, color=SELCOL), run_time=0.5)
+                self.wait(0.1)
+                avl_node.balanceFactor.set_value(new_balance)
+                self.wait(0.2)
+    
+    def collect_path_to_node(self, root, value, path=None):
+        if path is None:
+            path = []
+        
+        if root is None:
+            return path
+        
+        path.append(root)
+        
+        if value < root.value:
+            return self.collect_path_to_node(root.left, value, path)
+        elif value > root.value:
+            return self.collect_path_to_node(root.right, value, path)
+        else:
+            return path
 
     def insert_into_AVLTree(self, root, value):
+        path_nodes = []
+        if root is not None:
+            path_nodes = self.collect_path_to_node(root, value)
+        
         root = self.insert(root, value)
-        self.wait(0.1)
-        self.recalculate_balance_factors()
         self.wait(0.2)
-        self.play(self.nodeGroup.animate.center().shift(UP))
-        self.wait(0.5)
+        self.play(self.nodeGroup.animate.center().shift(UP * 0.3))
+        self.wait(0.2)
+        
+        affected_nodes = []
+        
+        for node in path_nodes:
+            old_displayed = node.balanceFactorText.get_value() 
+            actual_balance = self.get_balance(node)
+            if abs(old_displayed - actual_balance) > 0.001:
+                affected_nodes.append(node)
+        
+        if self.AVLnodeGroup:
+            new_node = self.AVLnodeGroup[-1]
+            if new_node not in path_nodes:
+                affected_nodes.append(new_node)
+        
+        if affected_nodes:
+            self.recalculate_balance_factors(affected_nodes)
+        
         return root
 
 
     def construct(self):
         self.nodeGroup = VGroup()
-        self.AVLnodeGroup = []
+        self.AVLnodeGroup : list[AVLNode] = []
         root = None
 
         values = [3, 4, 5, 6, 7, 2, 1, 9, 8, 10, 11]
