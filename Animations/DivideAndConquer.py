@@ -298,6 +298,24 @@ class ClosestPairPoint(Scene):
             
             self.play(FadeIn(dist_line), Write(base_text), Write(dist_text), run_time=0.5)
             self.wait(0.5)
+            
+            # Update current best if this is the first or better
+            if self.current_best is None or distance_val < self.current_best[2]:
+                if self.current_best is not None:
+                    # Remove old highlighting
+                    self.play(
+                        self.dot_to_mob[self.current_best[0]].animate.set_fill(TEXTCOL),
+                        self.dot_to_mob[self.current_best[1]].animate.set_fill(TEXTCOL),
+                        run_time=0.3
+                    )
+                self.current_best = (Px[0], Px[1], distance_val)
+                # Highlight new best
+                self.play(
+                    self.dot_to_mob[Px[0]].animate.set_fill(PINK),
+                    self.dot_to_mob[Px[1]].animate.set_fill(PINK),
+                    run_time=0.3
+                )
+            
             self.play(FadeOut(dist_line), FadeOut(base_text), FadeOut(dist_text), run_time=0.3)
             return distance_val
         elif (s == 3):
@@ -322,6 +340,24 @@ class ClosestPairPoint(Scene):
             
             self.play(*[FadeIn(line) for line in dist_lines], Write(base_text), Write(dist_text), run_time=0.5)
             self.wait(0.5)
+            
+            # Update current best if this is the first or better
+            if self.current_best is None or min_dist < self.current_best[2]:
+                if self.current_best is not None:
+                    # Remove old highlighting
+                    self.play(
+                        self.dot_to_mob[self.current_best[0]].animate.set_fill(TEXTCOL),
+                        self.dot_to_mob[self.current_best[1]].animate.set_fill(TEXTCOL),
+                        run_time=0.3
+                    )
+                self.current_best = (p1, p2, min_dist)
+                # Highlight new best
+                self.play(
+                    self.dot_to_mob[p1].animate.set_fill(PINK),
+                    self.dot_to_mob[p2].animate.set_fill(PINK),
+                    run_time=0.3
+                )
+            
             self.play(*[FadeOut(line) for line in dist_lines], FadeOut(base_text), FadeOut(dist_text), run_time=0.3)
             return min_dist
 
@@ -329,12 +365,6 @@ class ClosestPairPoint(Scene):
         m = s//2
         Qx = Px[:m]
         Rx = Px[m:]
-
-        # line_start = ((Rx[0][0] + Qx[-1][0]) / 2, 2.5, 0)
-        # line_end = ((Rx[0][0] + Qx[-1][0]) / 2, -4, 0)
-        # line = Line(line_start, line_end, color=RED, stroke_width=2)
-        # self.add(line)
-
         xQ = Qx[-1][0]  # maximum x value in Qx
         xR = Rx[0][0]    # minimum x value in Rx
         
@@ -399,7 +429,7 @@ class ClosestPairPoint(Scene):
         if left <= right:
             comparison_text = Text(f"Left half wins: {left:.2f} ≤ {right:.2f}", font_size=30, color=EXPLANATORY_FONT_COLOR, font=FONT)
         else:
-            comparison_text = Text(f"Right half wins: {right:.2f} < {left:.2f}", font_size=30, color=EXPLANATORY_FONT_COLOR, font=FONT)
+            comparison_text = Text(f"Right half wins: {left:.2f} > {right:.2f}", font_size=30, color=EXPLANATORY_FONT_COLOR, font=FONT)
         
         comparison_text.to_edge(UP, buff=0.5)
         self.play(Write(comparison_text), run_time=0.5)
@@ -461,12 +491,36 @@ class ClosestPairPoint(Scene):
                     # Check if this is a new best
                     if dist_value < minS:
                         minS = dist_value
+                        # Update global current best if this is better
+                        if self.current_best is None or dist_value < self.current_best[2]:
+                            if self.current_best is not None:
+                                # Remove old highlighting
+                                self.play(
+                                    self.dot_to_mob[self.current_best[0]].animate.set_fill(TEXTCOL),
+                                    self.dot_to_mob[self.current_best[1]].animate.set_fill(TEXTCOL),
+                                    run_time=0.3
+                                )
+                            self.current_best = (Sy[i], Sy[j+1], dist_value)
+                            # Highlight new best
+                            self.play(
+                                self.dot_to_mob[Sy[i]].animate.set_fill(PINK),
+                                self.dot_to_mob[Sy[j+1]].animate.set_fill(PINK),
+                                run_time=0.3
+                            )
                     
                     self.wait(0.2)
                     self.play(FadeOut(sy_dist_line), FadeOut(comparison_text), run_time=0.2)
 
-            # Clean up strip highlighting
-            self.play(*[dot.animate.set_fill(TEXTCOL) for dot in sy_points_to_dim], run_time=0.5)
+            # Clean up strip highlighting (but keep current best highlighted)
+            non_best_dots = []
+            for dot in sy_points_to_dim:
+                point = next((pt for pt, mob in self.dot_to_mob.items() if mob == dot), None)
+                if self.current_best is None or (point != self.current_best[0] and point != self.current_best[1]):
+                    non_best_dots.append(dot)
+            
+            if non_best_dots:
+                self.play(*[dot.animate.set_fill(TEXTCOL) for dot in non_best_dots], run_time=0.5)
+            
             self.play(FadeOut(split_line), FadeOut(delta_rect), run_time=0.2)
             return min(delta, minS)
         else:
@@ -483,6 +537,9 @@ class ClosestPairPoint(Scene):
 
 
     def construct(self):
+        # Initialize current best tracking
+        self.current_best = None
+        
         # Generate 25 random points within x: [-8,8], y: [-4.5,4.5] using a fixed seed
         random.seed(31)
         pts = [(random.uniform(-7, 7), random.uniform(-3.2, 2)) for _ in range(35)]
@@ -491,7 +548,6 @@ class ClosestPairPoint(Scene):
         self.add(*dots)
         
         result = self.minDistance(pts)
-        print(result)
         
         # Final result text
         final_text = Text(f"Closest Distance: {result}", font_size=45, color=SORTCOL, font=FONT)
