@@ -1,33 +1,13 @@
 from manim import *
 from manim.utils.unit import Percent, Pixels
 import random
-
-config.frame_width = 16
-config.frame_height = 9
-
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
+from env_config import *
 
 random.seed(32)
 
-SWAP_FONT_SIZE = 38         # For "Insert!", "Delete!", etc.
+# Override specific font sizes for LinkedList
 EXPLANATORY_FONT_SIZE = 32  # For step-by-step explanations
 POINTER_FONT_SIZE = 28      # For pointer labels (if any)
-
-SELF_ADDRESS_FONT_SIZE = 21
-NEXT_ADDRESS_FONT_SIZE = 25
-VALUE_FONT_SIZE = 90
-NODE_WIDTH = 1.6
-
-SWAP_FONT_COLOR = SORTCOL
-EXPLANATORY_FONT_COLOR = TEXTCOL
-POINTER_FONT_COLOR = SORTCOL
 
 class Node(VGroup):
     def __init__(self, value):

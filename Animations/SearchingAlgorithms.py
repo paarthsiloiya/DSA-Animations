@@ -1,26 +1,10 @@
 from manim import *
 from manim.utils.unit import Percent, Pixels
 from manim import CurvedArrow
+from env_config import *
 
-# manim -ql -p SearchingAlgorithms.py BinarySearch
-config.frame_width = 16
-config.frame_height = 9
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
-
-SWAP_FONT_SIZE = 38         # For "Found!", "SORT!", etc.
-EXPLANATORY_FONT_SIZE = 40  # For step-by-step explanations
+# Override specific font sizes for SearchingAlgorithms
 POINTER_FONT_SIZE = 28      # For "Low", "High", "Mid", etc.
-
-SWAP_FONT_COLOR = SORTCOL
-EXPLANATORY_FONT_COLOR = TEXTCOL
-POINTER_FONT_COLOR = SORTCOL
 
 class ListElement():
     def __init__(self, value : str):

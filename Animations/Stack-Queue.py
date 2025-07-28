@@ -1,29 +1,13 @@
 from manim import *
 from manim.utils.unit import Percent, Pixels
 import random
-
-config.frame_width = 16
-config.frame_height = 9
-
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
+from env_config import *
 
 random.seed(32)
 
-SWAP_FONT_SIZE = 38         # For "Insert!", "Delete!", etc.
+# Override specific font sizes for Stack-Queue
 EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 POINTER_FONT_SIZE = 28      # For pointer labels (if any)
-
-ELEMENT_BG = BASECOL
-
-BOTTOM_STACK_POS = (0,-2.4,0)
-RIGHT_QUEUE_POS = (2.3, 0, 0)
 
 class StackElement():
     def __init__(self, value):
