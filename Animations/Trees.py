@@ -2,27 +2,13 @@ from manim import *
 from manim.utils.unit import Percent, Pixels
 import random
 import networkx as nx
-
-config.frame_width = 16
-config.frame_height = 9
-
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
+from env_config import *
 
 random.seed(32)
 
-SWAP_FONT_SIZE = 38         # For "Insert!", "Delete!", etc.
+# Override specific font sizes for Trees
 EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 POINTER_FONT_SIZE = 20      # For pointer labels (if any)
-
-NODE_COL = BASECOL
-EDGE_COL = SELCOL
 
 
 class Node(VGroup):
@@ -774,7 +760,7 @@ class MinHeap(Scene):
 
 
 
-class BinarySearchTree(Scene):
+class BinarySearchTreeInsertion(Scene):
     def construct(self):
         def insert_bst(value):
             new_node = Node(value)
@@ -886,6 +872,548 @@ class BinarySearchTree(Scene):
             insert_bst(val)
 
         self.wait(2)
+
+
+class BinarySearchTreeDeletion(Scene):
+    def construct(self):
+        def insert_bst(value):
+            new_node = Node(value)
+            new_node.set_z_index(2)
+
+            if not bst_root:
+                new_node.to_edge(UP, buff=0.5)
+                bst_root.append((value, new_node))
+                tree_node_map[value] = new_node
+                # Add root to bst_tree and bst_indices (this was missing!)
+                bst_tree[0] = value
+                bst_indices[value] = 0
+                G.add_node(value)
+                self.play(Create(new_node), run_time=0.5)
+            else:
+                current_value, current_node = bst_root[0]
+                parent_value = None
+
+                current_value, current_node = bst_root[0]
+                index = 0  # Start from root index
+
+                while True:
+                    parent_value = current_value
+                    parent_node = current_node
+
+
+                    if value < current_value:
+                        next_index = 2 * index + 1
+                    else:
+                        next_index = 2 * index + 2
+
+                    if next_index not in bst_tree:
+                        break
+                    else:
+                        current_value = bst_tree[next_index]
+                        current_node = tree_node_map[current_value]
+                        index = next_index
+
+
+                # Place the new node
+                parent_node = tree_node_map[parent_value]
+                is_left = value < parent_value
+
+                # Heuristic horizontal offset based on level
+                level = int(np.log2(next_index + 1))
+                offset = RIGHT if not is_left else LEFT
+                new_node.move_to(parent_node.get_center() + (DOWN * 1.5) + offset * (4 - level))
+
+                G.add_node(value)
+                G.add_edge(parent_value, value)
+
+                self.play(Create(new_node), run_time=0.1)
+                self.play(Create(Line(parent_node.get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)), run_time=0.1)
+
+                # Update data structures
+                bst_tree[next_index] = value
+                bst_indices[value] = next_index
+                tree_node_map[value] = new_node
+
+
+        def find_successor(node_value):
+            """Find the inorder successor (smallest value in right subtree)"""
+            current_index = bst_indices[node_value]
+            right_index = 2 * current_index + 2
+            
+            if right_index not in bst_tree:
+                return None
+                
+            # Create a successor search indicator
+            current_value = bst_tree[right_index]
+            current_node = tree_node_map[current_value]
+            
+            successor_search_surr = DashedVMobject(SurroundingRectangle(current_node, color=BLUE, buff=0, corner_radius=0.52))
+            successor_search_surr.set_z_index(3)
+            
+            sub_explanatory_text = Text(f"Finding successor: go right to {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-5).to_edge(DOWN, buff=2.7)
+            self.play(Create(successor_search_surr), Write(sub_explanatory_text), run_time=0.5)
+            self.wait(0.3)
+                
+            # Go to right subtree and find leftmost node
+            current_index = right_index
+            while True:
+                left_index = 2 * current_index + 1
+                if left_index not in bst_tree:
+                    break
+                    
+                # Move to left child
+                left_value = bst_tree[left_index]
+                left_node = tree_node_map[left_value]
+                
+                self.play(Unwrite(sub_explanatory_text), run_time=0.3)
+                sub_explanatory_text = Text(f"Go left to {left_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-5).to_edge(DOWN, buff=2.7)
+                self.play(
+                    successor_search_surr.animate.move_to(left_node.get_center()),
+                    Write(sub_explanatory_text),
+                    run_time=0.5
+                )
+                self.wait(0.3)
+                current_index = left_index
+            
+            # Found the successor
+            successor_value = bst_tree[current_index]
+            self.play(Unwrite(sub_explanatory_text), run_time=0.3)
+            sub_explanatory_text = Text(f"Successor found: {successor_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-5).to_edge(DOWN, buff=2.7)
+            self.play(Write(sub_explanatory_text), run_time=0.5)
+            self.wait(0.5)
+            
+            # Clean up the search indicator
+            self.play(Uncreate(successor_search_surr), Unwrite(sub_explanatory_text), run_time=0.5)
+            
+            return successor_value
+
+        def delete_bst(value):
+            explanatory_text = Text(f"Deleting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.play(Write(explanatory_text), run_time=0.5)
+            self.wait(0.3)
+
+            if value not in tree_node_map:
+                sub_explanatory_text = Text(f"Value {value} not found in tree", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Write(sub_explanatory_text), run_time=0.5)
+                self.wait(1)
+                self.play(Unwrite(sub_explanatory_text), Unwrite(explanatory_text), run_time=0.5)
+                return
+            
+            # First, animate the search for the node to delete
+            if len(bst_root) > 0:
+                current_value, current_node = bst_root[0]
+                current_index = 0
+                
+                # Create search indicator
+                search_surr = DashedVMobject(SurroundingRectangle(current_node, color=ORANGE, buff=0, corner_radius=0.52))
+                search_surr.set_z_index(3)
+                
+                search_explanatory_text = Text(f"Searching for {value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Create(search_surr), Write(search_explanatory_text), run_time=0.5)
+                self.wait(0.3)
+                
+                # Perform the search animation
+                while current_value != value:
+                    if value < current_value:
+                        next_index = 2 * current_index + 1
+                        direction_text = f"{value} < {current_value}, go left"
+                    else:
+                        next_index = 2 * current_index + 2
+                        direction_text = f"{value} >= {current_value}, go right"
+                    
+                    if next_index not in bst_tree:
+                        break
+                        
+                    next_value = bst_tree[next_index]
+                    next_node = tree_node_map[next_value]
+                    
+                    # Show direction and move search indicator
+                    self.play(Unwrite(search_explanatory_text), run_time=0.3)
+                    search_explanatory_text = Text(direction_text, font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    self.play(
+                        search_surr.animate.move_to(next_node.get_center()),
+                        Write(search_explanatory_text),
+                        run_time=0.5
+                    )
+                    self.wait(0.3)
+                    
+                    current_value = next_value
+                    current_node = next_node
+                    current_index = next_index
+                
+                # Found the node
+                self.play(Unwrite(search_explanatory_text), run_time=0.3)
+                search_explanatory_text = Text(f"Found {value}!", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Write(search_explanatory_text), run_time=0.5)
+                self.wait(0.5)
+                
+                # Clean up search animation
+                self.play(Uncreate(search_surr), Unwrite(search_explanatory_text), run_time=0.5)
+            
+            node_to_delete = tree_node_map[value]
+            node_index = bst_indices[value]
+            
+            # Highlight the node to be deleted
+            nodeSurr = DashedVMobject(SurroundingRectangle(node_to_delete, color=TEXTCOL, buff=0, corner_radius=0.52))
+            nodeSurr.set_z_index(3)
+            self.play(Create(nodeSurr), run_time=0.5)
+            self.wait(0.2)
+            
+            left_index = 2 * node_index + 1
+            right_index = 2 * node_index + 2
+            has_left = left_index in bst_tree
+            has_right = right_index in bst_tree
+            
+            if not has_left and not has_right:
+                # Case 1: Leaf node
+                sub_explanatory_text = Text(f"{value} is a leaf node - simply remove it", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Write(sub_explanatory_text), run_time=0.5)
+                self.wait(1)
+                
+                # Remove the edge to parent (if not root)
+                if node_index != 0:
+                    parent_index = (node_index - 1) // 2
+                    parent_value = bst_tree[parent_index]
+                    # Remove the edge from the graph animation
+                    for edge in list(G.edges):
+                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
+                            # Find the corresponding edge object in manim and remove it
+                            for manim_edge in self.mobjects:
+                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                    parent_node = tree_node_map[parent_value]
+                                    # Check if this line connects the parent and the node to delete
+                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
+                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
+                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
+                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
+                                    
+                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                        self.play(FadeOut(manim_edge), run_time=0.3)
+                                        break
+                            G.remove_edge(*edge)
+                            break
+                
+                # Remove the node
+                self.play(FadeOut(node_to_delete), FadeOut(nodeSurr), run_time=0.5)
+                
+                # Update data structures
+                del bst_tree[node_index]
+                del bst_indices[value]
+                del tree_node_map[value]
+                G.remove_node(value)
+                
+                # If deleting root node, clear bst_root
+                if node_index == 0:
+                    bst_root.clear()
+                
+                self.play(Unwrite(sub_explanatory_text), run_time=0.5)
+                
+            elif has_left and not has_right:
+                # Case 2: Only left child
+                left_value = bst_tree[left_index]
+                left_node = tree_node_map[left_value]
+                
+                sub_explanatory_text = Text(f"{value} has only left child - replace with {left_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Write(sub_explanatory_text), run_time=0.5)
+                self.wait(1)
+                
+                # Remove the edge to parent (if not root)
+                if node_index != 0:
+                    parent_index = (node_index - 1) // 2
+                    parent_value = bst_tree[parent_index]
+                    # Remove the edge from the graph animation
+                    for edge in list(G.edges):
+                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
+                            # Find the corresponding edge object in manim and remove it
+                            for manim_edge in self.mobjects:
+                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                    parent_node = tree_node_map[parent_value]
+                                    # Check if this line connects the parent and the node to delete
+                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
+                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
+                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
+                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
+                                    
+                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                        self.play(FadeOut(manim_edge), run_time=0.3)
+                                        break
+                            G.remove_edge(*edge)
+                            break
+                
+                # Also remove edge between deleted node and its left child
+                for edge in list(G.edges):
+                    if (edge[0] == value and edge[1] == left_value) or (edge[0] == left_value and edge[1] == value):
+                        # Find the corresponding edge object in manim and remove it
+                        for manim_edge in self.mobjects:
+                            if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                # Check if this line connects the deleted node and its left child
+                                start_close = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
+                                end_close = np.allclose(manim_edge.get_end(), left_node.get_center(), atol=0.1)
+                                start_close_rev = np.allclose(manim_edge.get_start(), left_node.get_center(), atol=0.1)
+                                end_close_rev = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
+                                
+                                if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                    self.play(FadeOut(manim_edge), run_time=0.3)
+                                    break
+                        G.remove_edge(*edge)
+                        break
+                
+                # Move left child to parent's position
+                self.play(left_node.animate.move_to(node_to_delete.get_center()), run_time=0.5)
+                self.play(FadeOut(node_to_delete), FadeOut(nodeSurr), run_time=0.5)
+                
+                # Add new edge from parent to the moved child (if not root)
+                if node_index != 0:
+                    parent_index = (node_index - 1) // 2
+                    parent_value = bst_tree[parent_index]
+                    parent_node = tree_node_map[parent_value]
+                    G.add_edge(parent_value, left_value)
+                    self.play(Create(Line(parent_node.get_center(), left_node.get_center(), color=EDGE_COL, stroke_width=6)), run_time=0.3)
+                
+                # Update data structures
+                bst_tree[node_index] = left_value
+                bst_indices[left_value] = node_index
+                del bst_tree[left_index]
+                del bst_indices[value]
+                del tree_node_map[value]
+                tree_node_map[left_value] = left_node
+                
+                # If deleting root node, update bst_root
+                if node_index == 0:
+                    bst_root[0] = (left_value, left_node)
+                
+                self.play(Unwrite(sub_explanatory_text), run_time=0.5)
+                
+            elif not has_left and has_right:
+                # Case 3: Only right child
+                right_value = bst_tree[right_index]
+                right_node = tree_node_map[right_value]
+                
+                sub_explanatory_text = Text(f"{value} has only right child - replace with {right_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.play(Write(sub_explanatory_text), run_time=0.5)
+                self.wait(1)
+                
+                # Remove the edge to parent (if not root)
+                if node_index != 0:
+                    parent_index = (node_index - 1) // 2
+                    parent_value = bst_tree[parent_index]
+                    # Remove the edge from the graph animation
+                    for edge in list(G.edges):
+                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
+                            # Find the corresponding edge object in manim and remove it
+                            for manim_edge in self.mobjects:
+                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                    parent_node = tree_node_map[parent_value]
+                                    # Check if this line connects the parent and the node to delete
+                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
+                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
+                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
+                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
+                                    
+                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                        self.play(FadeOut(manim_edge), run_time=0.3)
+                                        break
+                            G.remove_edge(*edge)
+                            break
+                
+                # Also remove edge between deleted node and its right child
+                for edge in list(G.edges):
+                    if (edge[0] == value and edge[1] == right_value) or (edge[0] == right_value and edge[1] == value):
+                        # Find the corresponding edge object in manim and remove it
+                        for manim_edge in self.mobjects:
+                            if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                # Check if this line connects the deleted node and its right child
+                                start_close = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
+                                end_close = np.allclose(manim_edge.get_end(), right_node.get_center(), atol=0.1)
+                                start_close_rev = np.allclose(manim_edge.get_start(), right_node.get_center(), atol=0.1)
+                                end_close_rev = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
+                                
+                                if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                    self.play(FadeOut(manim_edge), run_time=0.3)
+                                    break
+                        G.remove_edge(*edge)
+                        break
+                
+                # Move right child to parent's position
+                self.play(right_node.animate.move_to(node_to_delete.get_center()), run_time=0.5)
+                self.play(FadeOut(node_to_delete), FadeOut(nodeSurr), run_time=0.5)
+                
+                # Add new edge from parent to the moved child (if not root)
+                if node_index != 0:
+                    parent_index = (node_index - 1) // 2
+                    parent_value = bst_tree[parent_index]
+                    parent_node = tree_node_map[parent_value]
+                    G.add_edge(parent_value, right_value)
+                    self.play(Create(Line(parent_node.get_center(), right_node.get_center(), color=EDGE_COL, stroke_width=6)), run_time=0.3)
+                
+                # Update data structures
+                bst_tree[node_index] = right_value
+                bst_indices[right_value] = node_index
+                del bst_tree[right_index]
+                del bst_indices[value]
+                del tree_node_map[value]
+                tree_node_map[right_value] = right_node
+                
+                # If deleting root node, update bst_root
+                if node_index == 0:
+                    bst_root[0] = (right_value, right_node)
+                
+                self.play(Unwrite(sub_explanatory_text), run_time=0.5)
+                
+            else:
+                # Case 4: Two children - replace with successor
+                successor_value = find_successor(value)
+                
+                if successor_value is None:
+                    # This shouldn't happen for a node with two children, but just in case
+                    sub_explanatory_text = Text(f"Error: No successor found for {value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    self.play(Write(sub_explanatory_text), run_time=0.5)
+                    self.wait(1)
+                    self.play(Unwrite(sub_explanatory_text), Unwrite(explanatory_text), FadeOut(nodeSurr), run_time=0.5)
+                    return
+                
+                successor_node = tree_node_map[successor_value]
+                
+                sub_explanatory_text1 = Text(f"{value} has two children", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                sub_explanatory_text2 = Text(f"Replace with successor {successor_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                
+                self.play(Write(sub_explanatory_text1), Write(sub_explanatory_text2), run_time=0.5)
+                
+                # Highlight successor
+                successor_surr = DashedVMobject(SurroundingRectangle(successor_node, color=GREEN, buff=0, corner_radius=0.52))
+                successor_surr.set_z_index(3)
+                self.play(Create(successor_surr), run_time=0.5)
+                self.wait(1)
+                
+                # Replace the value in the node
+                new_node = Node(successor_value)
+                new_node.move_to(node_to_delete.get_center())
+                new_node.set_z_index(2)
+                
+                self.play(
+                    FadeOut(node_to_delete),
+                    Create(new_node),
+                    run_time=0.5
+                )
+                
+                # Update the tree_node_map for the replaced node
+                del tree_node_map[value]  # Remove the old mapping first
+                
+                # Save the original successor position before updating indices
+                original_successor_index = bst_indices[successor_value]
+                
+                # Update the successor to take the deleted node's position
+                tree_node_map[successor_value] = new_node
+                bst_tree[node_index] = successor_value
+                bst_indices[successor_value] = node_index
+                
+                # Remove the original value from bst_indices (important!)
+                del bst_indices[value]
+                
+                # If deleting root node, update bst_root
+                if node_index == 0:
+                    bst_root[0] = (successor_value, new_node)
+                
+                # Now we need to remove the successor from its original position
+                # The successor will have at most one child (right child)
+                successor_right_index = 2 * original_successor_index + 2
+                
+                # Remove the edge to the original successor's parent
+                if original_successor_index != 0:
+                    successor_parent_index = (original_successor_index - 1) // 2
+                    successor_parent_value = bst_tree[successor_parent_index]
+                    # Remove the edge from the graph animation
+                    for edge in list(G.edges):
+                        if (edge[0] == successor_parent_value and edge[1] == successor_value) or (edge[0] == successor_value and edge[1] == successor_parent_value):
+                            # Find the corresponding edge object in manim and remove it
+                            for manim_edge in self.mobjects:
+                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                    successor_parent_node = tree_node_map[successor_parent_value]
+                                    # Check if this line connects the successor parent and the successor
+                                    start_close = np.allclose(manim_edge.get_start(), successor_parent_node.get_center(), atol=0.1)
+                                    end_close = np.allclose(manim_edge.get_end(), successor_node.get_center(), atol=0.1)
+                                    start_close_rev = np.allclose(manim_edge.get_start(), successor_node.get_center(), atol=0.1)
+                                    end_close_rev = np.allclose(manim_edge.get_end(), successor_parent_node.get_center(), atol=0.1)
+                                    
+                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                        self.play(FadeOut(manim_edge), run_time=0.3)
+                                        break
+                            G.remove_edge(*edge)
+                            break
+                
+                if successor_right_index in bst_tree:
+                    # Successor has a right child, move it up
+                    successor_right_value = bst_tree[successor_right_index]
+                    successor_right_node = tree_node_map[successor_right_value]
+                    
+                    # Remove edge between successor and its right child
+                    for edge in list(G.edges):
+                        if (edge[0] == successor_value and edge[1] == successor_right_value) or (edge[0] == successor_right_value and edge[1] == successor_value):
+                            # Find the corresponding edge object in manim and remove it
+                            for manim_edge in self.mobjects:
+                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
+                                    # Check if this line connects the successor and its right child
+                                    start_close = np.allclose(manim_edge.get_start(), successor_node.get_center(), atol=0.1)
+                                    end_close = np.allclose(manim_edge.get_end(), successor_right_node.get_center(), atol=0.1)
+                                    start_close_rev = np.allclose(manim_edge.get_start(), successor_right_node.get_center(), atol=0.1)
+                                    end_close_rev = np.allclose(manim_edge.get_end(), successor_node.get_center(), atol=0.1)
+                                    
+                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
+                                        self.play(FadeOut(manim_edge), run_time=0.3)
+                                        break
+                            G.remove_edge(*edge)
+                            break
+                    
+                    # Move the right child to successor's position
+                    bst_tree[original_successor_index] = successor_right_value
+                    bst_indices[successor_right_value] = original_successor_index
+                    del bst_tree[successor_right_index]
+                    
+                    # Move the visual node
+                    self.play(successor_right_node.animate.move_to(successor_node.get_center()), run_time=0.5)
+                    
+                    # Add new edge from successor's parent to the moved child (if successor wasn't root)
+                    if original_successor_index != 0:
+                        successor_parent_index = (original_successor_index - 1) // 2
+                        successor_parent_value = bst_tree[successor_parent_index]
+                        successor_parent_node = tree_node_map[successor_parent_value]
+                        G.add_edge(successor_parent_value, successor_right_value)
+                        self.play(Create(Line(successor_parent_node.get_center(), successor_right_node.get_center(), color=EDGE_COL, stroke_width=6)), run_time=0.3)
+                else:
+                    # Successor is a leaf, just remove it
+                    del bst_tree[original_successor_index]
+                
+                # Clean up successor references
+                if successor_value in bst_indices and bst_indices[successor_value] != node_index:
+                    del bst_indices[successor_value]
+                
+                # Fade out the original successor node
+                self.play(FadeOut(successor_node), run_time=0.5)
+                
+                # Now delete the successor from its original position
+                self.play(FadeOut(successor_surr), run_time=0.5)
+                self.play(Unwrite(sub_explanatory_text1), Unwrite(sub_explanatory_text2), run_time=0.5)
+                
+                self.play(FadeOut(nodeSurr), run_time=0.5)
+            
+            self.wait(0.4)
+            self.play(Unwrite(explanatory_text), run_time=0.5)
+
+        list_of_vertices = [26, 7, 2, 25, 19, 47, 1, 90, 36, 3, 34]
+        bst_root: list[tuple[int, Node]] = []
+        bst_tree: dict[int, int] = dict()
+        bst_indices: dict[int, int] = dict()
+        tree_node_map: dict[int, Node] = dict()
+        G = nx.Graph()
+
+        for val in list_of_vertices:
+            insert_bst(val)
+
+        delete_bst(1)
+        self.wait(0.5)
+        delete_bst(25)
+        self.wait(0.5)
+        delete_bst(26)
 
 
 class UnionFind(Scene):

@@ -1,27 +1,10 @@
 from manim import *
 from typing import Any
 import numpy as np
+from env_config import *
 
-# manim -ql -p SearchingAlgorithms.py BinarySearch
-config.frame_width = 16
-config.frame_height = 9
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-LAYOT_SCALE = 2.4
-FSIZE = 40
-FONT = 'JetBrains Mono'
-
-WEIGHT_FONT_SIZE = 25         # For "Found!", "SORT!", etc.
+# Override specific font sizes for Graphs
 EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
-DEGREE_FONT_SIZE = 17      # For "Low", "High", "Mid", etc.
-
-NODE_COL = BASECOL
-EDGE_COL = SELCOL
-POINTER_FONT_COLOR = SORTCOL
 
 
 class Node(VGroup):

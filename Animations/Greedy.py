@@ -2,25 +2,9 @@ from manim import *
 from manim.utils.unit import Percent, Pixels
 import random
 import networkx as nx
-
-config.frame_width = 16
-config.frame_height = 9
-
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
+from env_config import *
 
 random.seed(32)
-
-INTERVAL_FSIZE = 40
-
-NODE_COL = BASECOL
-EDGE_COL = SELCOL
 
 
 class IntervalScheduling(Scene):

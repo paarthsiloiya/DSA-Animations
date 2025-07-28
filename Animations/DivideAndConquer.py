@@ -1,26 +1,9 @@
 from manim import *
 import random
+from env_config import *
 
-# manim -ql -p SortingAlgoritms.py SelectionSort
-config.frame_width = 16
-config.frame_height = 9
-
-
-BASECOL = ManimColor.from_hex("#ebe7f3")
-TEXTCOL = ManimColor.from_hex("#000000")
-SELCOL = ManimColor.from_hex("#7a5bae")
-SORTCOL = ManimColor.from_hex("#4a2a90")
-
-FSIZE = 40
-FONT = 'JetBrains Mono'
-
-SWAP_FONT_SIZE = 38         # For "Swap!" and similar action texts
-EXPLANATORY_FONT_SIZE = 40  # For step-by-step explanations
+# Override specific font sizes for DivideAndConquer
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
-
-POINTER_FONT_COLOR = SORTCOL
-SWAP_FONT_COLOR = SORTCOL
-EXPLANATORY_FONT_COLOR = TEXTCOL
 
 class ListElement(VGroup):
     def __init__(self, value : str):
