@@ -1,6 +1,7 @@
 from manim import *
 import random
 from env_config import *
+import numpy as np
 
 # Override specific font sizes for DivideAndConquer
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
@@ -537,3 +538,276 @@ class ClosestPairPoint(Scene):
         final_text.to_edge(UP, buff=0.3)
         self.play(Write(final_text), run_time=1)
         self.wait(2)
+
+
+class LongestCommonSubsequence(Scene):
+    def construct(self):
+        u, v = "bisect", "secret"
+        self.m, self.n = len(u), len(v)
+
+        self.lcs = np.zeros((self.m + 1, self.n + 1), dtype=int)
+
+        table_for_Table = np.hstack((np.array(list(range(self.n + 1))).reshape(-1, 1), self.lcs))
+        table_for_Table = np.vstack((np.array([0] + list(range(self.m + 1))).reshape(1, -1), table_for_Table))
+
+        # print(table_for_Table)
+        self.lcs_table = IntegerTable(
+            table_for_Table,
+            row_labels=[Text(str(x), font=FONT, color=TEXTCOL, font_size=FSIZE) for x in [" "] + list(u) + [" "]],
+            col_labels=[Text(str(x), font=FONT, color=TEXTCOL, font_size=FSIZE) for x in [" "] + list(v) + [" "]],
+            include_outer_lines=True,
+            v_buff=0.5,
+            h_buff=0.7,
+        ).to_edge(LEFT, buff=0.6)
+
+        self.lcs_table.get_entries().set_color(WHITE)
+
+        for i in range(2, self.m + 3):
+            self.lcs_table.get_entries_without_labels((0, i)).set_color(TEXTCOL)
+            self.lcs_table.get_entries_without_labels((1, i)).set_color(TEXTCOL)
+            self.lcs_table.add_to_back(self.lcs_table.get_highlighted_cell((1, i + 1), color=SELCOL, fill_opacity=0.2))
+            self.lcs_table.add_to_back(self.lcs_table.get_highlighted_cell((2, i + 1), color=SELCOL, fill_opacity=0.2))
+
+        for j in range(2, self.n + 3):
+            self.lcs_table.get_entries_without_labels((j, 0)).set_color(TEXTCOL)
+            self.lcs_table.get_entries_without_labels((j, 1)).set_color(TEXTCOL)
+            self.lcs_table.add_to_back(self.lcs_table.get_highlighted_cell((j + 1, 1), color=SELCOL, fill_opacity=0.2))
+            self.lcs_table.add_to_back(self.lcs_table.get_highlighted_cell((j + 1, 2), color=SELCOL, fill_opacity=0.2))
+
+        self.lcs_table.get_labels().set_color(TEXTCOL)
+        self.lcs_table.get_entries_without_labels((1, 1)).set_color(WHITE)
+
+        for line in self.lcs_table.get_horizontal_lines() + self.lcs_table.get_vertical_lines():
+            line.set_stroke(color=EDGE_COL, width=3.5)
+
+        self.add(self.lcs_table)
+
+        lcs_ans, path_cells = self.LCS(u, v)
+
+        path = VGroup()
+        for i in range(len(path_cells) - 1):
+            path.add(
+                Line(
+                    start=self.lcs_table.get_cell((path_cells[i])).get_center(),
+                    end=self.lcs_table.get_cell((path_cells[i + 1])).get_center(),
+                    color=SORTCOL,
+                    stroke_width=DEGREE_FONT_SIZE,
+                    stroke_opacity=0.3,
+                )
+            )
+
+        self.wait(1)
+        self.play(
+            Create(path),
+            run_time=1,
+        )
+        self.wait(0.2)
+
+        # Highlight the LCS characters in the table
+        self.highlight_lcs_characters(u, v, path_cells)
+
+        # Calculate the actual LCS string
+        lcs_string = ""
+        i, j = self.m, self.n
+        while i > 0 and j > 0:
+            if u[i-1] == v[j-1]:
+                lcs_string = u[i-1] + lcs_string
+                i -= 1
+                j -= 1
+            elif self.lcs[i-1][j] > self.lcs[i][j-1]:
+                i -= 1
+            else:
+                j -= 1
+
+        # Add final result heading and LCS text
+        result_heading = Text("Result:", font_size=40, color=TEXTCOL, font=FONT)
+        result_heading.to_edge(RIGHT, buff=2.5).shift(UP * 1)
+        
+        lcs_result_text = Text(f"LCS: \"{lcs_string}\" (Length: {lcs_ans})", font_size=28, color=TEXTCOL, font=FONT)
+        lcs_result_text.next_to(result_heading, DOWN, buff=0.5)
+        
+        self.play(Write(result_heading), run_time=0.5)
+        self.play(Write(lcs_result_text), run_time=0.5)
+
+        self.wait(1)
+
+
+    def LCS(self, X: str, Y: str) -> tuple[int, list[tuple[int, int]]]:
+        path_cells = []
+        
+        # First, fill the DP table
+        for i in range(self.n-1, -1, -1):
+            for j in range(self.m-1, -1, -1):
+                # Show current cell info
+                cell_info = Text(f"Processing cell ({j+1}, {i+1})", font_size=28, color=EXPLANATORY_FONT_COLOR, font=FONT)
+                cell_info.to_edge(RIGHT, buff=1).shift(UP * 1)
+                self.play(Write(cell_info), run_time=0.3)
+                
+                char_highlight_h = self.lcs_table.get_highlighted_cell((1, i + 3), color=SELCOL, fill_opacity=0.3)
+                index_highlight_h = self.lcs_table.get_highlighted_cell((2, i + 3), color=SELCOL, fill_opacity=0.3)
+                char_highlight_v = self.lcs_table.get_highlighted_cell((j + 3, 1), color=SELCOL, fill_opacity=0.3)
+                index_highlight_v = self.lcs_table.get_highlighted_cell((j + 3, 2), color=SELCOL, fill_opacity=0.3)
+                current_highlight = self.lcs_table.get_cell((j + 3, i + 3), color=TEXTCOL) 
+
+                self.lcs_table.add_to_back(char_highlight_h, index_highlight_h, char_highlight_v, index_highlight_v),
+                self.lcs_table.add(current_highlight)
+
+                self.wait(0.2)
+
+                if X[j] == Y[i]:
+                    # Show comparison text for match
+                    comparison_text = Text(f"'{X[j]}' == '{Y[i]}' ✓", font_size=32, color=GREEN_C, font=FONT)
+                    comparison_text.next_to(cell_info, DOWN, buff=0.5)
+                    self.play(Write(comparison_text), run_time=0.3)
+                    
+                    arrow = Arrow(
+                        start=self.lcs_table.get_entries((j + 4, i + 4)).get_center(),
+                        end=self.lcs_table.get_entries((j + 3, i + 3)).get_center(),
+                        color=SORTCOL,
+                        stroke_width=POINTER_FONT_SIZE,
+                    )
+                    self.play(Create(arrow), run_time=0.2)
+                    self.lcs[j][i] = self.lcs[j + 1][i + 1] + 1
+                    
+                    # Show the calculation - split into two lines
+                    calc_line1 = Text(f"LCS[{j}][{i}] = LCS[{j+1}][{i+1}] + 1", 
+                                   font_size=24, color=EXPLANATORY_FONT_COLOR, font=FONT)
+                    calc_line2 = Text(f"= {self.lcs[j+1][i+1]} + 1 = {self.lcs[j][i]}", 
+                                   font_size=24, color=EXPLANATORY_FONT_COLOR, font=FONT)
+                    calc_line1.next_to(comparison_text, DOWN, buff=0.3)
+                    calc_line2.next_to(calc_line1, DOWN, buff=0.2)
+                    self.play(Write(calc_line1), run_time=0.3)
+                    self.play(Write(calc_line2), run_time=0.3)
+                    self.wait(0.4)
+                    
+                else:
+                    # Show comparison text for mismatch
+                    comparison_text = Text(f"'{X[j]}' != '{Y[i]}' ✗", font_size=32, color=RED_C, font=FONT)
+                    comparison_text.next_to(cell_info, DOWN, buff=0.5)
+                    self.play(Write(comparison_text), run_time=0.3)
+                    
+                    if self.lcs[j + 1][i] >= self.lcs[j][i + 1]:
+                        arrow = Arrow(
+                            start=self.lcs_table.get_entries((j + 4, i + 3)).get_center(),
+                            end=self.lcs_table.get_entries((j + 3, i + 3)).get_center(),
+                            color=SORTCOL,
+                            stroke_width=POINTER_FONT_SIZE,
+                        )
+                    else:
+                        arrow = Arrow(
+                            start=self.lcs_table.get_entries((j + 3, i + 4)).get_center(),
+                            end=self.lcs_table.get_entries((j + 3, i + 3)).get_center(),
+                            color=SORTCOL,
+                            stroke_width=POINTER_FONT_SIZE,
+                        )
+                        
+                    self.play(Create(arrow), run_time=0.2)
+                    self.lcs[j][i] = max(self.lcs[j + 1][i], self.lcs[j][i + 1])
+                    
+                    # Show the calculation
+                    calc_text = Text(f"LCS[{j}][{i}] = max({self.lcs[j+1][i]}, {self.lcs[j][i+1]}) = {self.lcs[j][i]}", 
+                                   font_size=24, color=EXPLANATORY_FONT_COLOR, font=FONT)
+                    calc_text.next_to(comparison_text, DOWN, buff=0.3)
+                    self.play(Write(calc_text), run_time=0.4)
+                    self.wait(0.4)
+                
+                # Update the table value
+                self.play(self.lcs_table.get_entries_without_labels((j + 2, i + 2)).animate.become(
+                    Integer(self.lcs[j][i], font_size=FSIZE + 8).set_color(TEXTCOL).move_to(self.lcs_table.get_entries_without_labels((j + 2, i + 2)).get_center())
+                    ),
+                    run_time=0.3
+                )
+                
+                # Clean up - unwrite all the text and remove highlights
+                if X[j] == Y[i]:
+                    # For diagonal case, we have two calculation lines
+                    self.play(
+                        FadeOut(arrow),
+                        Unwrite(cell_info),
+                        Unwrite(comparison_text),
+                        Unwrite(calc_line1),
+                        Unwrite(calc_line2),
+                        run_time=0.3
+                    )
+                else:
+                    # For max case, we have one calculation line
+                    self.play(
+                        FadeOut(arrow),
+                        Unwrite(cell_info),
+                        Unwrite(comparison_text),
+                        Unwrite(calc_text),
+                        run_time=0.3
+                    )
+                self.lcs_table.remove(current_highlight, char_highlight_h, index_highlight_h, char_highlight_v, index_highlight_v)
+                self.wait(0.1)
+
+        # Now backtrack to find the actual LCS path
+        i, j = self.m, self.n
+        path_cells.append((i + 3, j + 3))  # Start from bottom-right corner (row, col format)
+        
+        while i > 0 and j > 0:
+            if X[i-1] == Y[j-1]:
+                # Characters match - came from diagonal
+                i -= 1
+                j -= 1
+                path_cells.append((i + 3, j + 3))
+            elif self.lcs[i-1][j] > self.lcs[i][j-1]:
+                # Came from above (move up in table)
+                i -= 1
+                path_cells.append((i + 3, j + 3))
+            else:
+                # Came from left (move left in table)
+                j -= 1
+                path_cells.append((i + 3, j + 3))
+        
+        # Add remaining path to (0,0)
+        while i > 0:
+            i -= 1
+            path_cells.append((i + 3, j + 3))
+        while j > 0:
+            j -= 1
+            path_cells.append((i + 3, j + 3))
+
+        return self.lcs[0][0], path_cells
+    
+    def highlight_lcs_characters(self, X: str, Y: str, path_cells: list):
+        """Highlight the LCS characters in the row and column headers"""
+        # First, find the LCS sequence by following the path
+        lcs_chars = []
+        lcs_x_indices = []
+        lcs_y_indices = []
+        
+        # Go through path_cells in reverse (from start to end of path)
+        for k in range(len(path_cells) - 1, 0, -1):
+            curr_cell = path_cells[k]
+            prev_cell = path_cells[k-1]
+            
+            curr_i, curr_j = curr_cell[0] - 3, curr_cell[1] - 3
+            prev_i, prev_j = prev_cell[0] - 3, prev_cell[1] - 3
+            
+            # Check if this was a diagonal move (character match)
+            if prev_i == curr_i + 1 and prev_j == curr_j + 1:
+                if curr_i >= 0 and curr_j >= 0 and curr_i < self.m and curr_j < self.n:
+                    lcs_chars.append(X[curr_i])
+                    lcs_x_indices.append(curr_i)
+                    lcs_y_indices.append(curr_j)
+        
+        # Highlight the LCS characters in X and Y simultaneously
+        highlight_animations = []
+        char_cells = []
+        
+        for i, (x_idx, y_idx) in enumerate(zip(lcs_x_indices, lcs_y_indices)):
+            # Create highlight for X (row header)
+            x_char_cell = self.lcs_table.get_highlighted_cell((x_idx + 3, 1), color=SORTCOL, fill_opacity=0.5)
+            self.lcs_table.add_to_back(x_char_cell)
+            
+            # Create highlight for Y (column header) 
+            y_char_cell = self.lcs_table.get_highlighted_cell((1, y_idx + 3), color=SORTCOL, fill_opacity=0.5)
+            self.lcs_table.add_to_back(y_char_cell)
+            
+            char_cells.extend([x_char_cell, y_char_cell])
+            
+            # Animate both highlights simultaneously
+            self.play(FadeIn(x_char_cell), FadeIn(y_char_cell), run_time=0.5)
+            self.wait(0.2)
+        
