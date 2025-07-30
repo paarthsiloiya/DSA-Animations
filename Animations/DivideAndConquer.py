@@ -7,12 +7,12 @@ import numpy as np
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
 
 class ListElement(VGroup):
-    def __init__(self, value : str):
+    def __init__(self, value : str, size=0.8, font_mul=100):
         super().__init__()
-        self.size = 0.8
+        self.size = size
         self.value = value if value.isalpha() else int(value)
         self.isSorted = False
-        self.elementValue = Text(value, font_size=(100*self.size), color=TEXTCOL, font=FONT)
+        self.elementValue = Text(value, font_size=(font_mul*self.size), color=TEXTCOL, font=FONT)
         self.circle = Circle(radius=self.size, color=BASECOL, fill_opacity=1)
         self.elementValue.move_to(self.circle.get_center())
         self.add(self.circle, self.elementValue)
@@ -30,6 +30,9 @@ class ListElement(VGroup):
         self.isSorted = True
         return self.circle.animate.set_fill(color=SORTCOL).set_stroke(width=0), self.elementValue.animate.set_color(color=WHITE)
 
+    def Reset(self):
+        self.isSorted = False
+        return self.circle.animate.set_fill(color=BASECOL).set_stroke(color=BASECOL), self.elementValue.animate.set_color(color=TEXTCOL)
 
 class CountInversions(Scene):
     def construct(self):
@@ -811,3 +814,114 @@ class LongestCommonSubsequence(Scene):
             self.play(FadeIn(x_char_cell), FadeIn(y_char_cell), run_time=0.5)
             self.wait(0.2)
         
+class MedianOfMedians(Scene):
+    def construct(self):
+        array = [45,23,67,12,89,34,56,78,91,25,63,18,77,39,84,52,96,41,15,68,
+                 33,87,29,74,16,95,42,61,38,82,57,94,21,76,43,85,19,66,31,79,
+                 48,92,26,73,14,58,37,81,55,94]
+        self.MoM(array)
+        self.wait(2)
+
+    def MoM(self, arr: list[int], arr_mob=None) -> int:
+        if arr_mob is None:
+            # Create unique ListElement for each position (handles duplicates)
+            list_elements = VGroup(*[ListElement(str(val), size=0.35, font_mul=60) for val in arr])
+            
+            # Arrange in multiple rows to fit on screen
+            if len(arr) > 25:
+                # Calculate rows needed (max 25 elements per row for visibility)
+                elements_per_row = 20
+                rows = []
+                for i in range(0, len(arr), elements_per_row):
+                    row_elements = list_elements[i:i+elements_per_row]
+                    row = VGroup(*row_elements)
+                    row.arrange(RIGHT, buff=0.05)
+                    rows.append(row)
+                
+                # Arrange rows vertically
+                all_rows = VGroup(*rows)
+                all_rows.arrange(DOWN, buff=0.2)
+                all_rows.move_to(ORIGIN)
+            else:
+                list_elements.arrange(RIGHT, buff=0.05)
+                list_elements.move_to(ORIGIN)
+            
+            self.play(FadeIn(list_elements))
+            arr_mob = list_elements
+        else:
+            for mob in arr_mob:
+                self.play(*mob.Reset(), run_time=0.2)
+
+        if len(arr) <= 5:
+            arr.sort()
+            self.play(arr_mob.animate.arrange(DOWN, buff=0.1))
+            sorted_arr_VGroup = VGroup(*sorted(arr_mob.submobjects, key=lambda el: int(el.value)))
+            self.play(sorted_arr_VGroup.animate.arrange(DOWN, buff=0.1))
+            self.play(*sorted_arr_VGroup.submobjects[len(arr)//2].MarkSorted())
+
+            arr_mob = sorted_arr_VGroup
+            
+            # Collect all non-median elements to fade them out
+            non_median_elements = VGroup()
+            median_index = len(arr)//2
+            for i, element in enumerate(sorted_arr_VGroup.submobjects):
+                if i != median_index:  # Not the median element
+                    non_median_elements.add(element)
+
+            # Fade out non-median elements first
+            self.play(FadeOut(non_median_elements), run_time=0.8)
+
+            return(arr[len(arr)//2])
+        
+        # Construct list of block medians
+        M: list[list[int]] = []
+        M_VGroup = VGroup()
+        surr_rects = VGroup()
+        for i in range(0,len(arr),5):
+            X = arr[i:i+5]
+            X_VGroup = VGroup(*[arr_mob.submobjects[j] for j in range(i, min(i+5, len(arr)))])
+            surr_rects.add(SurroundingRectangle(X_VGroup, color=TEXTCOL, buff=0.1, stroke_width=2))
+            M_VGroup.add(X_VGroup)
+            M.append(X)
+
+        self.play(Create(surr_rects))
+
+        for m, r in zip(M_VGroup, surr_rects):
+            self.play(FadeOut(r))
+            self.play(m.animate.arrange(DOWN, buff=0.1).move_to(m.get_center()))
+
+        self.play(M_VGroup.animate.arrange(RIGHT, buff=0.3).move_to(ORIGIN))
+
+        sorted_M_VGroup = VGroup()
+
+        for x, x_VGroup in zip(M, M_VGroup):
+            x.sort()
+            sorted_x_VGroup = VGroup(*sorted(x_VGroup.submobjects, key=lambda el: int(el.value)))
+            sorted_M_VGroup.add(sorted_x_VGroup)
+            self.play(sorted_x_VGroup.animate.arrange(DOWN, buff=0.1).move_to(x_VGroup.get_center()))
+            
+        M_VGroup = sorted_M_VGroup
+        self.remove(sorted_M_VGroup)
+
+        F, F_VGroup = [], VGroup()
+
+        for x, x_VGroup in zip(M, M_VGroup):
+            F_VGroup.add(x_VGroup.submobjects[len(x)//2])
+            F.append(x[len(x)//2])
+            self.play(*x_VGroup.submobjects[len(x)//2].MarkSorted())
+
+        # Collect all non-median elements to fade them out
+        non_median_elements = VGroup()
+        for x_VGroup in M_VGroup:
+            for i, element in enumerate(x_VGroup.submobjects):
+                if i != len(x_VGroup.submobjects)//2:  # Not the median element
+                    non_median_elements.add(element)
+
+        # Fade out non-median elements first
+        self.play(FadeOut(non_median_elements), run_time=0.8)
+
+        F_VGroup.arrange(RIGHT, buff=0.3)
+        self.play(F_VGroup.animate.move_to(ORIGIN))
+        self.remove(M_VGroup, sorted_M_VGroup)
+
+        return self.MoM(F, F_VGroup)
