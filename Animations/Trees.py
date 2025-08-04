@@ -248,7 +248,7 @@ class TreeBFS(Scene):
         
         tree = Graph(
                     vertices=list(G.nodes), 
-                    edges=list(G.edges), 
+                    edges=list(G.edges)[::-1], 
                     vertex_mobjects={v : Node(v) for v in list(G.nodes)},
                     edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
                     layout="tree", 
@@ -358,7 +358,7 @@ class TreeDFS(Scene):
         
         tree = Graph(
                     vertices=list(G.nodes), 
-                    edges=list(G.edges), 
+                    edges=list(G.edges)[::-1], 
                     vertex_mobjects={v : Node(v) for v in list(G.nodes)},
                     edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
                     layout="tree", 
@@ -448,6 +448,396 @@ class TreeDFS(Scene):
             self.wait(0.5)
 
         self.play(Unwrite(stack_text), run_time=1.5)
+        self.wait(2)
+
+
+class InOrderTraversal(Scene):
+    def construct(self):
+        G = nx.Graph()
+
+        for i in range(10):
+            G.add_node(chr(65 + i))  # Adding nodes A, B, C, ..., J
+
+        G.add_edges_from([
+            ("A", "B"), ("A", "C"),
+            ("B", "D"), ("B", "E"),
+            ("C", "F"), ("C", "G"),
+            ("D", "H"), ("D", "I"),
+            ("E", "J")
+        ])
+        
+        tree = Graph(
+                    vertices=list(G.nodes), 
+                    edges=list(G.edges)[::-1], 
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+                    edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                    layout="tree", 
+                    layout_scale=4,
+                    root_vertex="A"
+                )
+
+        tree.to_edge(LEFT, buff=1.2)
+        self.play(Create(tree), run_time=2)
+        self.wait(1)
+
+        # Build adjacency list for tree traversal
+        adjacencyList = {v: [] for v in G.nodes}
+        for u, v in G.edges:
+            adjacencyList[u].append(v)
+            adjacencyList[v].append(u)
+
+        # Show starting explanation
+        start_text = Text(f"In-Order Traversal: Left → Root → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Write(start_text), run_time=1)
+        self.wait(1)
+
+        # Initialize empty order display
+        visited_order = []
+        order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Unwrite(start_text), Write(order_text), run_time=1)
+        self.wait(1)
+
+        def inorder_recursive(node, parent, visited_order):
+            nonlocal order_text
+            
+            children = [child for child in sorted(adjacencyList[node]) if child != parent]
+            
+            # Go to left subtree first
+            if len(children) > 0:
+                left_child = children[0]
+                
+                # Show movement to left child
+                move_text = Text(f"Going to left subtree: {left_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse left subtree
+                inorder_recursive(left_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+            
+            # Process current node (Root)
+            processing_text = Text(f"Processing node {node}", 
+                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.play(Write(processing_text), run_time=0.5)
+            
+            # Highlight current node
+            self.play(tree.vertices[node].Highlight(), run_time=0.5)
+            self.wait(0.5)
+            
+            # Add to visited order and update display
+            visited_order.append(node)
+            new_order_text = Text(f"Order: {' → '.join(visited_order)}", 
+                                 font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(order_text)
+            self.play(ReplacementTransform(order_text, new_order_text), run_time=0.5)
+            order_text = new_order_text
+            
+            position_text = Text(f"Added {node} at position {len(visited_order)}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+            self.play(Write(position_text), run_time=0.3)
+            self.wait(0.8)
+            
+            self.play(Unwrite(processing_text), Unwrite(position_text), run_time=0.3)
+            
+            # Go to right subtree
+            if len(children) > 1:
+                right_child = children[1]
+                
+                # Show movement to right child
+                move_text = Text(f"Going to right subtree: {right_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse right subtree
+                inorder_recursive(right_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+
+        # Start the animated traversal
+        inorder_recursive("A", None, visited_order)
+        self.play(Unwrite(order_text), run_time=1.5)
+        self.wait(2)
+
+
+class PreOrderTraversal(Scene):
+    def construct(self):
+        G = nx.Graph()
+
+        for i in range(10):
+            G.add_node(chr(65 + i))  # Adding nodes A, B, C, ..., J
+
+        G.add_edges_from([
+            ("A", "B"), ("A", "C"),
+            ("B", "D"), ("B", "E"),
+            ("C", "F"), ("C", "G"),
+            ("D", "H"), ("D", "I"),
+            ("E", "J")
+        ])
+        
+        tree = Graph(
+                    vertices=list(G.nodes), 
+                    edges=list(G.edges)[::-1], 
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+                    edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                    layout="tree", 
+                    layout_scale=4,
+                    root_vertex="A"
+                )
+
+        tree.to_edge(LEFT, buff=1.2)
+        self.play(Create(tree), run_time=2)
+        self.wait(1)
+
+        # Build adjacency list for tree traversal
+        adjacencyList = {v: [] for v in G.nodes}
+        for u, v in G.edges:
+            adjacencyList[u].append(v)
+            adjacencyList[v].append(u)
+
+        # Show starting explanation
+        start_text = Text(f"Pre-Order Traversal: Root → Left → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Write(start_text), run_time=1)
+        self.wait(1)
+
+        # Initialize empty order display
+        visited_order = []
+        order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Unwrite(start_text), Write(order_text), run_time=1)
+        self.wait(1)
+
+        def preorder_recursive(node, parent, visited_order):
+            nonlocal order_text
+            
+            children = [child for child in sorted(adjacencyList[node]) if child != parent]
+            
+            # Process current node first (Root)
+            processing_text = Text(f"Processing node {node}", 
+                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.play(Write(processing_text), run_time=0.5)
+            
+            # Highlight current node
+            self.play(tree.vertices[node].Highlight(), run_time=0.5)
+            self.wait(0.5)
+            
+            # Add to visited order and update display
+            visited_order.append(node)
+            new_order_text = Text(f"Order: {' → '.join(visited_order)}", 
+                                 font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(order_text)
+            self.play(ReplacementTransform(order_text, new_order_text), run_time=0.5)
+            order_text = new_order_text
+            
+            position_text = Text(f"Added {node} at position {len(visited_order)}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+            self.play(Write(position_text), run_time=0.3)
+            self.wait(0.8)
+            
+            self.play(Unwrite(processing_text), Unwrite(position_text), run_time=0.3)
+            
+            # Go to left subtree
+            if len(children) > 0:
+                left_child = children[0]
+                
+                # Show movement to left child
+                move_text = Text(f"Going to left subtree: {left_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse left subtree
+                preorder_recursive(left_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+            
+            # Go to right subtree
+            if len(children) > 1:
+                right_child = children[1]
+                
+                # Show movement to right child
+                move_text = Text(f"Going to right subtree: {right_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse right subtree
+                preorder_recursive(right_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+
+        # Start the animated traversal
+        preorder_recursive("A", None, visited_order)
+        self.play(Unwrite(order_text), run_time=1.5)
+        self.wait(2)
+
+
+class PostOrderTraversal(Scene):
+    def construct(self):
+        G = nx.Graph()
+
+        for i in range(10):
+            G.add_node(chr(65 + i))  # Adding nodes A, B, C, ..., J
+
+        G.add_edges_from([
+            ("A", "B"), ("A", "C"),
+            ("B", "D"), ("B", "E"),
+            ("C", "F"), ("C", "G"),
+            ("D", "H"), ("D", "I"),
+            ("E", "J")
+        ])
+        
+        tree = Graph(
+                    vertices=list(G.nodes), 
+                    edges=list(G.edges)[::-1], 
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+                    edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                    layout="tree", 
+                    layout_scale=4,
+                    root_vertex="A"
+                )
+
+        tree.to_edge(LEFT, buff=1.2)
+        self.play(Create(tree), run_time=2)
+        self.wait(1)
+
+        # Build adjacency list for tree traversal
+        adjacencyList = {v: [] for v in G.nodes}
+        for u, v in G.edges:
+            adjacencyList[u].append(v)
+            adjacencyList[v].append(u)
+
+        # Show starting explanation
+        start_text = Text(f"Post-Order Traversal: Left → Right → Root", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Write(start_text), run_time=1)
+        self.wait(1)
+
+        # Initialize empty order display
+        visited_order = []
+        order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.play(Unwrite(start_text), Write(order_text), run_time=1)
+        self.wait(1)
+
+        def postorder_recursive(node, parent, visited_order):
+            nonlocal order_text
+            
+            children = [child for child in sorted(adjacencyList[node]) if child != parent]
+            
+            # Go to left subtree first
+            if len(children) > 0:
+                left_child = children[0]
+                
+                # Show movement to left child
+                move_text = Text(f"Going to left subtree: {left_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse left subtree
+                postorder_recursive(left_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+            
+            # Go to right subtree
+            if len(children) > 1:
+                right_child = children[1]
+                
+                # Show movement to right child
+                move_text = Text(f"Going to right subtree: {right_child}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.play(Write(move_text), run_time=0.5)
+                
+                # Highlight the path
+                self.play(
+                    tree.vertices[node].Select(),
+                    tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
+                    run_time=0.5
+                )
+                
+                self.play(Unwrite(move_text), run_time=0.3)
+                self.wait(0.3)
+                
+                # Recursively traverse right subtree
+                postorder_recursive(right_child, node, visited_order)
+                
+                # Reset edge color after traversal
+                self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
+            
+            # Process current node last (Root)
+            processing_text = Text(f"Processing node {node}", 
+                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.play(Write(processing_text), run_time=0.5)
+            
+            # Highlight current node
+            self.play(tree.vertices[node].Highlight(), run_time=0.5)
+            self.wait(0.5)
+            
+            # Add to visited order and update display
+            visited_order.append(node)
+            new_order_text = Text(f"Order: {' → '.join(visited_order)}", 
+                                 font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(order_text)
+            self.play(ReplacementTransform(order_text, new_order_text), run_time=0.5)
+            order_text = new_order_text
+            
+            position_text = Text(f"Added {node} at position {len(visited_order)}", 
+                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+            self.play(Write(position_text), run_time=0.3)
+            self.wait(0.8)
+            
+            self.play(Unwrite(processing_text), Unwrite(position_text), run_time=0.3)
+
+        # Start the animated traversal
+        postorder_recursive("A", None, visited_order)
+        self.play(Unwrite(order_text), run_time=1.5)
         self.wait(2)
 
 
