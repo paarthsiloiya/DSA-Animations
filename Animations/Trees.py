@@ -231,6 +231,226 @@ class TreeExplanation(Scene):
         self.wait(2)
 
 
+class TreeBFS(Scene):
+    def construct(self):
+        G = nx.Graph()
+
+        for i in range(11):
+            G.add_node(chr(65 + i))  # Adding nodes A, B, C, ..., K
+
+        G.add_edges_from([
+            ("A", "B"), ("A", "C"),
+            ("B", "D"), ("B", "E"),
+            ("C", "F"), ("C", "G"), ("C", "H"),
+            ("D", "I"), ("D", "J"),
+            ("E", "K")
+        ])
+        
+        tree = Graph(
+                    vertices=list(G.nodes), 
+                    edges=list(G.edges), 
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+                    edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                    layout="tree", 
+                    layout_scale=4,
+                    root_vertex="A"
+                )
+
+        tree.to_edge(LEFT, buff=1.2)
+        self.play(Create(tree), run_time=2)
+        self.wait(1)
+
+        # Build adjacency list for tree traversal
+        adjacencyList = {v: [] for v in G.nodes}
+        for u, v in G.edges:
+            adjacencyList[u].append(v)
+            adjacencyList[v].append(u)
+
+        visited = {v: False for v in G.nodes}
+        s = "A"
+
+        # Show starting node selection
+        start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.play(Write(start_text), run_time=1)
+        self.wait(1)
+
+        visited[s] = True
+        queue = [s]
+
+        # Show queue initialization (constant at top)
+        queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
+        self.play(Unwrite(start_text), Write(queue_text), run_time=1)
+        self.wait(1)
+
+        while queue:
+            current = queue.pop(0)
+            # Update queue display (constant at top)
+            new_queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(queue_text)
+            self.play(ReplacementTransform(queue_text, new_queue_text), run_time=0.5)
+            queue_text = new_queue_text
+            
+            # Update explanation for current processing
+            processing_text = Text(f"Processing node {current}", 
+                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.8)
+            self.play(Write(processing_text), run_time=0.8)
+
+            self.play(tree.vertices[current].Highlight(), run_time=0.5)
+            self.wait(0.3)
+
+            neighbors_found = []
+            # Sort neighbors for consistent traversal order
+            for neighbor in sorted(adjacencyList[current]):
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    queue.append(neighbor)
+                    neighbors_found.append(neighbor)
+
+                    # Show neighbor discovery temporarily
+                    discovery_text = Text(f"Found unvisited neighbor {neighbor}", 
+                                        font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+                    self.play(Write(discovery_text), run_time=0.3)
+
+                    self.play(
+                        tree.vertices[neighbor].Select(),
+                        tree.edges[(current, neighbor)].animate.set_stroke(color=TEXTCOL),
+                        run_time=0.5
+                    )
+
+                    self.wait(0.5)
+                    
+                    # Update queue display (constant at top)
+                    new_queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(queue_text)
+                    self.play(ReplacementTransform(queue_text, new_queue_text), run_time=0.5)
+                    queue_text = new_queue_text
+
+                    # Fade out the discovery text
+                    self.play(Unwrite(discovery_text), run_time=0.3)
+                    self.wait(0.2)
+
+            if not neighbors_found:
+                no_neighbors_text = Text(f"No unvisited neighbors for {current}", 
+                                       font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+                self.play(Write(no_neighbors_text), run_time=0.5)
+                self.wait(0.8)
+                self.play(Unwrite(no_neighbors_text), run_time=0.3)
+
+            self.play(Unwrite(processing_text), run_time=0.2)
+            self.wait(0.5)
+
+        self.play(Unwrite(queue_text), run_time=1.5)
+        self.wait(2)
+
+
+class TreeDFS(Scene):
+    def construct(self):
+        G = nx.Graph()
+
+        for i in range(11):
+            G.add_node(chr(65 + i))  # Adding nodes A, B, C, ..., K
+
+        G.add_edges_from([
+            ("A", "B"), ("A", "C"),
+            ("B", "D"), ("B", "E"),
+            ("C", "F"), ("C", "G"), ("C", "H"),
+            ("D", "I"), ("D", "J"),
+            ("E", "K")
+        ])
+        
+        tree = Graph(
+                    vertices=list(G.nodes), 
+                    edges=list(G.edges), 
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
+                    edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
+                    layout="tree", 
+                    layout_scale=4,
+                    root_vertex="A"
+                )
+
+        tree.to_edge(LEFT, buff=1.2)
+        self.play(Create(tree), run_time=2)
+        self.wait(1)
+
+        # Build adjacency list for tree traversal
+        adjacencyList = {v: [] for v in G.nodes}
+        for u, v in G.edges:
+            adjacencyList[u].append(v)
+            adjacencyList[v].append(u)
+
+        visited = {v: False for v in G.nodes}
+        s = "A"
+
+        # Show starting node selection
+        start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.play(Write(start_text), run_time=1)
+        self.wait(1)
+
+        visited[s] = True
+        stack = [s]
+
+        # Show stack initialization (constant at top)
+        stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
+        self.play(Unwrite(start_text), Write(stack_text), run_time=1)
+        self.wait(1)
+
+        while stack:
+            current = stack.pop()  # DFS uses pop() from end (LIFO)
+            # Update stack display (constant at top)
+            new_stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(stack_text)
+            self.play(ReplacementTransform(stack_text, new_stack_text), run_time=0.5)
+            stack_text = new_stack_text
+            
+            # Update explanation for current processing
+            processing_text = Text(f"Processing node {current}", 
+                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.8)
+            self.play(Write(processing_text), run_time=0.8)
+
+            self.play(tree.vertices[current].Highlight(), run_time=0.5)
+            self.wait(0.3)
+
+            neighbors_found = []
+            # For DFS, we process neighbors in reverse order to maintain left-to-right visual order
+            for neighbor in reversed(sorted(adjacencyList[current])):
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    stack.append(neighbor)
+                    neighbors_found.append(neighbor)
+
+                    # Show neighbor discovery temporarily
+                    discovery_text = Text(f"Found unvisited neighbor {neighbor}", 
+                                        font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+                    self.play(Write(discovery_text), run_time=0.3)
+
+                    self.play(
+                        tree.vertices[neighbor].Select(),
+                        tree.edges[(current, neighbor)].animate.set_stroke(color=TEXTCOL),
+                        run_time=0.5
+                    )
+
+                    self.wait(0.5)
+                    
+                    # Update stack display (constant at top)
+                    new_stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(stack_text)
+                    self.play(ReplacementTransform(stack_text, new_stack_text), run_time=0.5)
+                    stack_text = new_stack_text
+
+                    # Fade out the discovery text
+                    self.play(Unwrite(discovery_text), run_time=0.3)
+                    self.wait(0.2)
+
+            if not neighbors_found:
+                no_neighbors_text = Text(f"No unvisited neighbors for {current}", 
+                                       font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
+                self.play(Write(no_neighbors_text), run_time=0.5)
+                self.wait(0.8)
+                self.play(Unwrite(no_neighbors_text), run_time=0.3)
+
+            self.play(Unwrite(processing_text), run_time=0.2)
+            self.wait(0.5)
+
+        self.play(Unwrite(stack_text), run_time=1.5)
+        self.wait(2)
+
+
 class BinaryTreeExplanation(Scene):
     def construct(self):
         def playSurroundingNodeAnimation(node, text, dir):
