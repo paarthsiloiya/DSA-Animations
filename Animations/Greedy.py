@@ -11,25 +11,42 @@ class IntervalScheduling(Scene):
     def intervalschedule(self, L, intervals):
         sortedL = sorted(L, key=lambda x: x[2])
         accepted = [0]
+        # Explanatory text: First interval always accepted
+        first_text = Text(f"Processing interval {sortedL[0][0]}: Always accept first interval", font=FONT, font_size=EXPLANATORY_FONT_SIZE-4, color=TEXTCOL).to_edge(UP, buff=0.2)
+        self.play(Write(first_text), run_time=0.7)
         self.play(
             intervals[0][0].animate.set_fill(color=SELCOL),
             intervals[0][1].animate.set_color(BASECOL),
         )
+        self.wait(0.5)
+        self.play(FadeOut(first_text), run_time=0.5)
         for idx, (i, s, f) in enumerate(sortedL[1:], 1):
+            # Explanatory text: Processing interval
+            proc_text = Text(f"Processing interval {i}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-4, color=TEXTCOL).to_edge(UP, buff=0.2)
+            self.play(Write(proc_text), run_time=0.5)
             self.play(
                 intervals[idx][0].animate.set_stroke(color=SORTCOL, width=2)
             )
+            # Overlap check
             if s >= sortedL[accepted[-1]][2]:
+                overlap_text = Text(f"No overlap with last accepted ({sortedL[accepted[-1]][0]})", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(proc_text, DOWN, 0.3)
+                self.play(Write(overlap_text), run_time=0.4)
                 accepted.append(idx)
                 self.play(
                     intervals[idx][0].animate.set_fill(color=SELCOL),
                     intervals[idx][1].animate.set_color(BASECOL),
                 )
+                self.wait(0.3)
+                self.play(FadeOut(overlap_text), run_time=0.3)
             else:
+                overlap_text = Text(f"Overlaps with last accepted ({sortedL[accepted[-1]][0]})", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(proc_text, DOWN, 0.3)
+                self.play(Write(overlap_text), run_time=0.4)
                 self.play(
-                    Blink(intervals[accepted[-1]])
+                    Indicate(intervals[accepted[-1]], color=SORTCOL, scale_factor=1.1)
                 )
-
+                self.wait(0.3)
+                self.play(FadeOut(overlap_text), run_time=0.3)
+            self.play(FadeOut(proc_text), run_time=0.3)
             self.play(
                 intervals[idx][0].animate.set_stroke(color=SORTCOL, width=0)
             )
@@ -39,29 +56,28 @@ class IntervalScheduling(Scene):
         L = [(0, 1, 2),(1, 3, 6),(2, 1, 5),(3, 4, 7),(4, 2, 5),(5, 5, 8),(6, 7, 10),(7, 10, 13),(8, 9, 12)]
         intervals = VGroup()
         for i, s, f in L:
-            interval = RoundedRectangle(corner_radius=0.2, width=f-s, height=0.8, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
+            interval = RoundedRectangle(corner_radius=0.2, width=f-s, height=0.7, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
             index = Text(str(i), font=FONT, font_size=INTERVAL_FSIZE, color=TEXTCOL)
             index.move_to(interval.get_center())
             interval_visual = VGroup(interval, index)
             interval_visual.to_corner(UL)
-            interval_visual.shift(DOWN * (i * 0.8))
+            interval_visual.shift(DOWN * (i * 0.7))
             interval_visual.shift(RIGHT * s)
             intervals.add(interval_visual)
 
         intervals.set_z_index(2)
-        intervals.shift(DOWN * 0.8)
-        intervals.shift(RIGHT * 0.06)
+        intervals.shift(DOWN * 1.6)
         self.add(intervals)
 
         interval_time = VGroup()
 
         for i in range(13):
-            line = Line(start=(ORIGIN + UP * 4.2) + (RIGHT * i), end=(ORIGIN + DOWN * 3.5) + (RIGHT * i), color=TEXTCOL, stroke_width=1)
-            time = Text(str(i + 1), font=FONT, font_size=20, color=TEXTCOL).shift(UP * 4.5 + RIGHT * i)
+            line = Line(start=(ORIGIN + UP * 3.4) + (RIGHT * i), end=(ORIGIN + DOWN * 3.5) + (RIGHT * i), color=TEXTCOL, stroke_width=1)
+            time = Text(str(i + 1), font=FONT, font_size=20, color=TEXTCOL).shift(UP * 3.6 + RIGHT * i)
             interval_time.add(VGroup(line, time))
 
         interval_time.to_edge(LEFT)
-        interval_time.shift(RIGHT * 1)
+        interval_time.shift(RIGHT * 0.94)
         interval_time.shift(DOWN * 0.8)
         self.add(interval_time)
 
@@ -69,24 +85,27 @@ class IntervalScheduling(Scene):
         intervals_sorted = VGroup()
         c = 0
         for i, s, f in L_sorted:
-            interval = RoundedRectangle(corner_radius=0.2, width=f-s, height=0.8, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
+            interval = RoundedRectangle(corner_radius=0.2, width=f-s, height=0.7, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
             index = Text(str(i), font=FONT, font_size=INTERVAL_FSIZE, color=TEXTCOL)
             index.move_to(interval.get_center())
             interval_visual = VGroup(interval, index)
             interval_visual.to_corner(UL)
-            interval_visual.shift(DOWN * (c * 0.8))
+            interval_visual.shift(DOWN * (c * 0.7))
             interval_visual.shift(RIGHT * s)
             intervals_sorted.add(interval_visual)
             c += 1
 
         intervals_sorted.set_z_index(2)
-        intervals_sorted.shift(DOWN * 0.8)
-        intervals_sorted.shift(RIGHT * 0.06)
+        intervals_sorted.shift(DOWN * 1.6)
         
+        # Explanatory text: Sorting
+        sort_text = Text("Sort intervals by finish time", font=FONT, font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL).to_edge(UP, buff=0.2)
+        self.play(Write(sort_text), run_time=0.8)
+        self.wait(0.7)
         self.play(intervals.animate.become(intervals_sorted))
+        self.play(FadeOut(sort_text), run_time=0.5)
         self.wait(1)
         accepted_indices = self.intervalschedule(L, intervals)
-        print(len(accepted_indices))
         self.wait(1)
         
         # Fade out non-accepted intervals
@@ -302,14 +321,17 @@ class HuffmanEncoding(Scene):
         # Create Manim graph
         huffman_tree = Graph(
             vertices=list(G.nodes),
-            edges=list(G.edges),
+            edges=list(G.edges)[::-1],
             vertex_mobjects=vertex_mobjects,
             edge_type=WeightedLine,
             edge_config=edge_config,
             layout="tree",
-            layout_scale=4,
+            layout_scale=3.5,
             root_vertex=root_id
         )
+        
+        # Move tree to left edge
+        huffman_tree.to_edge(LEFT, buff=0.4)
         
         # Animate the Huffman tree construction
         self.animate_huffman_construction(s, huffman_tree)
@@ -325,10 +347,18 @@ class HuffmanEncoding(Scene):
         # Sort by frequency for initial display
         freqlist.sort()
         
-        # Step 1: Fade in all leaf nodes
+        # Step 1: Show initial frequency counting
+        freq_text = Text(f"Character frequencies in\n  '{s}':", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0, aligned_edge=UP)
+        self.play(Write(freq_text), run_time=1)
+        self.wait(0.5)
+        
+        # Step 2: Fade in all leaf nodes
         leaf_nodes = []
         for freq, symbol in freqlist:
             leaf_nodes.append(huffman_tree.vertices[symbol])
+        
+        create_text = Text("Create leaf nodes\n with frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(freq_text, DOWN, buff=0.6)
+        self.play(Write(create_text), run_time=0.8)
         
         self.play(
             *[FadeIn(node) for node in leaf_nodes],
@@ -336,7 +366,9 @@ class HuffmanEncoding(Scene):
         )
         self.wait(1)
         
-        # Step 2: Build construction tracking
+        self.play(FadeOut(freq_text), FadeOut(create_text), run_time=0.5)
+        
+        # Step 3: Build construction tracking
         nodes = []
         node_id_map = {}  # Maps Node objects to their visual IDs
         
@@ -357,6 +389,18 @@ class HuffmanEncoding(Scene):
             left_id = node_id_map[id(L)]
             right_id = node_id_map[id(R)]
             
+            # Explanatory text for selecting nodes
+            if hasattr(L, 'symbol') and hasattr(R, 'symbol'):
+                left_symbol = L.symbol if len(L.symbol) == 1 else f"({L.symbol})"
+                right_symbol = R.symbol if len(R.symbol) == 1 else f"({R.symbol})"
+                comb_text = f"{left_symbol}({L.frequency}) + {right_symbol}({R.frequency})"
+                spaces = " " * (max(0, len(comb_text) - 9)//2)
+                select_text = Text(f"Select two nodes with\nsmallest frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0.5, aligned_edge=UP)
+                detail_text = Text(f"{spaces}Combining\n{comb_text}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(select_text, DOWN, buff=0.6)
+
+                self.play(Write(select_text), run_time=0.8)
+                self.play(Write(detail_text), run_time=0.6)
+            
             # Highlight the two smallest frequency nodes
             left_visual = huffman_tree.vertices[left_id]
             right_visual = huffman_tree.vertices[right_id]
@@ -373,6 +417,9 @@ class HuffmanEncoding(Scene):
             internal_node_id = f"internal_{internal_counter}"
             parent_node = huffman_tree.vertices[internal_node_id]
             
+            parent_text = Text(f"Create parent node\nwith frequency {combined_freq}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(detail_text, DOWN, buff=0.5)
+            self.play(Write(parent_text), run_time=0.6)
+            
             self.play(FadeIn(parent_node), run_time=1)
             self.wait(0.5)
             
@@ -388,20 +435,24 @@ class HuffmanEncoding(Scene):
             
             edges_to_show = [e for e in [left_edge, right_edge] if e is not None]
             
+            edge_text = Text("Connect with weighted\nedges (0=left, 1=right)", font=FONT, font_size=EXPLANATORY_FONT_SIZE-13, color=BLACK).next_to(parent_text, DOWN, buff=0.6)
+            self.play(Write(edge_text), run_time=0.5)
+            
             if edges_to_show:
                 self.play(
                     *[Create(edge) for edge in edges_to_show],
                     run_time=1
                 )
             
-            # Clear highlighting
+            # Clear highlighting and text
             self.play(
                 left_visual.Clear(),
                 right_visual.Clear(),
                 run_time=0.5
             )
             
-            self.wait(0.8)
+            self.play(FadeOut(select_text), FadeOut(detail_text), FadeOut(parent_text), FadeOut(edge_text), run_time=0.5)
+            self.wait(0.5)
             
             # Update for next iteration
             temp_nodes.pop(0)
@@ -411,4 +462,4 @@ class HuffmanEncoding(Scene):
             temp_nodes.append(((combined_freq, L.symbol + R.symbol), newnode))
             internal_counter += 1
         
-        self.wait(2)
+        self.wait(1)
