@@ -1729,16 +1729,15 @@ class FloydWarshall(Scene):
             return path
         
         
-        vertices = [0, 1, 2, 3, 4, 5, 6, 7]
-        wedges = [(0, 7, 8), (0, 1, 10), (7, 6, 1), (6, 1, -4), (1, 5, 2), (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]
+        vertices = [0, 1, 2, 3, 4, 5, 6]
+        wedges = [(0, 6, 8), (0, 1, 10), (6, 1, -4), (1, 5, 2), (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]
         edges = [(i, j) for i, j, _ in wedges]
 
         scale = 1.5
 
         layout = {
-            0: [-0.8 * scale, 0.3 * scale, 0],
+            0: [0 * scale, 0.3 * scale, 0],
             1: [-1.5 * scale, -1.1 * scale, 0],
-            7: [0.8 * scale, 0.3 * scale, 0],
             6: [1.5 * scale ,-1.1 * scale, 0],
             5: [0 * scale ,-2.2 * scale, 0],
             2: [-1.5 * scale ,-3.3 * scale, 0],
@@ -1782,8 +1781,8 @@ class FloydWarshall(Scene):
             row_labels=[Text(str(v), font_size=FSIZE, font=FONT) for v in vertices],
             col_labels=[Text(str(v), font_size=FSIZE, font=FONT) for v in vertices],
             include_outer_lines=True,
-            v_buff=0.3,
-            h_buff=0.4,
+            v_buff=0.4,
+            h_buff=0.6,
             top_left_entry = MathTex("SP_1", font_size=FSIZE),
         )
 
@@ -1862,6 +1861,19 @@ class FloydWarshall(Scene):
                             Unwrite(explanatoryText), FadeOut(cell_to_update1),
                             run_time=0.3
                         )
+                    else:
+                        # No update needed - current path is already shorter or equal
+                        uvText = int(adjMatrix[u][v]) if adjMatrix[u][v] != np.inf else "∞"
+                        ukText = int(adjMatrix[u][k]) if adjMatrix[u][k] != np.inf else "∞"
+                        kvText = int(adjMatrix[k][v]) if adjMatrix[k][v] != np.inf else "∞"
+                        explanatoryText = Text(f"{u} -> {v} : {uvText} ≤ {ukText} + {kvText}, no update", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(SP_Text, UP, buff=0.6)
+                        
+                        cell_to_highlight = matrixTable.get_cell(pos=(u+2, v+2), color=GREEN).set_stroke(color=GREEN, width=7)
+                        
+                        self.play(Write(explanatoryText), run_time=0.2)
+                        self.play(FadeIn(cell_to_highlight), run_time=0.2)
+                        self.wait(0.3)
+                        self.play(Unwrite(explanatoryText), FadeOut(cell_to_highlight), run_time=0.2)
                     
                     self.wait(0.1)
         self.wait(4)
