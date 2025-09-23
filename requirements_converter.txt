@@ -1,0 +1,3 @@
+# Requirements for MP4 to GIF converter
+moviepy>=1.0.3
+tqdm>=4.64.0
