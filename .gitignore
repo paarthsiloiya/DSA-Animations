@@ -213,3 +213,27 @@ __pycache__/
 TreeView.txt
 
 gifs/Graphs/FloydWarshall.gif
+
+# ---------------------------------------------------------------------------
+# Project-specific additions (2026-09 plan baseline)
+# ---------------------------------------------------------------------------
+
+# SQLite runtime artifacts (the one tracked DB, Website/database.db, is
+# untracked by plan card B1 in docs/Plan/02-Bugfixes.md; this rule then
+# keeps it out for good)
+*.db
+*.sqlite
+
+# Agentic-tool local state (worktrees, session data)
+.kilo/
+.claude/
+.cursor/
+
+# OS junk
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE folders (enabled for this repo instead of the commented template entries)
+.idea/
+.vscode/
