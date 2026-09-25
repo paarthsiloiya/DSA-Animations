@@ -10,36 +10,36 @@ Legend: ☐ todo · ◐ in progress · ☑ done · ✗ cancelled (note reason)
 
 | ID | Card | Agent | Depends | Status | Notes |
 |---|---|---|---|---|---|
-| F1 | Root requirements.txt (pinned) | general | — | ☐ | |
-| F2 | pyproject.toml (ruff + pytest) | general | F1 | ☐ | |
-| F3 | tools/link_check.py + baseline | general | F2 | ☐ | baseline-broken-links.txt = audit 04 §1 |
-| F4 | tests/test_routes.py smoke | general | F2 | ☐ | |
-| F5 | tools/convert_webm.py | general | — | ☐ | probe settings from existing webm |
-| F6 | CI workflow | general | F2,F3,F4 | ☐ | |
+| F1 | Root requirements.txt (pinned) | general | — | ☑ | 8 direct deps pinned to installed; dev pins in requirements-dev.txt; converter moviepy floor → `>=2.0,<3.0` |
+| F2 | pyproject.toml (ruff + pytest) | general | F1 | ☑ | config-only, no [project]; ruff runs (145 findings = R8 backlog); pytest exit 5 until F4 adds tests/ |
+| F3 | tools/link_check.py + baseline | general | F2 | ☑ | baseline = 37 links (29 route-404 + 8 videos/-case); 1128 dead-anchor warnings |
+| F4 | tests/test_routes.py smoke | general | F2 | ☑ | 26 tests green: 24 routes 200 + /logout 302 + no-new-links |
+| F5 | tools/convert_webm.py | general | — | ☑ | VP9/-an per probe; pilot Queue.webm (150 KB) converted; 64+9 dry-run |
+| F6 | CI workflow | general | F2,F3,F4 | ☑ | ubuntu, py3.11, pip cache; pytest + ruff --exit-zero (drop after PROMPT 026) |
 
 ## Phase 1 — Bugfixes (`02-Bugfixes.md`)
 
 | ID | Card | Agent | Depends | Status | Notes |
 |---|---|---|---|---|---|
-| B1 | Flask config (SECRET_KEY, DB path, untrack db) | dsa-bugfixer | — | ☐ | ask user re: DB contents |
-| B2 | videos/ → Videos/ casing (8 templates) | dsa-bugfixer | — | ☐ | |
-| B3 | Hide dead nav honestly | dsa-bugfixer | F3 | ☐ | re-enabled in C14 |
-| B4 | Fix relative/.md links | dsa-bugfixer | F3 | ☐ | |
-| B5 | Binary-search sample code | dsa-bugfixer | — | ☐ | recheck inline map |
-| B6 | Complexity/math corrections | dsa-bugfixer | — | ☐ | verify vs Understanding/*.ipynb |
-| B7 | Copy defects batch | dsa-bugfixer | — | ☐ | |
-| B8 | Home honesty (ratings, controls claim) | dsa-bugfixer | — | ☐ | |
-| B9 | CSS defects (selector, invalid value, dupes) | dsa-bugfixer | — | ☐ | |
-| B10 | AVL LeftLeft label → "Right Rotation" | dsa-bugfixer | — | ☐ | queue RB1 |
-| B11 | Floyd-Warshall k, adjacency sets→tuples, "egde" | dsa-bugfixer | — | ☐ | queue RB1 |
-| B12 | QuickSort base-case guard | dsa-bugfixer | — | ☐ | no visual change |
-| B13 | Heap zero-line/self-loop + comparison text | dsa-bugfixer | — | ☐ | queue RB1 |
-| B14 | D&C LCS guard, closest-pair strip, fade blocks | dsa-bugfixer | — | ☐ | queue RB1 |
-| B15 | Greedy interval label shift | dsa-bugfixer | — | ☐ | queue RB1 |
-| B16 | Converter moviepy 2.x, finally-close, with_suffix | dsa-bugfixer | F1 | ☐ | |
-| B17 | Notebooks (Dijkstra inf, heap delete, typos) | dsa-bugfixer | — | ☐ | |
-| RB1 | Render batch (9 scenes) | general | B10–B15 | ☐ | needs media-commit approval (D7) |
-| G1 | **Gate: dsa-auditor re-verifies audit 04** | dsa-auditor | RB1 | ☐ | |
+| B1 | Flask config (SECRET_KEY, DB path, untrack db) | dsa-bugfixer | — | ☑ | DB had 1 test row only (test@gmail.com); instance-path DB + DSA_SECRET_KEY env; both launch styles verified |
+| B2 | videos/ → Videos/ casing (8 templates) | dsa-bugfixer | — | ☑ | 8 templates fixed; stack video 200 re-verified |
+| B3 | Hide dead nav honestly | dsa-bugfixer | F3 | ☑ | 18 sidebar links → span.nav-item-pending[data-target] + note; footer block hidden | re-enabled in C14 |
+| B4 | Fix relative/.md links | dsa-bugfixer | F3 | ☑ | 4 real targets → url_for; 4 no-page items → pending spans + notes; algorithms/linked_list fixed |
+| B5 | Binary-search sample code | dsa-bugfixer | — | ☑ | sorted array + N-1 + x=4 (matches video demo); map line refs unchanged |
+| B6 | Complexity/math corrections | dsa-bugfixer | — | ☑ | 8 claim fixes; all CLRS-verifiable |
+| B7 | Copy defects batch | dsa-bugfixer | — | ☑ | incl. 2 extra "the sources" hits the audit missed (arrays:28, insertion_sort:189) |
+| B8 | Home honesty (ratings, controls claim) | dsa-bugfixer | — | ☑ | 6 rating frames removed; wording matches plain <video controls> |
+| B9 | CSS defects (selector, invalid value, dupes) | dsa-bugfixer | — | ☑ | webkit selector → .topic-carousel; flex dropped; dup scrollbar-width deduped |
+| B10 | AVL LeftLeft label → "Right Rotation" | dsa-bugfixer | — | ☑ | label fixed; RB1 must re-render LeftLeftCase |
+| B11 | Floyd-Warshall k, adjacency sets→tuples, "egde" | dsa-bugfixer | — | ☑ | queue RB1: FloydWarshall + WeightedAdjecencyListUD/D + PrimsMCST re-render; FW gains intended k=0 no-update tableau (final matrix unchanged) |
+| B12 | QuickSort base-case guard | dsa-bugfixer | — | ☑ | no re-render needed; demo trace: only empty call (0,-1) marked an already-green pivot |
+| B13 | Heap zero-line/self-loop + comparison text | dsa-bugfixer | — | ☑ | queue RB1: MaxHeap/MinHeap re-render; root cases now draw node-only (edge/Line guarded) and skip the bogus root "correct position" text |
+| B14 | D&C LCS guard, closest-pair strip, fade blocks | dsa-bugfixer | — | ☑ | queue RB1: LCS/ClosestPairPoint re-render; strip now standard y-break form (demo answer 0.28 identical to brute force); fade_in/out always defined, NameError hazard gone |
+| B15 | Greedy interval label shift | dsa-bugfixer | — | ☑ | queue RB1: IntervalScheduling re-render; ruler ticks now labeled 0..12 so tick i aligns with interval start s |
+| B16 | Converter moviepy 2.x, finally-close, with_suffix | dsa-bugfixer | F1 | ☑ | with_suffix + try/finally clip.close() + clip = clip.resized(); live-tested on moviepy 2.2.1 (default, --resize, output_dir=None); .bat: --no-install flag + pip errorlevel check |
+| B17 | Notebooks (Dijkstra inf, heap delete, typos) | dsa-bugfixer | — | ☑ | Dijkstra test < np.inf; Wieghted→Weighted ×2, AMGaphD→AMGraphD (all cells); heap single-node delete guard (heapify-up after replacement still skipped — known limitation, out of scope); both notebooks re-executed clean via nbconvert |
+| RB1 | Render batch (9 scenes) | general | B10–B15 | ☑ | 9/9 rendered -ql; 8 mp4s modified + LCS byte-identical (guard-only fix); OCR spot-checks all pass; media committed with user approval in the Phase-1 finalization commit |
+| G1 | **Gate: dsa-auditor re-verifies audit 04** | dsa-auditor | RB1 | ☑ | PASSED 2026-09-25: all S1-S4 claimed rows re-derived green; S5 sources cited + 3 OCR video spot-watches; stack green (26 pytest, links 0, 24+1 routes); deferred-by-design: Roboto font (W3), @media (W1), make_arrow(-1), AVLNode typing |
 
 ## Phase 2 — Sync Tool (`03-Sync-Tool.md`)
 

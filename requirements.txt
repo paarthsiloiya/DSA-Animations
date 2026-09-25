@@ -1,0 +1,14 @@
+# Pinned runtime dependencies for DSA-Animations
+# website
+flask==3.0.3
+flask-sqlalchemy==3.1.1
+flask-login==0.6.3
+
+# animations
+manim==0.19.0
+networkx==3.6.1
+numpy==2.4.3
+
+# tools
+moviepy==2.2.1
+tqdm==4.67.3

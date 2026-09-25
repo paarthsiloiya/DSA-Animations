@@ -122,7 +122,6 @@ body {
 
 .navbar-user-container {
     align-items: center;
-    justify-content: flex;
     margin-right: 0.8125rem;
 }
 
@@ -289,6 +288,16 @@ body {
 .sidebar li a::before {
     content: "⤷ ";
     color: var(--text);
+}
+
+.nav-item-pending {
+    color: #888;
+    cursor: default;
+}
+
+.nav-pending-note {
+    color: #888;
+    font-size: 0.8rem;
 }
 
 /* ========================================
@@ -557,12 +566,11 @@ pre[class*="language-"] > code .line-highlight {
 
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
     cursor: grab;
     touch-action: pan-x;
 }
 
-.carousel::-webkit-scrollbar {
+.topic-carousel::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
 }
 

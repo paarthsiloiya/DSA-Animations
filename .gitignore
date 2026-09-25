@@ -224,6 +224,10 @@ gifs/Graphs/FloydWarshall.gif
 *.db
 *.sqlite
 
+# Explicit DB locations (B1) — belt-and-braces on top of the *.db rule above
+Website/instance/
+Website/website/database.db
+
 # Agentic-tool local state (worktrees, session data)
 .kilo/
 .claude/

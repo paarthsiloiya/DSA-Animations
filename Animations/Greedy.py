@@ -73,7 +73,7 @@ class IntervalScheduling(Scene):
 
         for i in range(13):
             line = Line(start=(ORIGIN + UP * 3.4) + (RIGHT * i), end=(ORIGIN + DOWN * 3.5) + (RIGHT * i), color=TEXTCOL, stroke_width=1)
-            time = Text(str(i + 1), font=FONT, font_size=20, color=TEXTCOL).shift(UP * 3.6 + RIGHT * i)
+            time = Text(str(i), font=FONT, font_size=20, color=TEXTCOL).shift(UP * 3.6 + RIGHT * i)
             interval_time.add(VGroup(line, time))
 
         interval_time.to_edge(LEFT)

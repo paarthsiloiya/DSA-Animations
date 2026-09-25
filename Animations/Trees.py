@@ -1193,8 +1193,9 @@ class MaxHeap(Scene):
             self.wait(0.3)
 
             self.play(Create(new_node), run_time=0.5)
-            G.add_edge(max_heap[parent_index], value)
-            self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
+            if parent_index >= 0:
+                G.add_edge(max_heap[parent_index], value)
+                self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
 
             if parent_index >= 0:
                 while i > 0 and max_heap[i] > max_heap[parent_index]:
@@ -1236,20 +1237,21 @@ class MaxHeap(Scene):
 
                 self.wait(0.1)
 
-                sub_explanatory_text1 = Text(f"{max_heap[i]} <= {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
-                sub_explanatory_text2 = Text(f"{max_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
-                self.play(
-                    Write(sub_explanatory_text1),
-                    Write(sub_explanatory_text2),
-                    run_time=0.5
-                )
-                self.wait(0.5)
-                self.play(
-                    Unwrite(sub_explanatory_text1),
-                    Unwrite(sub_explanatory_text2),
-                    run_time=0.5
-                )
-                self.wait(0.2)
+                if parent_index >= 0:
+                    sub_explanatory_text1 = Text(f"{max_heap[i]} <= {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    sub_explanatory_text2 = Text(f"{max_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    self.play(
+                        Write(sub_explanatory_text1),
+                        Write(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+                    self.wait(0.5)
+                    self.play(
+                        Unwrite(sub_explanatory_text1),
+                        Unwrite(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+                    self.wait(0.2)
 
             self.wait(0.4)
             self.play(Unwrite(explanatory_text), run_time=0.5)
@@ -1295,8 +1297,9 @@ class MinHeap(Scene):
             self.wait(0.3)
 
             self.play(Create(new_node), run_time=0.5)
-            G.add_edge(min_heap[parent_index], value)
-            self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
+            if parent_index >= 0:
+                G.add_edge(min_heap[parent_index], value)
+                self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
 
             if parent_index >= 0:
                 while i > 0 and min_heap[i] < min_heap[parent_index]:
@@ -1338,20 +1341,21 @@ class MinHeap(Scene):
 
                 self.wait(0.1)
 
-                sub_explanatory_text1 = Text(f"{min_heap[parent_index]} <= {min_heap[i]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
-                sub_explanatory_text2 = Text(f"{min_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
-                self.play(
-                    Write(sub_explanatory_text1),
-                    Write(sub_explanatory_text2),
-                    run_time=0.5
-                )
-                self.wait(0.5)
-                self.play(
-                    Unwrite(sub_explanatory_text1),
-                    Unwrite(sub_explanatory_text2),
-                    run_time=0.5
-                )
-                self.wait(0.2)
+                if parent_index >= 0:
+                    sub_explanatory_text1 = Text(f"{min_heap[parent_index]} <= {min_heap[i]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                    sub_explanatory_text2 = Text(f"{min_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    self.play(
+                        Write(sub_explanatory_text1),
+                        Write(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+                    self.wait(0.5)
+                    self.play(
+                        Unwrite(sub_explanatory_text1),
+                        Unwrite(sub_explanatory_text2),
+                        run_time=0.5
+                    )
+                    self.wait(0.2)
 
             self.wait(0.4)
             self.play(Unwrite(explanatory_text), run_time=0.5)

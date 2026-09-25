@@ -1,4 +1,4 @@
-{% extends "content.html" %} {% block title %} DSA {% endblock %} {% block main_content %}
+{% extends "content.html" %} {% block title %} Algorithms {% endblock %} {% block main_content %}
 <h1>Algorithms</h1>
 
 <p>
@@ -172,7 +172,8 @@
             <strong>Logarithmic Loop ($O(log n)$)</strong>: Some algorithms reduce the problem size by a constant factor
             (e.g., halving it) in each step. If a problem of size <code>n</code> becomes <code>n/2</code>, then
             <code>n/4</code>, and so on, until it reaches a size of <code>1</code>, the number of steps
-            <code>k</code> required is such that $\frac{n}{2} = 1$, meaning $n = 2$. Taking the logarithm (base 2) of
+            <code>k</code> required is such that $\frac{n}{2^k} = 1$, meaning the original size is halved $k$ times until
+            it reaches 1. Taking the logarithm (base 2) of
             both sides gives $k = \log_2{n}$. Therefore, the time complexity is $O(\log{n})$, or logarithmic time. This
             is considerably faster than linear time, especially for large <code>n</code>. An example is a loop where the
             control variable <code>i</code> is repeatedly multiplied by 2 (e.g., <code>i = i * 2</code>).
@@ -223,7 +224,7 @@
                     <ul>
                         <li>
                             <em>Example</em>: For <code>T(n) = 8T(n/2) + O(n)</code> (matrix multiplication), $\log_2{8}
-                            = 3$, so $n$ dominates $n$. Thus $T(n) = \Theta(n)$.
+                            = 3$, so $n^3$ dominates $n$. Thus $T(n) = \Theta(n^3)$.
                         </li>
                         <li>
                             <em>Example</em>: For <code>T(n) = 7T(n/2) + O(n)</code> (Strassen's algorithm), $\log_2{7}
@@ -265,7 +266,7 @@
         </li>
         <li>
             <p>
-                <strong><a href="Sorting%20Algorithms">Sorting Algorithms</a> : </strong>
+                <strong><a href="{{ url_for('views.sorting_algorithms') }}">Sorting Algorithms</a> : </strong>
                 These algorithms arrange elements of a list or array in a specific order (e.g., numerical,
                 alphabetical).
             </p>

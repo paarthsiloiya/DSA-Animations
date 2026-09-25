@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    "Animations/media",
+    "gifs",
+    "Understanding",
+    "utils/createHighlightMap.ipynb",
+    ".kilo",
+    "Website/website/static",
+    "docs",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

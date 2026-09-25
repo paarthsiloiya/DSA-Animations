@@ -643,7 +643,7 @@ class LeftLeftCase(Scene):
             stroke_width=3,
             angle=-PI/2
         )
-        arrow_label = Text("Left Rotation", font_size=SWAP_FONT_SIZE, color=RED)
+        arrow_label = Text("Right Rotation", font_size=SWAP_FONT_SIZE, color=RED)
         arrow_label.next_to(explanation, DOWN, buff=0.2)
         
         self.play(Create(arrow), Write(arrow_label))

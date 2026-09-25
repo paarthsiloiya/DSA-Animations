@@ -415,7 +415,8 @@ class QuickSort(Scene):
            
         else:
             self.wait(0.4)
-            self.play(*(arr[low].MarkSorted()), run_time=0.2)
+            if low <= high:
+                self.play(*(arr[low].MarkSorted()), run_time=0.2)
             self.wait(0.4)
 
     def partition(self, arr : list[ListElement], low : int, high : int):

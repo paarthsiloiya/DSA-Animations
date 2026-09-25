@@ -1189,8 +1189,8 @@ class WeightedAdjecencyListUD(Scene):
                 run_time=0.5
             )
 
-            adjecencyList[u].append({v, w})
-            adjecencyList[v].append({u, w})
+            adjecencyList[u].append((v, w))
+            adjecencyList[v].append((u, w))
 
             self.play(
                 adjecencyListVGroup[0].submobjects[u].animate.set_color(SELCOL),
@@ -1416,7 +1416,7 @@ class WeightedAdjecencyListD(Scene):
                 run_time=0.5
             )
 
-            adjecencyList[u].append({v, w})
+            adjecencyList[u].append((v, w))
 
             self.play(
                 adjecencyListVGroup[0].submobjects[u].animate.set_color(SELCOL),
@@ -1806,7 +1806,7 @@ class FloydWarshall(Scene):
 
 
         ittrText = Text(f"Iteration : 1", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, UP, buff=1)
-        for k in range(1, len(vertices)):
+        for k in range(len(vertices)):
             kittrText = Text(f"Iteration : {k+1}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, UP, buff=1)
             # nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[k], color=TEXTCOL, buff=0, corner_radius=0.52))
             self.play(matrixTable.get_entries(pos=(1,1)).animate.become(
@@ -1929,7 +1929,7 @@ class PrimsMCST(Scene):
         for v, d in adj_list[0]:
             distance[v] = d
 
-        explanatoryText = Text(f"Selecting the egde with \nminimum weight connected \nto MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        explanatoryText = Text(f"Selecting the edge with \nminimum weight connected \nto MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
         self.play(Write(explanatoryText), run_time=0.5)
         for i in range(1, len(vertices)):
             mindist = float('inf')

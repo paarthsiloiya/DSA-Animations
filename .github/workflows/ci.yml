@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      # Installs manim too (av, pycairo, moderngl, ...): heavy - a cold run
+      # takes a few minutes; the pip cache keyed on the requirements files
+      # above makes warm runs much faster.
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      # Route smoke tests + link checker. On ubuntu this catches
+      # Windows-only assumptions such as lowercase static paths
+      # (videos/ vs Videos/); the checker passes thanks to the
+      # docs/Plan/baseline-broken-links.txt allowlist.
+      - name: Run tests
+        run: pytest
+
+      # Existing lint findings are the Phase 3 (R8) backlog - do not fail
+      # CI on them yet. Remove --exit-zero after PROMPT 026.
+      - name: Lint
+        run: ruff check Animations Website tools mp4_to_gif_converter.py --exit-zero

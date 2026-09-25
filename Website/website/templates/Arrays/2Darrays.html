@@ -10,9 +10,8 @@
     <h3>Memory Storage of 2D Arrays</h3>
     <p>
         When a 2D array is used, its elements are typically stored <strong>contiguously in memory</strong>, similar to
-        how one-dimensional arrays are stored. While the sources do not explicitly detail "row-major" or "column-major"
-        order for 2D arrays, the representation of matrices as 2D arrays implies a linear mapping of this grid-like
-        structure onto a single, contiguous block of memory. Each "drawer" or slot in memory has a unique address. For
+        how one-dimensional arrays are stored: the grid-like structure is mapped linearly onto a single, contiguous
+        block of memory, in either "row-major" or "column-major" order depending on the language. Each "drawer" or slot in memory has a unique address. For
         instance, a record can store its elements such that their relative locations allow for the computation of any
         element's position based on a starting byte number. This contiguous allocation, fundamental to arrays, allows
         for direct calculation of an element's memory address given its indices.
@@ -25,11 +24,11 @@
         Elements within a 2D array are accessed using <strong>two indices</strong>: one for the row and one for the
         column. Following the standard convention for arrays, this numbering typically <strong>starts from 0</strong>.
         For example, <code>A[i][j]</code> would refer to the element at row <code>i</code> and column <code>j</code>.
-        The first element would be at <code>A</code>.
+        The first element would be at <code>A[0][0]</code>.
     </p>
     <p>
-        The sources do not detail a concept of "backward indexing" using negative numbers (e.g., <code>-1</code> for the
-        last element) as seen in some programming languages. However, operations can involve
+        Some programming languages also support <strong>"backward indexing"</strong> using negative numbers (e.g.,
+        <code>-1</code> for the last element). Operations can also involve
         <strong>traversal in reverse order</strong> or calculating indices from the "right" end of a structure. For
         instance, in sorting algorithms, loops might iterate backward, such as
         <code>for (int i = numbers.size() - 1; i &gt;= 0; i--)</code>. In a "paired-array sequence," accessing elements

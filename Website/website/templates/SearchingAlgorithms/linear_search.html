@@ -44,7 +44,7 @@
         <div class="video-container">
             <video id="code-video" width="640" controls>
                 <source
-                    src="{{ url_for('static', filename='videos/SearchingAlgorithms/LinearSearch.webm') }}"
+                    src="{{ url_for('static', filename='Videos/SearchingAlgorithms/LinearSearch.webm') }}"
                     type="video/webm"
                 />
                 Your browser does not support the video tag.
@@ -114,8 +114,8 @@
                 </li>
                 <li>
                     Therefore, the worst-case time complexity of linear search is
-                    <strong>$\Theta(n)$</strong>. This provides an <strong>upper bound</strong> on the running time,
-                    guaranteeing the algorithm will never take longer.
+                    <strong>$\Theta(n)$</strong>. This is a <strong>tight bound</strong> on the worst-case running
+                    time: the cost grows proportionally to $n$. ($O(n)$ alone would state only an upper bound.)
                 </li>
                 <li>
                     For example, searching a list of 4 billion numbers could take up to 4 billion comparisons in linear
@@ -137,9 +137,9 @@
                     inputs (n+1 for linear search).
                 </li>
                 <li>
-                    The average-case running time for linear search is a
-                    <strong>quadratic function</strong> of the input size (if you consider the total work, but in terms
-                    of Big O, it simplifies to $O(n)$).
+                    The average-case running time for linear search is <strong>linear</strong>: when the key is
+                    present and each position is equally likely, the search performs about $\frac{n+1}{2}$ comparisons
+                    on average, which is <strong>$\Theta(n)$</strong>.
                 </li>
                 <li>
                     Thus, the average-case time complexity of linear search is

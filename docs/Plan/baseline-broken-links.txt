@@ -1,0 +1,4 @@
+# known-broken baseline generated on 2026-09-24
+# emptied 2026-09-24 by PROMPT 006 (B2/B3/B4): every entry was fixed (url_for
+# targets, Videos/ casing) or converted to a pending span / hidden footer.
+# Re-generate with: python tools/link_check.py --strict

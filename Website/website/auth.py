@@ -50,7 +50,6 @@ def signup():
             flash('Account created successfully!', category='success')
 
             return redirect(url_for('views.home'))
-            # print(f"Email: {email}, Username: {username}, Subscribed: {subscribed}")
 
     return render_template('auth/signup.html', user=current_user)
 

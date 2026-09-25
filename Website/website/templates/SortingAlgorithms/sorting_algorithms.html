@@ -88,19 +88,20 @@
                     <strong><a href="{{ url_for('views.insertion_sort') }}">Insertion Sort</a></strong
                     >: Works by building a sorted array one element at a time, inserting each new element into its
                     correct position within the already sorted portion. It is efficient for small inputs and is a
-                    <strong>stable</strong> sort. Its performance is typically <strong>O(n)</strong>.
+                    <strong>stable</strong> sort. Its performance is <strong>$O(n^2)$</strong> in the worst and
+                    average cases, and <strong>$O(n)$</strong> in the best case.
                 </li>
                 <li>
                     <strong><a href="{{ url_for('views.selection_sort') }}">Selection Sort</a></strong
                     >: Repeatedly finds the minimum (or maximum) element from the unsorted part of the list and swaps it
-                    with the first unsorted element. It has an <strong>$O(n)$</strong> time complexity, making it
+                    with the first unsorted element. It has an <strong>$O(n^2)$</strong> time complexity, making it
                     inefficient for large lists.
                 </li>
                 <li>
                     <strong><a href="{{ url_for('views.quick_sort') }}">Quick Sort</a></strong
                     >: A widely used <strong>divide-and-conquer</strong> algorithm that selects a "pivot" element and
                     partitions the other elements into two sub-arrays according to whether they are less than or greater
-                    than the pivot. While its worst-case running time is $O(n)$, its
+                    than the pivot. While its worst-case running time is $O(n^2)$, its
                     <strong>expected (average-case) time is O(n log n)</strong>. It sorts in-place and is often faster
                     in practice than other <strong>O(n log n)</strong> sorts due to smaller constant factors. It is
                     generally an <strong>unstable</strong> sort.
@@ -120,8 +121,8 @@
                     <strong>Odd-Even Sort</strong>: A simple sorting algorithm designed for parallel processors, which
                     repeatedly compares and swaps adjacent elements in odd/even indexed pairs.
                 </li>
-                <li><strong>Cycle Sort</strong>: (mentioned as a chapter topic in the sources).</li>
-                <li><strong>Tim Sort</strong>: (mentioned as a stable sort).</li>
+                <li><strong>Cycle Sort</strong>: An in-place, unstable comparison sort that minimises the total number of memory writes.</li>
+                <li><strong>Tim Sort</strong>: A stable, adaptive hybrid of merge sort and insertion sort.</li>
             </ul>
         </li>
         <li>
@@ -191,7 +192,7 @@
 
 <div class="subcontent">
     <h3>Examples of Stable and Unstable Sorting Algorithms</h3>
-    <p>The sources provide explicit classifications for several well-known sorting algorithms:</p>
+    <p>Several well-known sorting algorithms can be classified as stable or unstable as follows:</p>
     <p><strong>Well-known Stable Sorts</strong>:</p>
     <ul>
         <li>

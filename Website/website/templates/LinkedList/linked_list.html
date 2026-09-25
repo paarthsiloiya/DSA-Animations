@@ -15,8 +15,8 @@
     <p>
         A linked list is composed of <strong>nodes</strong>. A node represents an object and typically contains an
         <strong>element</strong> (also called a <strong>key</strong>) and a <strong>pointer</strong> (or reference) to
-        the next item in the list. For example, in a Binary Search Tree, each node stores an element of type K. Some
-        sources refer to the key as <code>key</code> and the associated data as <code>data</code>. A node can also have
+        the         next item in the list. For example, in a Binary Search Tree, each node stores an element of type K. It is
+        common to write the key as <code>key</code> and the associated data as <code>data</code>. A node can also have
         additional pointers, such as a pointer to its parent.
     </p>
 </div>
@@ -105,7 +105,7 @@
         <li>
             <strong>Cache Performance</strong>: Due to their non-contiguous memory allocation, linked lists can exhibit
             poorer cache performance compared to arrays, as data elements may be scattered in memory, leading to more
-            cache misses (information outside the given sources).
+            cache misses.
         </li>
     </ul>
 </div>
@@ -121,7 +121,7 @@
             <code>NIL</code> (null).
         </li>
         <li>
-            <strong><a href="Doubly%20Linked%20Lists.md">Doubly Linked Lists</a></strong
+            <strong><a href="{{ url_for('views.doubly_linked_list') }}">Doubly Linked Lists</a></strong
             >: A doubly linked list enhances the basic structure by including two pointers in each node:
             <code>next</code> (to the successor) and <code>prev</code> (to the predecessor). The
             <code>prev</code> attribute of the head and the <code>next</code> attribute of the tail are

@@ -391,17 +391,16 @@ class ClosestPairPoint(Scene):
         left = self.minDistanceRec(Qx, Qy, depth + 1)
         
         # Restore opacity of dimmed points
-        if points_to_dim:
-            fade_in = AnimationGroup(*[dot.animate.set_opacity(min(1.0, dot.fill_opacity / opacity_factor)) for dot in points_to_dim])
-        
+        fade_in = AnimationGroup(*[dot.animate.set_opacity(min(1.0, dot.fill_opacity / opacity_factor)) for dot in points_to_dim])
+
         # Decrease opacity of points not in right call (Rx, Ry)
         points_to_dim_right = [self.dot_to_mob[pt] for pt in Px if pt not in Rx]
+        fade_out = AnimationGroup(*[dot.animate.set_opacity(max(0.05, dot.fill_opacity * opacity_factor)) for dot in points_to_dim_right])
         if points_to_dim_right:
-            fade_out = AnimationGroup(*[dot.animate.set_opacity(max(0.05, dot.fill_opacity * opacity_factor)) for dot in points_to_dim_right])
             right_text = Text("Processing right half", font_size=35, color=EXPLANATORY_FONT_COLOR, font=FONT)
             right_text.to_edge(UP, buff=0.5)
 
-        self.play(fade_in, fade_out, Write(right_text) if points_to_dim_right else fade_in, run_time=0.5)
+        self.play(fade_in, fade_out, *[Write(right_text)] if points_to_dim_right else [], run_time=0.5)
         if points_to_dim_right:
             self.wait(0.3)
             self.play(FadeOut(right_text), run_time=0.2)
@@ -462,19 +461,22 @@ class ClosestPairPoint(Scene):
             self.wait(0.8)
             self.play(FadeOut(strip_points_text), run_time=0.3)
             
-            minS = self.distance(Sy[0], Sy[1])
-            
-            for i in range(1, sizeS-1):
-                for j in range(i, min(i+15, sizeS-1)):
-                    sy_dist_line = Line((Sy[i][0], Sy[i][1], 0), (Sy[j+1][0], Sy[j+1][1], 0), color=SORTCOL, stroke_width=3)
-                    
+            minS = delta
+
+            for i in range(len(Sy)):
+                for j in range(i+1, len(Sy)):
+                    if (Sy[j][1] - Sy[i][1]) >= minS:
+                        break
+
+                    sy_dist_line = Line((Sy[i][0], Sy[i][1], 0), (Sy[j][0], Sy[j][1], 0), color=SORTCOL, stroke_width=3)
+
                     # Add distance comparison text
-                    dist_value = self.distance(Sy[i], Sy[j+1])
+                    dist_value = self.distance(Sy[i], Sy[j])
                     comparison_text = Text(f"Distance: {dist_value:.2f}", font_size=32, color=EXPLANATORY_FONT_COLOR, font=FONT)
                     comparison_text.to_edge(UP, buff=0.5)
-                    
+
                     self.play(FadeIn(sy_dist_line), Write(comparison_text), run_time=0.3)
-                    
+
                     # Check if this is a new best
                     if dist_value < minS:
                         minS = dist_value
@@ -487,14 +489,14 @@ class ClosestPairPoint(Scene):
                                     self.dot_to_mob[self.current_best[1]].animate.set_fill(TEXTCOL),
                                     run_time=0.3
                                 )
-                            self.current_best = (Sy[i], Sy[j+1], dist_value)
+                            self.current_best = (Sy[i], Sy[j], dist_value)
                             # Highlight new best
                             self.play(
                                 self.dot_to_mob[Sy[i]].animate.set_fill(PINK),
-                                self.dot_to_mob[Sy[j+1]].animate.set_fill(PINK),
+                                self.dot_to_mob[Sy[j]].animate.set_fill(PINK),
                                 run_time=0.3
                             )
-                    
+
                     self.wait(0.2)
                     self.play(FadeOut(sy_dist_line), FadeOut(comparison_text), run_time=0.2)
 
@@ -546,6 +548,8 @@ class ClosestPairPoint(Scene):
 class LongestCommonSubsequence(Scene):
     def construct(self):
         u, v = "bisect", "secret"
+        if len(u) != len(v):
+            raise ValueError("LCS demo animation currently requires equal-length strings")
         self.m, self.n = len(u), len(v)
 
         self.lcs = np.zeros((self.m + 1, self.n + 1), dtype=int)

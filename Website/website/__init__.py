@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+import pathlib
 from flask_login import LoginManager
 
 db = SQLAlchemy()
@@ -8,8 +9,10 @@ DB_NAME = "database.db"
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'my_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(os.getcwd() + "/Website/", DB_NAME)}'
+    app.config['SECRET_KEY'] = os.environ.get('DSA_SECRET_KEY', 'dev-only-insecure-key')
+    os.makedirs(app.instance_path, exist_ok=True)
+    db_path = pathlib.Path(app.instance_path, DB_NAME).as_posix()
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
     db.init_app(app)
 
@@ -34,10 +37,7 @@ def create_app():
     return app
 
 def create_database(app : Flask):
-    db_path = os.path.join(os.getcwd() + "/Website/", DB_NAME)
-    if not os.path.exists(db_path):
+    db_path = pathlib.Path(app.instance_path, DB_NAME)
+    if not db_path.exists():
         with app.app_context():
             db.create_all()
-            print('Created Database!')
-    else:
-        print('Database already exists.')

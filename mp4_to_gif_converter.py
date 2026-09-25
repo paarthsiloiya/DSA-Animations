@@ -71,7 +71,7 @@ def convert_mp4_to_gif(mp4_path, output_dir=None, fps=10, resize_factor=1.0):
                 gif_path = os.path.join(output_dir, Path(mp4_path).stem + ".gif")
         else:
             # Save GIF in the same directory as the MP4
-            gif_path = mp4_path.replace(".mp4", ".gif")
+            gif_path = Path(mp4_path).with_suffix(".gif")
         
         # Skip if GIF already exists
         if os.path.exists(gif_path):
@@ -80,16 +80,17 @@ def convert_mp4_to_gif(mp4_path, output_dir=None, fps=10, resize_factor=1.0):
         
         # Load video clip
         clip = VideoFileClip(mp4_path)
-        
-        # Resize if needed
-        if resize_factor != 1.0:
-            clip = clip.resize(resize_factor)
-        
-        # Convert to GIF
-        clip.write_gif(gif_path, fps=fps)
-        
-        # Close the clip to free memory
-        clip.close()
+
+        try:
+            # Resize if needed
+            if resize_factor != 1.0:
+                clip = clip.resized(resize_factor)
+
+            # Convert to GIF
+            clip.write_gif(gif_path, fps=fps)
+        finally:
+            # Close the clip to free memory
+            clip.close()
         
         print(f"Converted: {mp4_path} -> {gif_path}")
         return gif_path

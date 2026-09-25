@@ -60,7 +60,7 @@
         <div class="video-container">
             <video id="code-video" width="640" controls>
                 <source
-                    src="{{ url_for('static', filename='videos/SortingAlgorithms/InsertionSort.webm') }}"
+                    src="{{ url_for('static', filename='Videos/SortingAlgorithms/InsertionSort.webm') }}"
                     type="video/webm"
                 />
                 Your browser does not support the video tag.
@@ -186,7 +186,7 @@
         </li>
         <li>
             <p>
-                <strong>Asymptotic Optimality</strong>: The sources classify algorithms like Heap Sort and Merge Sort as
+                <strong>Asymptotic Optimality</strong>: Algorithms like Heap Sort and Merge Sort are
                 asymptotically optimal comparison sorts with $O(n \log n)$ time. Insertion Sort, at $O(n^2)$ in its
                 average and worst cases, is <strong>not asymptotically optimal</strong>.
             </p>
@@ -263,7 +263,7 @@
     <ul>
         <li>
             <strong>Inefficiency for Large, Unsorted Data</strong>: Its primary drawback is its
-            <strong>quadratic time complexity (O(n)) in the worst-case and average-case scenarios</strong>. This makes
+            <strong>quadratic time complexity ($O(n^2)$) in the worst-case and average-case scenarios</strong>. This makes
             it highly inefficient for large, randomly ordered, or reverse-sorted datasets.
         </li>
         <li>
