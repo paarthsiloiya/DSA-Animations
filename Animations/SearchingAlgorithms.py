@@ -1,7 +1,10 @@
 from manim import *
 from manim.utils.unit import Percent, Pixels
 from manim import CurvedArrow
+from typing import ClassVar
+
 from env_config import *
+from synced import SyncedScene
 
 # Override specific font sizes for SearchingAlgorithms
 POINTER_FONT_SIZE = 28      # For "Low", "High", "Mid", etc.
@@ -33,7 +36,21 @@ class ListElement():
         return self.circle.animate.set_fill(color=SORTCOL).set_stroke(width=0), self.elementValue.animate.set_color(color=WHITE)
 
 
-class LinearSearch(Scene):
+class LinearSearch(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "def search(arr, N, x):",
+        "    for i in range(0, N):",
+        "        if (arr[i] == x):",
+        "            return i",
+        "    return -1",
+        "",
+        "# Function call",
+        "arr = [5, 2, 4, 6, 3, 1]",
+        "N = len(arr)",
+        "x = 6",
+        "result = search(arr, N, x)",
+    ]
+
     def construct(self):
         target = 6
         array = [5, 2, 4, 6, 3, 1]
@@ -42,10 +59,12 @@ class LinearSearch(Scene):
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
 
+        self.code_step("11")
         self.wait(1)
 
         # Show the key visually
         target_text = Text(f"Target = {target}", color=SELCOL, font=FONT).scale(1.2).next_to(visuals, UP, buff=1.6)
+        self.code_step("1")
         self.play(Write(target_text), run_time=0.4)
 
         n = len(list_elements)
@@ -53,14 +72,18 @@ class LinearSearch(Scene):
         for i in range(n):
             # Step label
             step_text = Text(f"Checking index {i}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(visuals, DOWN, buff=1)
+            self.code_step("2")
             self.play(Write(step_text), run_time=0.2)
 
+            self.code_step("3")
             self.play(list_elements[i].SelectElement(), run_time=0.2)
             self.wait(0.5)
             if array[i] == target:
+                self.code_step("4")
                 self.play(*(list_elements[i].MarkFound()), run_time=0.2)
                 found_text = Text("Found!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(visuals, DOWN, buff=1.8)
                 self.play(Write(found_text), run_time=0.4)
+                self.code_step("11")
                 self.wait(1)
                 self.play(FadeOut(step_text), FadeOut(found_text))
                 break

@@ -104,26 +104,57 @@
     document.addEventListener("DOMContentLoaded", () => {
         const video = document.getElementById("code-video");
         const codeBlock = document.getElementById("code-block");
-        if (!video || !codeBlock || typeof highlightMap === "undefined") return;
+        if (!video || !codeBlock) return;
 
-        let lastLine = "";
-        setInterval(() => {
-            const currentTime = video.currentTime;
-            let currentHighlight = "";
+        const startTracking = () => {
+            let lastLine = "";
+            setInterval(() => {
+                const currentTime = video.currentTime;
+                let currentHighlight = "";
 
-            for (let i = highlightMap.length - 1; i >= 0; i--) {
-                if (currentTime >= highlightMap[i].time) {
-                    currentHighlight = highlightMap[i].lines;
-                    break;
+                for (let i = highlightMap.length - 1; i >= 0; i--) {
+                    if (currentTime >= highlightMap[i].time) {
+                        currentHighlight = highlightMap[i].lines;
+                        break;
+                    }
                 }
-            }
 
-            if (currentHighlight !== lastLine) {
-                codeBlock.setAttribute("data-line", currentHighlight);
-                Prism.highlightElement(codeBlock.querySelector("code"));
-                lastLine = currentHighlight;
-            }
-        }, 100);
+                if (currentHighlight !== lastLine) {
+                    codeBlock.setAttribute("data-line", currentHighlight);
+                    Prism.highlightElement(codeBlock.querySelector("code"));
+                    lastLine = currentHighlight;
+                }
+            }, 100);
+        };
+
+        const syncUrl =
+            video.parentElement?.getAttribute("data-sync") || video.getAttribute("data-sync");
+        if (syncUrl) {
+            fetch(syncUrl)
+                .then((response) => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then((data) => {
+                    window.highlightMap = data.map;
+                    const codeElement = codeBlock.querySelector("code");
+                    if (
+                        codeElement &&
+                        (codeBlock.hasAttribute("data-from-sync") ||
+                            !codeElement.textContent.trim())
+                    ) {
+                        codeElement.textContent = data.code.join("\n");
+                        Prism.highlightElement(codeElement);
+                    }
+                    startTracking();
+                })
+                .catch(() => {
+                    if (typeof highlightMap !== "undefined") startTracking();
+                });
+            return;
+        }
+        if (typeof highlightMap === "undefined") return;
+        startTracking();
     });
 
     function copyToClipboard(button) {

@@ -45,15 +45,15 @@ Legend: ☐ todo · ◐ in progress · ☑ done · ✗ cancelled (note reason)
 
 | ID | Card | Agent | Depends | Status | Notes |
 |---|---|---|---|---|---|
-| T1 | Spike → tools/syncmap/DESIGN.md | explore | — | ☐ | time model vs manim 0.19 |
-| T2 | Recorder core + unit tests | general | T1 | ☐ | |
-| T3 | Animations/synced.py (SyncedScene) | general | — | ☐ | no-op when rendering |
-| T4 | Snapshot CLI (--scene/--all) | general | T2,T3 | ☐ | |
-| T5 | Map emit + content.html loader | general | T4 | ☐ | wire one real page as proof |
-| T6 | Drift check command | general | T4,T5 | ☐ | |
-| T7 | Baseline snapshots of all 72 scenes | general | T4, **P1 done** | ☐ | THE refactor oracle |
-| T8 | Tool README + skill sync | general | T2–T6 | ☐ | |
-| G2 | **Gate: auditor checks determinism + drift detection** | dsa-auditor | T7,T8 | ☐ | |
+| T1 | Spike → tools/syncmap/DESIGN.md | explore | — | ☑ | 2026-09-28: NullRenderer via Scene(renderer=...) beats monkey-patch — 25/25 events byte-identical to CairoRenderer skip path; LinearSearch/TreeBFS/Dijkstra all run headless (9.5s/73.9s/118.9s raw); key finding: video time needs frame quantization (ceil plays, floor static waits) — two-clock model |
+| T2 | Recorder core + unit tests | general | T1 | ☑ | NullRenderer via Scene(renderer=...) per DESIGN.md §3; 13 tests green (defaults, wait, run_time, code_step ordering, Succession/LaggedStart totals, determinism, clamp, error capture, CairoRenderer-skip cross-validation); LinearSearch live proof: recorded 9.5s == manual sum, first 8 run_times identical |
+| T3 | Animations/synced.py (SyncedScene) | general | — | ☑ | no-op when rendering; code_step forwards to injected _syncmap_recorder hook; DISPLAY_CODE typed ClassVar (RUF012); import-silence covered by subprocess test |
+| T4 | Snapshot CLI (--scene/--all) | general | T2,T3 | ☑ | python -m tools.syncmap snapshot --scene|--all --batch --modules --out; 72 scenes enumerated across the 11 modules (incl. dash-named Stack-Queue); LinearSearch re-run SHA-256-identical (24F249…807B); SearchingAlgorithms bench 6.4s for 2 scenes incl. startup; manifest "generated" kept env-independent (no wall-clock) so files stay byte-comparable |
+| T5 | Map emit + content.html loader | general | T4 | ☑ | map cmd (tools/syncmap/emit.py) + data-sync fetch loader w/ inline fallback; LinearSearch annotated as SyncedScene (timeline proven byte-identical: 25 play/wait events unchanged, 12 zero-time code_steps added); emitted map frame-exact vs webm transitions (±1 60fps frame), hand map drifted up to +0.53s; real-page wiring deferred to Phase 4 per prompt (scratch proof page removed); found: media/LinearSearch.mp4 is a stale render (127f/8.47s) vs webm (current scene, ~9.47s content) — flag for T7 spot-check |
+| T6 | Drift check command | general | T4,T5 | ☑ | check: timelines byte-compare (distinguishes events-drift vs stale source_sha256), maps re-derive in memory, un-snapshotted warning (exit 0), --legacy inline-map parser (10 pages, informational >1.0s threshold); injection proof: run_time 0.4→0.45 flagged w/ first differing event, revert → clean; pyc same-size-mutation trap documented (drift fixture mutates size-changing) |
+| T7 | Baseline snapshots of all 72 scenes | general | T4, **P1 done** | ☑ | 72/72 scenes snapshotted, 0 errors, manifest clean; recorder fix required first: tex_dir now pinned to gitignored Animations/media/Tex (15 MathTex scenes failed with media\Tex FileNotFoundError from repo-root cwd); determinism proven across two --all runs (73 files byte-identical, 0 diffs) + check re-record (clean 72); timelines/ = 0.42 MB; LinearSearch 5387a35c…, TreeBFS bd97b54c…, AVLTreeInsertion 30e5f8bd… identical in both runs |
+| T8 | Tool README + skill sync | general | T2–T6 | ☑ | tools/syncmap/README.md written (purpose, convention, CLI+schemas, 5-line time model, loader); skill NOT edited per prompt — 6 discrepancies reported to user (mechanism, ClassVar, --category, check semantics, data-from-sync, loader line range) |
+| G2 | **Gate: auditor checks determinism + drift detection** | dsa-auditor | T7,T8 | ☑ | PASSED 2026-09-29: full --all re-run vs baseline 73/73 files byte-identical (72 scenes, 0 errors); LinearSearch annotation proven timeline-neutral (25 play/wait events byte-identical committed-vs-live, 12 zero-time code_steps, 9.5s); fresh map validates (12 entries, lines independently checked vs 11-line DISPLAY_CODE); scratch artifacts confirmed gone; +0.5s drift flagged via temp-module monkeypatch (no repo edits), revert → clean; pytest 63, links 0, 25/25 route smoke; docs findings: README omits check's --timelines/--sync/--modules flags; 6 skill discrepancies reported for user update |
 
 ## Phase 3 — Refactor (`04-Refactor.md`) — oracle must stay byte-identical
 

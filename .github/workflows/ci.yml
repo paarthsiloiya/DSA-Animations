@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -19,6 +19,12 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
+
+      # manim's manimpango (and pycairo, when no wheel matches) build from
+      # source on this Python/platform: they need pango/cairo headers and
+      # pkg-config present (fixes the failed run 36116545854).
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpango1.0-dev libcairo2-dev pkg-config
 
       # Installs manim too (av, pycairo, moderngl, ...): heavy - a cold run
       # takes a few minutes; the pip cache keyed on the requirements files
