@@ -1,8 +1,9 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import os
 import pathlib
+
+from flask import Flask
 from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -16,8 +17,8 @@ def create_app():
 
     db.init_app(app)
 
-    from .views import views
     from .auth import auth
+    from .views import views
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
@@ -32,7 +33,7 @@ def create_app():
 
     @loginManager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        return db.session.get(User, int(id))
     
     return app
 

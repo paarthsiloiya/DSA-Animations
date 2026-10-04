@@ -1,40 +1,12 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
-from manim import CurvedArrow
 from typing import ClassVar
 
+from common import ListElement
 from env_config import *
+from manim import *
 from synced import SyncedScene
 
 # Override specific font sizes for SearchingAlgorithms
 POINTER_FONT_SIZE = 28      # For "Low", "High", "Mid", etc.
-
-class ListElement():
-    def __init__(self, value : str):
-        self.size = 0.8
-        self.value = int(value)
-        self.isFound = False
-        self.elementValue = Text(value, font_size=(100*self.size), color=TEXTCOL, font=FONT)
-        self.circle = Circle(radius=self.size, color=BASECOL, fill_opacity=1)
-        self.elementValue.move_to(self.circle.get_center())
-        self.elementGroup = VGroup(self.circle, self.elementValue)
-
-    def getListElement(self):
-        return self.elementGroup
-
-    def SelectElement(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def ClearSelection(self):
-        if not self.isFound:
-            return self.circle.animate.set_stroke(color=BASECOL)
-        else:
-            return self.circle.animate.set_stroke(color=SORTCOL)
-    
-    def MarkFound(self):
-        self.isFound = True
-        return self.circle.animate.set_fill(color=SORTCOL).set_stroke(width=0), self.elementValue.animate.set_color(color=WHITE)
-
 
 class LinearSearch(SyncedScene):
     DISPLAY_CODE: ClassVar[list[str]] = [

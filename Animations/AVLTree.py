@@ -1,8 +1,8 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
 import random
-import networkx as nx
+
+from common import Node as NodeVisual
 from env_config import *
+from manim import *
 
 random.seed(32)
 
@@ -11,33 +11,10 @@ EXPLANATORY_FONT_SIZE = 50  # For step-by-step explanations
 POINTER_FONT_SIZE = 28      # For pointer labels (if any)
 
 
-class NodeVisual(VGroup):
-    def __init__(self, value):
-        super().__init__()
-        self.text = Text(str(value), font=FONT, color=TEXTCOL, font_size=FSIZE)
-        self.circle = Circle(radius=0.5, color=NODE_COL, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
-        self.text.move_to(self.circle.get_center())
-        self.add(self.circle, self.text)
-
-    def Select(self):
-        return self.circle.animate.set_stroke(color=SORTCOL, width=10)
-    
-    def Clear(self):
-            return self.circle.animate.set_stroke(color=NODE_COL, width=0)
-        
-    def Highlight(self):
-        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
-    
-    def SelectHighlight(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def Reset(self):
-        return self.circle.animate.set_stroke(color=NODE_COL, width=0).set_fill(color=NODE_COL), self.text.animate.set_color(color=TEXTCOL)
-
 class AVLNode(VGroup):
-    def __init__(self, value):
+    def __init__(self, value: str | int):
         super().__init__()
-        self.value: int = value
+        self.value: str | int = value
         self.tree_height: int = 1
         self.left : AVLNode | None = None
         self.right : AVLNode | None = None
@@ -282,7 +259,7 @@ class AVLTreeInsertion(Scene):
         balance = self.get_balance(node)
 
         old_balance = node.balanceFactor.get_value()
-        new_balance = self.get_balance(node)
+        new_balance = balance
         if abs(old_balance - new_balance) > 0.001:
             self.play(Indicate(node.balanceFactorText, color=SELCOL), run_time=0.3)
             self.wait(0.1)
@@ -290,21 +267,17 @@ class AVLTreeInsertion(Scene):
             self.wait(0.2)
 
         if balance > 1 and value < node.left.value:
-            print("Left Left Case")
             return self.right_rotate(node)
-        
+
         if balance < -1 and value > node.right.value:
-            print("Right Right Case")
             return self.left_rotate(node)
-        
+
         if balance > 1 and value > node.left.value:
-            print("Left Right Case")
             node.left = self.left_rotate(node.left)
             self.wait(1)
             return self.right_rotate(node)
-        
+
         if balance < -1 and value < node.right.value:
-            print("Right Left Case")
             node.right = self.right_rotate(node.right)
             self.wait(1)
             return self.left_rotate(node)
@@ -378,7 +351,6 @@ class AVLTreeInsertion(Scene):
         values = [3, 4, 5, 6, 7, 2, 1, 9, 8, 10, 11]
 
         for value in values:
-            print(f"Inserting {value} into AVL Tree")
             root = self.insert_into_AVLTree(root, value)
 
         self.wait(2)
@@ -1507,8 +1479,6 @@ class AVLTreeDeletion(Scene):
             if self.get_balance(root.left) >= 0:
                 # Left-Left case
                 new_root = self.right_rotate(root)
-                # Ensure proper reconnection
-                self.reconnect_after_rotation(new_root)
                 return new_root
             else:
                 # Left-Right case
@@ -1517,8 +1487,6 @@ class AVLTreeDeletion(Scene):
                 if root.left is not None:
                     root.set_left()
                 new_root = self.right_rotate(root)
-                # Ensure proper reconnection
-                self.reconnect_after_rotation(new_root)
                 return new_root
         
         if balance < -1:
@@ -1526,8 +1494,6 @@ class AVLTreeDeletion(Scene):
             if self.get_balance(root.right) <= 0:
                 # Right-Right case
                 new_root = self.left_rotate(root)
-                # Ensure proper reconnection
-                self.reconnect_after_rotation(new_root)
                 return new_root
             else:
                 # Right-Left case
@@ -1536,80 +1502,10 @@ class AVLTreeDeletion(Scene):
                 if root.right is not None:
                     root.set_right()
                 new_root = self.left_rotate(root)
-                # Ensure proper reconnection
-                self.reconnect_after_rotation(new_root)
                 return new_root
         
         return root
 
-    def reconnect_after_rotation(self, node):
-        """Ensure a node is properly connected after rotation"""
-        if node is not None:
-            node.node.clear_updaters()
-            # The parent will call set_left() or set_right() when this method returns
-
-    def insert_into_AVLTree(self, root, value):
-        # Simplified insert for building initial tree
-        new_node = AVLNode(value)
-        new_node.move_to(ORIGIN)
-        
-        if root is None:
-            self.nodeGroup.add(new_node)
-            self.AVLnodeGroup.append(new_node)
-            self.play(Create(new_node), run_time=0.1)
-            return new_node
-        
-        root = self.insert(root, value)
-        self.wait(0.05)
-        self.play(self.nodeGroup.animate.center().shift(UP * 0.3), run_time=0.1)
-        self.wait(0.05)
-        
-        return root
-
-    def insert(self, node: AVLNode, value, is_left=False, parent_node: AVLNode = None):
-        if node is None:
-            new_node = AVLNode(value)
-            if parent_node is not None:
-                if is_left:
-                    new_node.move_to(parent_node.leftPos.get_center())
-                    parent_node.left = new_node
-                    parent_node.set_left()
-                else:
-                    new_node.move_to(parent_node.rightPos.get_center())
-                    parent_node.right = new_node
-                    parent_node.set_right()
-            
-            self.nodeGroup.add(new_node)
-            self.AVLnodeGroup.append(new_node)
-            self.play(Create(new_node), run_time=0.1)
-            return new_node
-
-        if value < node.value:
-            node.left = self.insert(node.left, value, is_left=True, parent_node=node)
-        elif value > node.value:
-            node.right = self.insert(node.right, value, is_left=False, parent_node=node)
-        else:
-            return node
-        
-        balance = self.get_balance(node)
-
-        # Rebalancing
-        if balance > 1 and value < node.left.value:
-            return self.right_rotate(node)
-        
-        if balance < -1 and value > node.right.value:
-            return self.left_rotate(node)
-        
-        if balance > 1 and value > node.left.value:
-            node.left = self.left_rotate(node.left)
-            return self.right_rotate(node)
-        
-        if balance < -1 and value < node.right.value:
-            node.right = self.right_rotate(node.right)
-            return self.left_rotate(node)
-        
-        return node
-    
     def recalculate_balance_factors(self, nodes_to_update=None):
         if nodes_to_update is None:
             nodes_to_update = self.AVLnodeGroup

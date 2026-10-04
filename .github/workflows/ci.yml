@@ -39,7 +39,5 @@ jobs:
       - name: Run tests
         run: pytest
 
-      # Existing lint findings are the Phase 3 (R8) backlog - do not fail
-      # CI on them yet. Remove --exit-zero after PROMPT 026.
       - name: Lint
-        run: ruff check Animations Website tools mp4_to_gif_converter.py --exit-zero
+        run: ruff check Animations Website tools mp4_to_gif_converter.py

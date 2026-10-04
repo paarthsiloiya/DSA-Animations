@@ -1,7 +1,8 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
 import random
+
+from common import make_arrowhead_updater, make_dynamic_bezier_updater
 from env_config import *
+from manim import *
 
 random.seed(32)
 
@@ -142,26 +143,8 @@ class NodeExplanation(Scene):
     
 class CreateLinkedList(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-        
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
-        current : Node = None
         prev : Node = None
         nodeGroup = VGroup()
 
@@ -183,7 +166,6 @@ class CreateLinkedList(Scene):
             
             self.play(nodeGroup.animate.arrange(RIGHT, 1), run_time=1)
 
-            current = nodes[i]
             prev = nodes[i - 1]
 
             start = prev.nextAddressGroup.get_right()
@@ -223,28 +205,8 @@ class CreateLinkedList(Scene):
 
 class TraverseLinkedList(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-        
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
-        head : Node = None
-        current : Node = None
 
         nodeGroup = VGroup()
         arrows = VGroup()
@@ -305,28 +267,8 @@ class TraverseLinkedList(Scene):
 
 class LinkedListLength(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-        
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
-        head : Node = None
-        current : Node = None
 
         nodeGroup = VGroup()
         arrows = VGroup()
@@ -365,7 +307,7 @@ class LinkedListLength(Scene):
         self.play(Create(surroundingRectangleNode))
         self.wait(0.5)
 
-        LengthText = Text(f"Length: 1", color=TEXTCOL, font=FONT, font_size=FSIZE).to_edge(UP, buff=1.0)
+        LengthText = Text("Length: 1", color=TEXTCOL, font=FONT, font_size=FSIZE).to_edge(UP, buff=1.0)
         self.play(Write(LengthText))
         i = 1
 
@@ -393,25 +335,6 @@ class LinkedListLength(Scene):
 
 class InsertNode(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-        
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-
-
         values = [5, 2, 6, 3, 1]
         nodes : list[Node] = []
         nodeGroup = VGroup()
@@ -467,7 +390,7 @@ class InsertNode(Scene):
         self.wait(0.2)
         itterationRectangle = DashedVMobject(SurroundingRectangle(nodes[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
         self.play(Create(itterationRectangle))
-        for i in range(0, pos + 1):
+        for i in range(pos + 1):
             self.play(itterationRectangle.animate.move_to(nodes[i]), run_time=0.2)
             self.wait(0.2)
 
@@ -520,27 +443,8 @@ class InsertNode(Scene):
 
 class Deletion(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
-        head : Node = None
-        current : Node = None
         nodeGroup = VGroup()
 
         for value in values:
@@ -636,27 +540,8 @@ class Deletion(Scene):
 
 class ListRotation(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-
         values = [5, 2, 6, 3, 1]
         nodes : list[Node] = []
-        head : Node = None
-        current : Node = None
         nodeGroup = VGroup()
 
         for value in values:
@@ -710,8 +595,8 @@ class ListRotation(Scene):
             self.play(Create(headRectangle), Write(headLabel))
 
             temphead = nodes[0]
-            headRectangle.add_updater(lambda m: m.move_to(temphead))
-            headLabel.add_updater(lambda m: m.next_to(headRectangle, DOWN, buff=0.2))
+            headRectangle.add_updater(lambda m: m.move_to(temphead))  # noqa: B023 - late-binding: tracks the loop's latest head
+            headLabel.add_updater(lambda m: m.next_to(headRectangle, DOWN, buff=0.2))  # noqa: B023 - late-binding: follows this iteration's rectangle
             self.wait(0.2)
 
             newHeadRectangle = DashedVMobject(SurroundingRectangle(nodes[1], color=SORTCOL, buff=0.2, corner_radius=0.2), 30)
@@ -719,8 +604,8 @@ class ListRotation(Scene):
             self.play(Create(newHeadRectangle), Write(newHeadLabel))
 
             tempNewHead = nodes[1]
-            newHeadRectangle.add_updater(lambda m: m.move_to(tempNewHead))
-            newHeadLabel.add_updater(lambda m: m.next_to(newHeadRectangle, DOWN, buff=0.2))
+            newHeadRectangle.add_updater(lambda m: m.move_to(tempNewHead))  # noqa: B023 - late-binding: tracks the loop's latest new head
+            newHeadLabel.add_updater(lambda m: m.next_to(newHeadRectangle, DOWN, buff=0.2))  # noqa: B023 - late-binding: follows this iteration's rectangle
             self.wait(0.2)
 
             current = nodes[0]
@@ -730,7 +615,7 @@ class ListRotation(Scene):
                 current = current.next
                 self.wait(0.5)
 
-            itterRectangle.add_updater(lambda m: m.move_to(current))
+            itterRectangle.add_updater(lambda m: m.move_to(current))  # noqa: B023 - late-binding: tracks the loop's traversal cursor
 
             delNode = nodes.pop(0)
             delArrow = arrows.submobjects.pop(0)
@@ -742,8 +627,8 @@ class ListRotation(Scene):
 
             self.wait(0.3)
 
-            for i in range(num_objects - 1):
-                self.play(nodes[i].animate.move_to(arc.point_from_proportion(i / (num_objects - 1))), run_time=0.3)
+            for j in range(num_objects - 1):
+                self.play(nodes[j].animate.move_to(arc.point_from_proportion(j / (num_objects - 1))), run_time=0.3)
 
             self.wait(0.3)
             
@@ -954,32 +839,6 @@ class DoubleNodeExplanation(Scene):
 
 class CreateDoublyLinkedList(Scene):
     def construct(self):
-        def make_dynamic_bezier_updater_front(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_right() + offset_start
-                end = end_mobj.get_left() + offset_end
-                control1 = start + RIGHT
-                control2 = end + LEFT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-        
-        def make_dynamic_bezier_updater_back(start_mobj, end_mobj, offset_start=RIGHT*0.2, offset_end=LEFT*0.1):
-            def updater(curve):
-                start = start_mobj.get_left() + offset_start
-                end = end_mobj.get_right() + offset_end
-                control1 = start + LEFT
-                control2 = end + RIGHT
-                curve.become(CubicBezier(start, control1, control2, end, color=curve.color))
-            return updater
-
-        def make_arrowhead_updater(bezier_curve, offset=0.01):
-            def updater(arrowhead):
-                end_point = bezier_curve.point_from_proportion(1)
-                direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(1 - offset)
-                arrowhead.move_to(end_point)
-                arrowhead.set_angle(angle_of_vector(direction))
-            return updater
-        
         values = [5, 2, 4, 6, 3, 1]
 
         head = DoubleNode(values[0])
@@ -1008,7 +867,7 @@ class CreateDoublyLinkedList(Scene):
                 start = current.nextAddressGroup.get_right()
                 end = current.next.selfAddressGroup.get_left() + (LEFT * 0.1)
                 arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
-                arrowCurve.add_updater(make_dynamic_bezier_updater_front(current.nextAddressGroup, current.next.selfAddressGroup, 0, LEFT * 0.1))
+                arrowCurve.add_updater(make_dynamic_bezier_updater(current.nextAddressGroup, current.next.selfAddressGroup, 0, LEFT * 0.1))
                 arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
                 arrowhead.move_to(end)
                 arrowhead.rotate(angle_of_vector(RIGHT))
@@ -1023,7 +882,7 @@ class CreateDoublyLinkedList(Scene):
                 start = node.prevAddressGroup.get_left()
                 end = node.prev.selfAddressGroup.get_right() + (RIGHT * 0.1)
                 arrowCurve = CubicBezier(start, start + LEFT, end + RIGHT, end, color=SORTCOL)
-                arrowCurve.add_updater(make_dynamic_bezier_updater_back(node.prevAddressGroup, node.prev.selfAddressGroup, 0, RIGHT * 0.1))
+                arrowCurve.add_updater(make_dynamic_bezier_updater(node.prevAddressGroup, node.prev.selfAddressGroup, 0, RIGHT * 0.1, back=True))
                 arrowhead = StealthTip(fill_opacity=1, stroke_opacity=1, color=SORTCOL).scale(0.8)
                 arrowhead.move_to(end)
                 arrowhead.rotate(angle_of_vector(LEFT))

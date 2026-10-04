@@ -33,6 +33,47 @@ ROUTES_200 = [
     "/signup",
 ]
 
+ROUTE_ALIASES = [
+    "/data-structures",
+    "/2d-arrays",
+    "/searching-algorithms",
+    "/linear-search",
+    "/binary-search",
+    "/sorting-algorithms",
+    "/bubble-sort",
+    "/insertion-sort",
+    "/selection-sort",
+    "/quick-sort",
+    "/merge-sort",
+    "/heap-sort",
+    "/stack-and-queue",
+    "/linked-list",
+    "/singly-linked-list",
+    "/doubly-linked-list",
+]
+
+ROUTE_PAIRS = list(zip(
+    [
+        "/data structures",
+        "/2D arrays",
+        "/searching algorithms",
+        "/linear search",
+        "/binary search",
+        "/sorting algorithms",
+        "/bubble sort",
+        "/insertion sort",
+        "/selection sort",
+        "/quick sort",
+        "/merge sort",
+        "/heap sort",
+        "/stack and queue",
+        "/linked list",
+        "/singly linked list",
+        "/doubly linked list",
+    ],
+    ROUTE_ALIASES,
+))
+
 
 @pytest.fixture(scope="module")
 def client():
@@ -48,6 +89,20 @@ def client():
 def test_route_renders(client, route):
     response = client.get(quote(route))
     assert response.status_code == 200, f"{route!r} returned {response.status_code}"
+
+
+@pytest.mark.parametrize("route", ROUTE_ALIASES)
+def test_alias_route_renders(client, route):
+    response = client.get(route)
+    assert response.status_code == 200, f"{route!r} returned {response.status_code}"
+
+
+@pytest.mark.parametrize("old_route, new_route", ROUTE_PAIRS)
+def test_alias_renders_same_page(client, old_route, new_route):
+    old_response = client.get(quote(old_route))
+    new_response = client.get(new_route)
+    assert old_response.status_code == new_response.status_code == 200
+    assert old_response.data == new_response.data
 
 
 def test_logout_redirects_anonymous(client):

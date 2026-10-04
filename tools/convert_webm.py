@@ -26,7 +26,7 @@ MEDIA_ROOT = ROOT / "Animations" / "media" / "videos"
 DEST_ROOT = ROOT / "Website" / "website" / "static" / "Videos"
 QUALITY_DIR = "480p15"
 
-CATEGORY_ALIASES: dict[str, str] = {"Stack-Queue": "StackAndQueue"}
+CATEGORY_ALIASES: dict[str, str] = {"Stack-Queue": "StackAndQueue", "SortingAlgoritms": "SortingAlgorithms"}
 
 FFMPEG_VIDEO_ARGS = ["-c:v", "libvpx-vp9", "-crf", "33", "-b:v", "0", "-an"]
 

@@ -1,35 +1,10 @@
-from manim import *
+import networkx as nx
+from common import ListElement, Node
 from env_config import *
+from manim import *
 
-# Override specific font sizes for SortingAlgoritms
+# Override specific font sizes for SortingAlgorithms
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
-
-class ListElement():
-    def __init__(self, value : str):
-        self.size = 0.8
-        self.value = int(value)
-        self.isSorted = False
-        self.elementValue = Text(value, font_size=(100*self.size), color=TEXTCOL, font=FONT)
-        self.circle = Circle(radius=self.size, color=BASECOL, fill_opacity=1)
-        self.elementValue.move_to(self.circle.get_center())
-        self.elementGroup = VGroup(self.circle, self.elementValue)
-
-    def getListElement(self):
-        return self.elementGroup
-
-    def SelectElement(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def ClearSelection(self):
-        if not self.isSorted:
-            return self.circle.animate.set_stroke(color=BASECOL)
-        else:
-            return self.circle.animate.set_stroke(color=SORTCOL)
-    
-    def MarkSorted(self):
-        self.isSorted = True
-        return self.circle.animate.set_fill(color=SORTCOL).set_stroke(width=0), self.elementValue.animate.set_color(color=WHITE)
-
 
 class BubbleSort(Scene):
     def construct(self):
@@ -112,7 +87,7 @@ class InsertionSort(Scene):
             current_value = current.value
             current_pos = current.getListElement().get_center()
             
-            self.play(current.elementGroup.animate.shift(UP * 2), run_time=0.4)
+            self.play(current.getListElement().animate.shift(UP * 2), run_time=0.4)
 
             j = i - 1
             insert_index = i
@@ -155,7 +130,7 @@ class InsertionSort(Scene):
                 target_pos = current_pos
                 self.wait(0.5)
 
-            self.play(current.elementGroup.animate.move_to(target_pos), run_time=0.4)
+            self.play(current.getListElement().animate.move_to(target_pos), run_time=0.4)
             list_elements[insert_index] = current
 
             self.play(*(current.MarkSorted()), run_time=0.15)
@@ -307,7 +282,6 @@ class MergeSort(Scene):
 
         merged : list[tuple[ListElement, int]] = []
         i = j = 0
-        k = left
 
         while i < len(left_vals) and j < len(right_vals):
             eli, elj = left_group[i], right_group[j]
@@ -533,35 +507,6 @@ class QuickSort(Scene):
         arr[i], arr[j] = arr[j], arr[i]
 
 
-import networkx as nx
-
-EDGE_COL = SELCOL
-NODE_COL = BASECOL
-
-class Node(VGroup):
-    def __init__(self, value):
-        super().__init__()
-        self.text = Text(str(value), font=FONT, color=TEXTCOL, font_size=FSIZE)
-        self.circle = Circle(radius=0.5, color=NODE_COL, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
-        self.text.move_to(self.circle.get_center())
-        self.add(self.circle, self.text)
-
-    def Select(self):
-        return self.circle.animate.set_stroke(color=SORTCOL, width=10)
-    
-    def Clear(self):
-            return self.circle.animate.set_stroke(color=NODE_COL, width=0)
-        
-    def Highlight(self):
-        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
-    
-    def SelectHighlight(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def Reset(self):
-        return self.circle.animate.set_stroke(color=NODE_COL, width=0).set_fill(color=NODE_COL), self.text.animate.set_color(color=TEXTCOL)
-
-
 class HeapSort(Scene):
     def construct(self):
         def max_heapify(A : list[int], size : int, k : int, buff=1.4):
@@ -673,7 +618,7 @@ class HeapSort(Scene):
                 )
                 self.wait(0.3)
 
-                explanatory_text = Text(f"Building Max Heap on the Remaining Elements", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=1.4)
+                explanatory_text = Text("Building Max Heap on the Remaining Elements", font=FONT, color=EXPLANATORY_FONT_COLOR, font_size=30).to_edge(UP, buff=1.4)
                 self.play(Write(explanatory_text), run_time=0.3)
                 self.wait(0.2)
 

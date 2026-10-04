@@ -5,12 +5,14 @@ This script converts all MP4 files in 480p15fps folders to GIF format.
 It specifically targets the lower resolution files and ignores high-resolution ones.
 """
 
-import os
-import glob
-from pathlib import Path
-from moviepy import VideoFileClip
 import argparse
+import glob
+import os
+from pathlib import Path
+
+from moviepy import VideoFileClip
 from tqdm import tqdm
+
 
 def find_480p_mp4_files(root_dir):
     """
@@ -53,7 +55,7 @@ def convert_mp4_to_gif(mp4_path, output_dir=None, fps=10, resize_factor=1.0):
             # Find the index of the category folder (Arrays, Trees, etc.)
             category_idx = -1
             for i, part in enumerate(path_parts):
-                if part in ['Arrays', 'Trees', 'Graphs', 'LinkedList', 'SortingAlgoritms', 
+                if part in ['Arrays', 'Trees', 'Graphs', 'LinkedList', 'SortingAlgorithms',
                            'SearchingAlgorithms', 'Stack-Queue', 'AVLTree', 'BTrees', 
                            'DivideAndConquer', 'Greedy']:
                     category_idx = i
@@ -95,8 +97,8 @@ def convert_mp4_to_gif(mp4_path, output_dir=None, fps=10, resize_factor=1.0):
         print(f"Converted: {mp4_path} -> {gif_path}")
         return gif_path
         
-    except Exception as e:
-        print(f"Error converting {mp4_path}: {str(e)}")
+    except Exception as e:  # noqa: BLE001 - one bad mp4 must not kill the whole batch
+        print(f"Error converting {mp4_path}: {e!s}")
         return None
 
 def main():
@@ -152,7 +154,7 @@ def main():
         if result:
             successful_conversions += 1
     
-    print(f"\nConversion complete!")
+    print("\nConversion complete!")
     print(f"Successfully converted: {successful_conversions}/{len(mp4_files)} files")
 
 if __name__ == "__main__":

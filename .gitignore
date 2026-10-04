@@ -241,3 +241,18 @@ Desktop.ini
 # IDE folders (enabled for this repo instead of the commented template entries)
 .idea/
 .vscode/
+
+# ---------------------------------------------------------------------------
+# Media hygiene (2026-10): regenerable exports are not tracked
+# ---------------------------------------------------------------------------
+
+# GIF exports: regenerable via mp4_to_gif_converter.py from the 480p15 mp4s;
+# the site serves .webm from Website/website/static/Videos. Purged from history.
+gifs/
+
+# Non-web render qualities: only 480p15 (the web standard) is tracked
+Animations/media/videos/*/1080p60/
+
+# Stray manim output from renders launched at the repo root (the canonical
+# media tree lives under Animations/media/)
+/media/

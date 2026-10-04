@@ -1,8 +1,9 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
 import random
+
 import networkx as nx
+from common import Node, animate_traversal, play_surrounding_node_animation, remove_edge_visual
 from env_config import *
+from manim import *
 
 random.seed(32)
 
@@ -11,42 +12,8 @@ EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 POINTER_FONT_SIZE = 20      # For pointer labels (if any)
 
 
-class Node(VGroup):
-    def __init__(self, value):
-        super().__init__()
-        self.text = Text(str(value), font=FONT, color=TEXTCOL, font_size=FSIZE)
-        self.circle = Circle(radius=0.5, color=NODE_COL, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
-        self.text.move_to(self.circle.get_center())
-        self.add(self.circle, self.text)
-
-    def Select(self):
-        return self.circle.animate.set_stroke(color=SORTCOL, width=10)
-    
-    def Clear(self):
-            return self.circle.animate.set_stroke(color=NODE_COL, width=0)
-        
-    def Highlight(self):
-        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
-    
-    def SelectHighlight(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def Reset(self):
-        return self.circle.animate.set_stroke(color=NODE_COL, width=0).set_fill(color=NODE_COL), self.text.animate.set_color(color=TEXTCOL)
-
-
 class TreeExplanation(Scene):
     def construct(self):
-        def playSurroundingNodeAnimation(node, text, dir):
-            self.play(tree.vertices[node].Select(), run_time=0.5)
-            nodeSurr = DashedVMobject(SurroundingRectangle(tree.vertices[node], color=TEXTCOL, buff=0.15, corner_radius=0.6))
-            nodeText = Text(text, font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, dir, buff=0.1)
-            self.play(Create(nodeSurr), run_time=0.5)
-            self.wait(0.2)
-            self.play(Write(nodeText), run_time=0.5)
-            self.wait(1.5)
-            self.play(tree.vertices[node].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
-
         G = nx.Graph()
 
         for i in range(11):
@@ -74,12 +41,12 @@ class TreeExplanation(Scene):
 
         self.wait(2)
 
-        playSurroundingNodeAnimation("B", "Node", UP)
+        play_surrounding_node_animation(self, tree, "B", "Node", UP)
         self.wait(0.5)
-        playSurroundingNodeAnimation("A", "Root Node", UP)
+        play_surrounding_node_animation(self, tree, "A", "Root Node", UP)
         self.wait(0.5)
-        playSurroundingNodeAnimation("D", "Parent\nNode", RIGHT)
-        playSurroundingNodeAnimation("I", "Child\nNode", RIGHT)
+        play_surrounding_node_animation(self, tree, "D", "Parent\nNode", RIGHT)
+        play_surrounding_node_animation(self, tree, "I", "Child\nNode", RIGHT)
         self.wait(0.5)
         
         self.play(
@@ -266,7 +233,6 @@ class TreeBFS(Scene):
             adjacencyList[u].append(v)
             adjacencyList[v].append(u)
 
-        visited = {v: False for v in G.nodes}
         s = "A"
 
         # Show starting node selection
@@ -274,71 +240,9 @@ class TreeBFS(Scene):
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
-        visited[s] = True
-        queue = [s]
-
-        # Show queue initialization (constant at top)
-        queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
-        self.play(Unwrite(start_text), Write(queue_text), run_time=1)
-        self.wait(1)
-
-        while queue:
-            current = queue.pop(0)
-            # Update queue display (constant at top)
-            new_queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(queue_text)
-            self.play(ReplacementTransform(queue_text, new_queue_text), run_time=0.5)
-            queue_text = new_queue_text
-            
-            # Update explanation for current processing
-            processing_text = Text(f"Processing node {current}", 
-                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.8)
-            self.play(Write(processing_text), run_time=0.8)
-
-            self.play(tree.vertices[current].Highlight(), run_time=0.5)
-            self.wait(0.3)
-
-            neighbors_found = []
-            # Sort neighbors for consistent traversal order
-            for neighbor in sorted(adjacencyList[current]):
-                if not visited[neighbor]:
-                    visited[neighbor] = True
-                    queue.append(neighbor)
-                    neighbors_found.append(neighbor)
-
-                    # Show neighbor discovery temporarily
-                    discovery_text = Text(f"Found unvisited neighbor {neighbor}", 
-                                        font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
-                    self.play(Write(discovery_text), run_time=0.3)
-
-                    self.play(
-                        tree.vertices[neighbor].Select(),
-                        tree.edges[(current, neighbor)].animate.set_stroke(color=TEXTCOL),
-                        run_time=0.5
-                    )
-
-                    self.wait(0.5)
-                    
-                    # Update queue display (constant at top)
-                    new_queue_text = Text(f"Queue: [{', '.join(map(str, queue))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(queue_text)
-                    self.play(ReplacementTransform(queue_text, new_queue_text), run_time=0.5)
-                    queue_text = new_queue_text
-
-                    # Fade out the discovery text
-                    self.play(Unwrite(discovery_text), run_time=0.3)
-                    self.wait(0.2)
-
-            if not neighbors_found:
-                no_neighbors_text = Text(f"No unvisited neighbors for {current}", 
-                                       font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
-                self.play(Write(no_neighbors_text), run_time=0.5)
-                self.wait(0.8)
-                self.play(Unwrite(no_neighbors_text), run_time=0.3)
-
-            self.play(Unwrite(processing_text), run_time=0.2)
-            self.wait(0.5)
-
-        self.play(Unwrite(queue_text), run_time=1.5)
-        self.wait(2)
+        animate_traversal(self, tree, adjacencyList, s, start_text,
+                          explanatory_font_size=EXPLANATORY_FONT_SIZE,
+                          neighbors_of=lambda v: sorted(adjacencyList[v]))
 
 
 class TreeDFS(Scene):
@@ -376,7 +280,6 @@ class TreeDFS(Scene):
             adjacencyList[u].append(v)
             adjacencyList[v].append(u)
 
-        visited = {v: False for v in G.nodes}
         s = "A"
 
         # Show starting node selection
@@ -384,71 +287,10 @@ class TreeDFS(Scene):
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
-        visited[s] = True
-        stack = [s]
-
-        # Show stack initialization (constant at top)
-        stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.5)
-        self.play(Unwrite(start_text), Write(stack_text), run_time=1)
-        self.wait(1)
-
-        while stack:
-            current = stack.pop()  # DFS uses pop() from end (LIFO)
-            # Update stack display (constant at top)
-            new_stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(stack_text)
-            self.play(ReplacementTransform(stack_text, new_stack_text), run_time=0.5)
-            stack_text = new_stack_text
-            
-            # Update explanation for current processing
-            processing_text = Text(f"Processing node {current}", 
-                                 font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.8)
-            self.play(Write(processing_text), run_time=0.8)
-
-            self.play(tree.vertices[current].Highlight(), run_time=0.5)
-            self.wait(0.3)
-
-            neighbors_found = []
-            # For DFS, we process neighbors in reverse order to maintain left-to-right visual order
-            for neighbor in reversed(sorted(adjacencyList[current])):
-                if not visited[neighbor]:
-                    visited[neighbor] = True
-                    stack.append(neighbor)
-                    neighbors_found.append(neighbor)
-
-                    # Show neighbor discovery temporarily
-                    discovery_text = Text(f"Found unvisited neighbor {neighbor}", 
-                                        font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
-                    self.play(Write(discovery_text), run_time=0.3)
-
-                    self.play(
-                        tree.vertices[neighbor].Select(),
-                        tree.edges[(current, neighbor)].animate.set_stroke(color=TEXTCOL),
-                        run_time=0.5
-                    )
-
-                    self.wait(0.5)
-                    
-                    # Update stack display (constant at top)
-                    new_stack_text = Text(f"Stack: [{', '.join(map(str, stack))}]", font=FONT, color=TEXTCOL, font_size=FSIZE).move_to(stack_text)
-                    self.play(ReplacementTransform(stack_text, new_stack_text), run_time=0.5)
-                    stack_text = new_stack_text
-
-                    # Fade out the discovery text
-                    self.play(Unwrite(discovery_text), run_time=0.3)
-                    self.wait(0.2)
-
-            if not neighbors_found:
-                no_neighbors_text = Text(f"No unvisited neighbors for {current}", 
-                                       font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-4).next_to(processing_text, DOWN, buff=0.5)
-                self.play(Write(no_neighbors_text), run_time=0.5)
-                self.wait(0.8)
-                self.play(Unwrite(no_neighbors_text), run_time=0.3)
-
-            self.play(Unwrite(processing_text), run_time=0.2)
-            self.wait(0.5)
-
-        self.play(Unwrite(stack_text), run_time=1.5)
-        self.wait(2)
+        animate_traversal(self, tree, adjacencyList, s, start_text,
+                          use_stack=True,
+                          explanatory_font_size=EXPLANATORY_FONT_SIZE,
+                          neighbors_of=lambda v: sorted(adjacencyList[v], reverse=True))
 
 
 class InOrderTraversal(Scene):
@@ -487,7 +329,7 @@ class InOrderTraversal(Scene):
             adjacencyList[v].append(u)
 
         # Show starting explanation
-        start_text = Text(f"In-Order Traversal: Left → Root → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        start_text = Text("In-Order Traversal: Left → Root → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
@@ -617,7 +459,7 @@ class PreOrderTraversal(Scene):
             adjacencyList[v].append(u)
 
         # Show starting explanation
-        start_text = Text(f"Pre-Order Traversal: Root → Left → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        start_text = Text("Pre-Order Traversal: Root → Left → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
@@ -747,7 +589,7 @@ class PostOrderTraversal(Scene):
             adjacencyList[v].append(u)
 
         # Show starting explanation
-        start_text = Text(f"Post-Order Traversal: Left → Right → Root", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        start_text = Text("Post-Order Traversal: Left → Right → Root", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
@@ -843,17 +685,6 @@ class PostOrderTraversal(Scene):
 
 class BinaryTreeExplanation(Scene):
     def construct(self):
-        def playSurroundingNodeAnimation(node, text, dir):
-            self.play(tree.vertices[node].Select(), run_time=0.5)
-            nodeSurr = DashedVMobject(SurroundingRectangle(tree.vertices[node], color=TEXTCOL, buff=0.15, corner_radius=0.6))
-            nodeText = Text(text, font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, dir, buff=0.1)
-            self.play(Create(nodeSurr), run_time=0.5)
-            self.wait(0.2)
-            self.play(Write(nodeText), run_time=0.5)
-            self.wait(1.5)
-            self.play(tree.vertices[node].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
-
-
         def build_binary_tree(labels):
             G = nx.Graph()
             n = len(labels)
@@ -922,9 +753,9 @@ class BinaryTreeExplanation(Scene):
 
         self.wait(2)
 
-        playSurroundingNodeAnimation("B", "Node", UR)
+        play_surrounding_node_animation(self, tree, "B", "Node", UR)
         self.wait(0.5)
-        playSurroundingNodeAnimation("A", "Root Node", UP)
+        play_surrounding_node_animation(self, tree, "A", "Root Node", UP)
         self.wait(0.7)
 
         for root in ["B", "D", "E", "C", "G", "F"]:  # or automate this via non-leaf detection
@@ -936,16 +767,6 @@ class BinaryTreeExplanation(Scene):
 
 class TernaryTreeExplanation(Scene):
     def construct(self):
-        def playSurroundingNodeAnimation(node, text, dir):
-            self.play(tree.vertices[node].Select(), run_time=0.5)
-            nodeSurr = DashedVMobject(SurroundingRectangle(tree.vertices[node], color=TEXTCOL, buff=0.15, corner_radius=0.6))
-            nodeText = Text(text, font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, dir, buff=0.1)
-            self.play(Create(nodeSurr), run_time=0.5)
-            self.wait(0.2)
-            self.play(Write(nodeText), run_time=0.5)
-            self.wait(1.5)
-            self.play(tree.vertices[node].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
-
         def build_ternary_tree(labels):
             G = nx.Graph()
             n = len(labels)
@@ -1008,9 +829,9 @@ class TernaryTreeExplanation(Scene):
         self.play(Create(tree), run_time=6)
         self.wait(2)
 
-        playSurroundingNodeAnimation("B", "Node", UR)
+        play_surrounding_node_animation(self, tree, "B", "Node", UR)
         self.wait(0.5)
-        playSurroundingNodeAnimation("A", "Root Node", UP)
+        play_surrounding_node_animation(self, tree, "A", "Root Node", UP)
         self.wait(0.7)
 
         for root in ["B", "E", "F", "G", "C", "D"]:
@@ -1022,16 +843,6 @@ class TernaryTreeExplanation(Scene):
 
 class TreeListCorrelation(Scene):
     def construct(self):
-        def playSurroundingNodeAnimation(node, text, dir):
-            self.play(tree.vertices[node].Select(), run_time=0.5)
-            nodeSurr = DashedVMobject(SurroundingRectangle(tree.vertices[node], color=TEXTCOL, buff=0.15, corner_radius=0.6))
-            nodeText = Text(text, font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, dir, buff=0.1)
-            self.play(Create(nodeSurr), run_time=0.5)
-            self.wait(0.2)
-            self.play(Write(nodeText), run_time=0.5)
-            self.wait(1.5)
-            self.play(tree.vertices[node].Clear() ,Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
-
         G = nx.Graph()
 
         for i in range(9):
@@ -1048,7 +859,7 @@ class TreeListCorrelation(Scene):
         tree = Graph(
                     vertices=list(G.nodes), 
                     edges=list(G.edges)[::-1], 
-                    vertex_mobjects={v : Node((v)) for v in list(G.nodes)},
+                    vertex_mobjects={v : Node(v) for v in list(G.nodes)},
                     edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
                     layout="tree", 
                     layout_scale=2.7,
@@ -1172,7 +983,6 @@ class MaxHeap(Scene):
             new_node.set_z_index(2)
             tree_node.append(new_node)
             max_heap.append(value)
-            G.add_node(value)
             
             i = len(tree_node) - 1
             parent_index = (i - 1) // 2
@@ -1194,7 +1004,6 @@ class MaxHeap(Scene):
 
             self.play(Create(new_node), run_time=0.5)
             if parent_index >= 0:
-                G.add_edge(max_heap[parent_index], value)
                 self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
 
             if parent_index >= 0:
@@ -1261,8 +1070,6 @@ class MaxHeap(Scene):
         max_heap = []
         tree_node = []
 
-        G = nx.Graph()
-
         for i in list_of_vertices:
             insert(i)
 
@@ -1276,7 +1083,6 @@ class MinHeap(Scene):
             new_node.set_z_index(2)
             tree_node.append(new_node)
             min_heap.append(value)
-            G.add_node(value)
             
             i = len(tree_node) - 1
             parent_index = (i - 1) // 2
@@ -1298,7 +1104,6 @@ class MinHeap(Scene):
 
             self.play(Create(new_node), run_time=0.5)
             if parent_index >= 0:
-                G.add_edge(min_heap[parent_index], value)
                 self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
 
             if parent_index >= 0:
@@ -1365,8 +1170,6 @@ class MinHeap(Scene):
         min_heap = []
         tree_node = []
 
-        G = nx.Graph()
-
         for i in list_of_vertices:
             insert(i)
 
@@ -1393,9 +1196,7 @@ class BinarySearchTreeInsertion(Scene):
             else:
                 current_value, current_node = bst_root[0]
                 parent_value = None
-                path = []  # Keep track of the traversal path
 
-                current_value, current_node = bst_root[0]
                 index = 0  # Start from root index
 
                 nodeSurr = DashedVMobject(SurroundingRectangle(current_node, color=TEXTCOL, buff=0, corner_radius=0.52))
@@ -1477,9 +1278,9 @@ class BinarySearchTreeInsertion(Scene):
 
         list_of_vertices = [26, 7, 2, 25, 19, 47, 1, 90, 36, 3]
         bst_root = []
-        bst_tree = dict()
-        bst_indices = dict()
-        tree_node_map = dict()
+        bst_tree = {}
+        bst_indices = {}
+        tree_node_map = {}
         G = nx.Graph()
 
         for val in list_of_vertices:
@@ -1504,16 +1305,13 @@ class BinarySearchTreeDeletion(Scene):
                 G.add_node(value)
                 self.play(Create(new_node), run_time=0.5)
             else:
-                current_value, current_node = bst_root[0]
+                current_value, _ = bst_root[0]
                 parent_value = None
 
-                current_value, current_node = bst_root[0]
                 index = 0  # Start from root index
 
                 while True:
                     parent_value = current_value
-                    parent_node = current_node
-
 
                     if value < current_value:
                         next_index = 2 * index + 1
@@ -1524,7 +1322,6 @@ class BinarySearchTreeDeletion(Scene):
                         break
                     else:
                         current_value = bst_tree[next_index]
-                        current_node = tree_node_map[current_value]
                         index = next_index
 
 
@@ -1688,24 +1485,7 @@ class BinarySearchTreeDeletion(Scene):
                 if node_index != 0:
                     parent_index = (node_index - 1) // 2
                     parent_value = bst_tree[parent_index]
-                    # Remove the edge from the graph animation
-                    for edge in list(G.edges):
-                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
-                            # Find the corresponding edge object in manim and remove it
-                            for manim_edge in self.mobjects:
-                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                    parent_node = tree_node_map[parent_value]
-                                    # Check if this line connects the parent and the node to delete
-                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
-                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
-                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
-                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
-                                    
-                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                        self.play(FadeOut(manim_edge), run_time=0.3)
-                                        break
-                            G.remove_edge(*edge)
-                            break
+                    remove_edge_visual(self, G, parent_value, value, tree_node_map[parent_value], node_to_delete)
                 
                 # Remove the node
                 self.play(FadeOut(node_to_delete), FadeOut(nodeSurr), run_time=0.5)
@@ -1735,42 +1515,10 @@ class BinarySearchTreeDeletion(Scene):
                 if node_index != 0:
                     parent_index = (node_index - 1) // 2
                     parent_value = bst_tree[parent_index]
-                    # Remove the edge from the graph animation
-                    for edge in list(G.edges):
-                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
-                            # Find the corresponding edge object in manim and remove it
-                            for manim_edge in self.mobjects:
-                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                    parent_node = tree_node_map[parent_value]
-                                    # Check if this line connects the parent and the node to delete
-                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
-                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
-                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
-                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
-                                    
-                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                        self.play(FadeOut(manim_edge), run_time=0.3)
-                                        break
-                            G.remove_edge(*edge)
-                            break
+                    remove_edge_visual(self, G, parent_value, value, tree_node_map[parent_value], node_to_delete)
                 
                 # Also remove edge between deleted node and its left child
-                for edge in list(G.edges):
-                    if (edge[0] == value and edge[1] == left_value) or (edge[0] == left_value and edge[1] == value):
-                        # Find the corresponding edge object in manim and remove it
-                        for manim_edge in self.mobjects:
-                            if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                # Check if this line connects the deleted node and its left child
-                                start_close = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
-                                end_close = np.allclose(manim_edge.get_end(), left_node.get_center(), atol=0.1)
-                                start_close_rev = np.allclose(manim_edge.get_start(), left_node.get_center(), atol=0.1)
-                                end_close_rev = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
-                                
-                                if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                    self.play(FadeOut(manim_edge), run_time=0.3)
-                                    break
-                        G.remove_edge(*edge)
-                        break
+                remove_edge_visual(self, G, value, left_value, node_to_delete, left_node)
                 
                 # Move left child to parent's position
                 self.play(left_node.animate.move_to(node_to_delete.get_center()), run_time=0.5)
@@ -1811,42 +1559,10 @@ class BinarySearchTreeDeletion(Scene):
                 if node_index != 0:
                     parent_index = (node_index - 1) // 2
                     parent_value = bst_tree[parent_index]
-                    # Remove the edge from the graph animation
-                    for edge in list(G.edges):
-                        if (edge[0] == parent_value and edge[1] == value) or (edge[0] == value and edge[1] == parent_value):
-                            # Find the corresponding edge object in manim and remove it
-                            for manim_edge in self.mobjects:
-                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                    parent_node = tree_node_map[parent_value]
-                                    # Check if this line connects the parent and the node to delete
-                                    start_close = np.allclose(manim_edge.get_start(), parent_node.get_center(), atol=0.1)
-                                    end_close = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
-                                    start_close_rev = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
-                                    end_close_rev = np.allclose(manim_edge.get_end(), parent_node.get_center(), atol=0.1)
-                                    
-                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                        self.play(FadeOut(manim_edge), run_time=0.3)
-                                        break
-                            G.remove_edge(*edge)
-                            break
+                    remove_edge_visual(self, G, parent_value, value, tree_node_map[parent_value], node_to_delete)
                 
                 # Also remove edge between deleted node and its right child
-                for edge in list(G.edges):
-                    if (edge[0] == value and edge[1] == right_value) or (edge[0] == right_value and edge[1] == value):
-                        # Find the corresponding edge object in manim and remove it
-                        for manim_edge in self.mobjects:
-                            if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                # Check if this line connects the deleted node and its right child
-                                start_close = np.allclose(manim_edge.get_start(), node_to_delete.get_center(), atol=0.1)
-                                end_close = np.allclose(manim_edge.get_end(), right_node.get_center(), atol=0.1)
-                                start_close_rev = np.allclose(manim_edge.get_start(), right_node.get_center(), atol=0.1)
-                                end_close_rev = np.allclose(manim_edge.get_end(), node_to_delete.get_center(), atol=0.1)
-                                
-                                if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                    self.play(FadeOut(manim_edge), run_time=0.3)
-                                    break
-                        G.remove_edge(*edge)
-                        break
+                remove_edge_visual(self, G, value, right_value, node_to_delete, right_node)
                 
                 # Move right child to parent's position
                 self.play(right_node.animate.move_to(node_to_delete.get_center()), run_time=0.5)
@@ -1936,24 +1652,7 @@ class BinarySearchTreeDeletion(Scene):
                 if original_successor_index != 0:
                     successor_parent_index = (original_successor_index - 1) // 2
                     successor_parent_value = bst_tree[successor_parent_index]
-                    # Remove the edge from the graph animation
-                    for edge in list(G.edges):
-                        if (edge[0] == successor_parent_value and edge[1] == successor_value) or (edge[0] == successor_value and edge[1] == successor_parent_value):
-                            # Find the corresponding edge object in manim and remove it
-                            for manim_edge in self.mobjects:
-                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                    successor_parent_node = tree_node_map[successor_parent_value]
-                                    # Check if this line connects the successor parent and the successor
-                                    start_close = np.allclose(manim_edge.get_start(), successor_parent_node.get_center(), atol=0.1)
-                                    end_close = np.allclose(manim_edge.get_end(), successor_node.get_center(), atol=0.1)
-                                    start_close_rev = np.allclose(manim_edge.get_start(), successor_node.get_center(), atol=0.1)
-                                    end_close_rev = np.allclose(manim_edge.get_end(), successor_parent_node.get_center(), atol=0.1)
-                                    
-                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                        self.play(FadeOut(manim_edge), run_time=0.3)
-                                        break
-                            G.remove_edge(*edge)
-                            break
+                    remove_edge_visual(self, G, successor_parent_value, successor_value, tree_node_map[successor_parent_value], successor_node)
                 
                 if successor_right_index in bst_tree:
                     # Successor has a right child, move it up
@@ -1961,22 +1660,7 @@ class BinarySearchTreeDeletion(Scene):
                     successor_right_node = tree_node_map[successor_right_value]
                     
                     # Remove edge between successor and its right child
-                    for edge in list(G.edges):
-                        if (edge[0] == successor_value and edge[1] == successor_right_value) or (edge[0] == successor_right_value and edge[1] == successor_value):
-                            # Find the corresponding edge object in manim and remove it
-                            for manim_edge in self.mobjects:
-                                if isinstance(manim_edge, Line) and hasattr(manim_edge, 'start') and hasattr(manim_edge, 'end'):
-                                    # Check if this line connects the successor and its right child
-                                    start_close = np.allclose(manim_edge.get_start(), successor_node.get_center(), atol=0.1)
-                                    end_close = np.allclose(manim_edge.get_end(), successor_right_node.get_center(), atol=0.1)
-                                    start_close_rev = np.allclose(manim_edge.get_start(), successor_right_node.get_center(), atol=0.1)
-                                    end_close_rev = np.allclose(manim_edge.get_end(), successor_node.get_center(), atol=0.1)
-                                    
-                                    if (start_close and end_close) or (start_close_rev and end_close_rev):
-                                        self.play(FadeOut(manim_edge), run_time=0.3)
-                                        break
-                            G.remove_edge(*edge)
-                            break
+                    remove_edge_visual(self, G, successor_value, successor_right_value, successor_node, successor_right_node)
                     
                     # Move the right child to successor's position
                     bst_tree[original_successor_index] = successor_right_value
@@ -2015,9 +1699,9 @@ class BinarySearchTreeDeletion(Scene):
 
         list_of_vertices = [26, 7, 2, 25, 19, 47, 1, 90, 36, 3, 34]
         bst_root: list[tuple[int, Node]] = []
-        bst_tree: dict[int, int] = dict()
-        bst_indices: dict[int, int] = dict()
-        tree_node_map: dict[int, Node] = dict()
+        bst_tree: dict[int, int] = {}
+        bst_indices: dict[int, int] = {}
+        tree_node_map: dict[int, Node] = {}
         G = nx.Graph()
 
         for val in list_of_vertices:
@@ -2122,7 +1806,6 @@ class UnionFind(Scene):
                 
                 run_time=0.5
             )
-            # self.play(sets.animate.next_to(operation_text, DOWN, buff=2.3))
 
             self.play(c_new_node.Select())
 

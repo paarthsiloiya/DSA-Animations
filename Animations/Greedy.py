@@ -1,8 +1,9 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
 import random
+
 import networkx as nx
+from common import WeightedLine
 from env_config import *
+from manim import *
 
 random.seed(32)
 
@@ -83,8 +84,7 @@ class IntervalScheduling(Scene):
 
         L_sorted = sorted(L, key=lambda x: x[2])
         intervals_sorted = VGroup()
-        c = 0
-        for i, s, f in L_sorted:
+        for c, (i, s, f) in enumerate(L_sorted):
             interval = RoundedRectangle(corner_radius=0.2, width=f-s, height=0.7, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
             index = Text(str(i), font=FONT, font_size=INTERVAL_FSIZE, color=TEXTCOL)
             index.move_to(interval.get_center())
@@ -93,7 +93,6 @@ class IntervalScheduling(Scene):
             interval_visual.shift(DOWN * (c * 0.7))
             interval_visual.shift(RIGHT * s)
             intervals_sorted.add(interval_visual)
-            c += 1
 
         intervals_sorted.set_z_index(2)
         intervals_sorted.shift(DOWN * 1.6)
@@ -129,61 +128,11 @@ class IntervalScheduling(Scene):
         
 
 class Node:
-    def __init__(self, frequency: int, symbol: str = None, left: 'Node' = None, right: 'Node' = None):
+    def __init__(self, frequency: int, symbol: str | None = None, left: 'Node' = None, right: 'Node' = None):
         self.frequency = frequency
         self.symbol = symbol
         self.left = left
         self.right = right
-
-class WeightedLine(Line):
-    def __init__(
-        self,
-        *args,
-        weight: str | int | float | None = None,
-        weight_config: dict | None = None,
-        weight_alpha: float = 0.5,
-        bg_config: dict | None = None,
-        add_bg: bool = True,
-        **kwargs,
-    ):
-        self.weight = weight
-        self.alpha = weight_alpha
-        self.add_bg = add_bg
-        super().__init__(*args, **kwargs)
-
-        self.weight_config = {
-            "color": TEXTCOL,
-            "font_size": 25,
-            "font": FONT,
-        }
-
-        if weight_config:
-            self.weight_config.update(weight_config)
-
-        self.bg_config = {
-            "color": config.background_color,
-            "fill_opacity": 1,
-            "buff": 0.1,
-        }
-        if bg_config:
-            self.bg_config.update(bg_config)
-
-        if self.weight is not None:
-            self._add_weight()
-
-    def _add_weight(self):
-        point = self.point_from_proportion(self.alpha)
-        self.label = Text(str(self.weight), **self.weight_config)
-        self.label.move_to(point)
-
-        if self.add_bg:
-            self.bg = BackgroundRectangle(self.label, **self.bg_config)
-            self.add(self.bg)
-
-        self.add(self.label)
-
-    def _get_weight_mob(self):
-        return self.label
 
 class HuffmanNode(VGroup):
     def __init__(self, symbol: str, frequency: int):
@@ -227,49 +176,52 @@ class HuffmanNode(VGroup):
         return self.circle.animate.set_fill(color=NODE_COL).set_stroke(color=NODE_COL, width=0)
 
 class HuffmanEncoding(Scene):
-    def build_huffman_graph(self, s):
+    def huffman_steps(self, s):
+        """Compute the Huffman merge sequence once: the single source of truth
+        consumed by both the graph pre-pass and the animation replay."""
         char = list(s)
         freqlist: list[tuple[int, str]] = []
         unique_char = set(char)
         for c in unique_char:
             freqlist.append((char.count(c), c))
+        freqlist.sort()
 
-        nodes: list[tuple[tuple[int, str], Node]] = []
-        node_objects = {}  # Keep track of Node objects and their IDs
-        for nd in sorted(freqlist):
-            nodes.append((nd, Node(nd[0], nd[1])))
-        
+        items = [(freq, symbol, symbol) for freq, symbol in freqlist]
+        steps = []
+        counter = 0
+        root_key = None
+        while len(items) > 1:
+            items.sort()
+            left_freq, left_symbol, left_key = items.pop(0)
+            right_freq, right_symbol, right_key = items.pop(0)
+            merged_freq = left_freq + right_freq
+            merged_symbol = left_symbol + right_symbol
+            internal_key = f"internal_{counter}"
+            steps.append((left_freq, left_symbol, left_key, right_freq, right_symbol, right_key, merged_freq, merged_symbol, internal_key))
+            items.append((merged_freq, merged_symbol, internal_key))
+            root_key = internal_key
+            counter += 1
+        return steps, freqlist, root_key
+
+    def build_huffman_graph(self, s):
+        steps, freqlist, root_key = self.huffman_steps(s)
+
         # Build NetworkX graph
         G = nx.Graph()
         node_labels = {}
         edge_weights = {}  # Track edge weights (0 for left, 1 for right)
-        node_counter = 0
-        
+
         # Create initial mapping for leaf nodes
-        for (freq, symbol), node_obj in nodes:
+        for freq, symbol in freqlist:
             node_id = f"{symbol}"
             G.add_node(node_id)
             node_labels[node_id] = f"{freq}\n{symbol}"
-            node_objects[id(node_obj)] = node_id
-        
+
         # Build tree bottom-up
-        temp_nodes = nodes.copy()
-        while len(temp_nodes) > 1:
-            temp_nodes.sort()
-            L = temp_nodes[0][1]
-            R = temp_nodes[1][1]
-            
-            # Create internal node
-            combined_freq = L.frequency + R.frequency
-            combined_symbol = L.symbol + R.symbol
-            internal_node_id = f"internal_{node_counter}"
+        for _, _, left_id, _, _, right_id, combined_freq, _, internal_node_id in steps:
             G.add_node(internal_node_id)
             node_labels[internal_node_id] = str(combined_freq)
-            
-            # Get child IDs
-            left_id = node_objects[id(L)]
-            right_id = node_objects[id(R)]
-            
+
             # Add edges to children with weights (0 for left, 1 for right)
             G.add_edge(internal_node_id, left_id)
             G.add_edge(internal_node_id, right_id)
@@ -277,16 +229,8 @@ class HuffmanEncoding(Scene):
             edge_weights[(left_id, internal_node_id)] = 0  # Both directions
             edge_weights[(internal_node_id, right_id)] = 1
             edge_weights[(right_id, internal_node_id)] = 1  # Both directions
-            
-            # Remove processed nodes and add new internal node
-            temp_nodes.pop(0)
-            temp_nodes.pop(0)
-            newnode = Node(combined_freq, combined_symbol, L, R)
-            node_objects[id(newnode)] = internal_node_id
-            temp_nodes.append(((combined_freq, combined_symbol), newnode))
-            node_counter += 1
-        
-        return G, node_labels, edge_weights, internal_node_id  # Return edge weights too
+
+        return G, node_labels, edge_weights, root_key  # Return edge weights too
 
     def construct(self):
         s = 'abbcaaaabbcdddeee'
@@ -315,7 +259,9 @@ class HuffmanEncoding(Scene):
             edge_config[edge] = {
                 'weight': weight,
                 "stroke_color": EDGE_COL,
-                "stroke_width": 4
+                "stroke_width": 4,
+                "weight_font": FONT,
+                "standalone_bg": True
             }
         
         # Create Manim graph
@@ -337,16 +283,8 @@ class HuffmanEncoding(Scene):
         self.animate_huffman_construction(s, huffman_tree)
 
     def animate_huffman_construction(self, s, huffman_tree):
-        # Get character frequencies
-        char = list(s)
-        freqlist: list[tuple[int, str]] = []
-        unique_char = set(char)
-        for c in unique_char:
-            freqlist.append((char.count(c), c))
-        
-        # Sort by frequency for initial display
-        freqlist.sort()
-        
+        steps, freqlist, _ = self.huffman_steps(s)
+
         # Step 1: Show initial frequency counting
         freq_text = Text(f"Character frequencies in\n  '{s}':", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0, aligned_edge=UP)
         self.play(Write(freq_text), run_time=1)
@@ -367,39 +305,19 @@ class HuffmanEncoding(Scene):
         self.wait(1)
         
         self.play(FadeOut(freq_text), FadeOut(create_text), run_time=0.5)
-        
-        # Step 3: Build construction tracking
-        nodes = []
-        node_id_map = {}  # Maps Node objects to their visual IDs
-        
-        for nd in sorted(freqlist):
-            node_obj = Node(nd[0], nd[1])
-            nodes.append((nd, node_obj))
-            node_id_map[id(node_obj)] = nd[1]  # symbol is the ID for leaf nodes
-        
-        internal_counter = 0
-        temp_nodes = nodes.copy()
-        
-        while len(temp_nodes) > 1:
-            temp_nodes.sort()
-            L = temp_nodes[0][1]
-            R = temp_nodes[1][1]
-            
-            # Get visual node IDs
-            left_id = node_id_map[id(L)]
-            right_id = node_id_map[id(R)]
-            
-            # Explanatory text for selecting nodes
-            if hasattr(L, 'symbol') and hasattr(R, 'symbol'):
-                left_symbol = L.symbol if len(L.symbol) == 1 else f"({L.symbol})"
-                right_symbol = R.symbol if len(R.symbol) == 1 else f"({R.symbol})"
-                comb_text = f"{left_symbol}({L.frequency}) + {right_symbol}({R.frequency})"
-                spaces = " " * (max(0, len(comb_text) - 9)//2)
-                select_text = Text(f"Select two nodes with\nsmallest frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0.5, aligned_edge=UP)
-                detail_text = Text(f"{spaces}Combining\n{comb_text}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(select_text, DOWN, buff=0.6)
 
-                self.play(Write(select_text), run_time=0.8)
-                self.play(Write(detail_text), run_time=0.6)
+        # Step 3: Replay the recorded merge sequence
+        for l_freq, l_sym, left_id, r_freq, r_sym, right_id, combined_freq, _, internal_node_id in steps:
+            # Explanatory text for selecting nodes
+            left_symbol = l_sym if len(l_sym) == 1 else f"({l_sym})"
+            right_symbol = r_sym if len(r_sym) == 1 else f"({r_sym})"
+            comb_text = f"{left_symbol}({l_freq}) + {right_symbol}({r_freq})"
+            spaces = " " * (max(0, len(comb_text) - 9)//2)
+            select_text = Text("Select two nodes with\nsmallest frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0.5, aligned_edge=UP)
+            detail_text = Text(f"{spaces}Combining\n{comb_text}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(select_text, DOWN, buff=0.6)
+
+            self.play(Write(select_text), run_time=0.8)
+            self.play(Write(detail_text), run_time=0.6)
             
             # Highlight the two smallest frequency nodes
             left_visual = huffman_tree.vertices[left_id]
@@ -413,8 +331,6 @@ class HuffmanEncoding(Scene):
             self.wait(0.5)
             
             # Create and show parent node
-            combined_freq = L.frequency + R.frequency
-            internal_node_id = f"internal_{internal_counter}"
             parent_node = huffman_tree.vertices[internal_node_id]
             
             parent_text = Text(f"Create parent node\nwith frequency {combined_freq}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(detail_text, DOWN, buff=0.5)
@@ -453,13 +369,5 @@ class HuffmanEncoding(Scene):
             
             self.play(FadeOut(select_text), FadeOut(detail_text), FadeOut(parent_text), FadeOut(edge_text), run_time=0.5)
             self.wait(0.5)
-            
-            # Update for next iteration
-            temp_nodes.pop(0)
-            temp_nodes.pop(0)
-            newnode = Node(combined_freq, L.symbol + R.symbol, L, R)
-            node_id_map[id(newnode)] = internal_node_id
-            temp_nodes.append(((combined_freq, L.symbol + R.symbol), newnode))
-            internal_counter += 1
-        
+
         self.wait(1)

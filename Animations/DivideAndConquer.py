@@ -1,38 +1,13 @@
-from manim import *
 import random
-from env_config import *
+from math import pow, sqrt
+
 import numpy as np
+from common import ListElement
+from env_config import *
+from manim import *
 
 # Override specific font sizes for DivideAndConquer
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
-
-class ListElement(VGroup):
-    def __init__(self, value : str, size=0.8, font_mul=100):
-        super().__init__()
-        self.size = size
-        self.value = value if value.isalpha() else int(value)
-        self.isSorted = False
-        self.elementValue = Text(value, font_size=(font_mul*self.size), color=TEXTCOL, font=FONT)
-        self.circle = Circle(radius=self.size, color=BASECOL, fill_opacity=1)
-        self.elementValue.move_to(self.circle.get_center())
-        self.add(self.circle, self.elementValue)
-
-    def SelectElement(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def ClearSelection(self):
-        if not self.isSorted:
-            return self.circle.animate.set_stroke(color=BASECOL)
-        else:
-            return self.circle.animate.set_stroke(color=SORTCOL)
-    
-    def MarkSorted(self):
-        self.isSorted = True
-        return self.circle.animate.set_fill(color=SORTCOL).set_stroke(width=0), self.elementValue.animate.set_color(color=WHITE)
-
-    def Reset(self):
-        self.isSorted = False
-        return self.circle.animate.set_fill(color=BASECOL).set_stroke(color=BASECOL), self.elementValue.animate.set_color(color=TEXTCOL)
 
 class CountInversions(Scene):
     def construct(self):
@@ -181,7 +156,6 @@ class CountInversions(Scene):
 
         merged : list[tuple[ListElement, int]] = []
         i = j = 0
-        k = 0
         count = 0
 
         while i < len(left_vals) and j < len(right_vals):
@@ -265,7 +239,6 @@ class CountInversions(Scene):
         return count
     
 
-from math import sqrt, pow
 class ClosestPairPoint(Scene):
     # Returns eucledian disatnce between points p and q
     def distance(self, p, q):
@@ -521,7 +494,6 @@ class ClosestPairPoint(Scene):
         Px = sorted(Points)
         Py = Points
         Py.sort(key=lambda x: x[-1])
-        #print(Px,Py)
         return round(self.minDistanceRec(Px, Py), 2)
 
 
@@ -557,7 +529,6 @@ class LongestCommonSubsequence(Scene):
         table_for_Table = np.hstack((np.array(list(range(self.n + 1))).reshape(-1, 1), self.lcs))
         table_for_Table = np.vstack((np.array([0] + list(range(self.m + 1))).reshape(1, -1), table_for_Table))
 
-        # print(table_for_Table)
         self.lcs_table = IntegerTable(
             table_for_Table,
             row_labels=[Text(str(x), font=FONT, color=TEXTCOL, font_size=FSIZE) for x in [" "] + list(u) + [" "]],
@@ -595,8 +566,8 @@ class LongestCommonSubsequence(Scene):
         for i in range(len(path_cells) - 1):
             path.add(
                 Line(
-                    start=self.lcs_table.get_cell((path_cells[i])).get_center(),
-                    end=self.lcs_table.get_cell((path_cells[i + 1])).get_center(),
+                    start=self.lcs_table.get_cell(path_cells[i]).get_center(),
+                    end=self.lcs_table.get_cell(path_cells[i + 1]).get_center(),
                     color=SORTCOL,
                     stroke_width=DEGREE_FONT_SIZE,
                     stroke_opacity=0.3,
@@ -793,14 +764,19 @@ class LongestCommonSubsequence(Scene):
             prev_i, prev_j = prev_cell[0] - 3, prev_cell[1] - 3
             
             # Check if this was a diagonal move (character match)
-            if prev_i == curr_i + 1 and prev_j == curr_j + 1:
-                if curr_i >= 0 and curr_j >= 0 and curr_i < self.m and curr_j < self.n:
-                    lcs_chars.append(X[curr_i])
-                    lcs_x_indices.append(curr_i)
-                    lcs_y_indices.append(curr_j)
+            if (
+                prev_i == curr_i + 1
+                and prev_j == curr_j + 1
+                and curr_i >= 0
+                and curr_j >= 0
+                and curr_i < self.m
+                and curr_j < self.n
+            ):
+                lcs_chars.append(X[curr_i])
+                lcs_x_indices.append(curr_i)
+                lcs_y_indices.append(curr_j)
         
         # Highlight the LCS characters in X and Y simultaneously
-        highlight_animations = []
         char_cells = []
         
         for i, (x_idx, y_idx) in enumerate(zip(lcs_x_indices, lcs_y_indices)):

@@ -1,7 +1,7 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
 import random
+
 from env_config import *
+from manim import *
 
 random.seed(32)
 
@@ -9,7 +9,7 @@ random.seed(32)
 EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 POINTER_FONT_SIZE = 28      # For pointer labels (if any)
 
-class StackElement():
+class StackElement:
     def __init__(self, value):
         self.value = value
         self.dataText = Text(str(value), font_size=FSIZE, font=FONT, color=TEXTCOL)
@@ -28,7 +28,7 @@ class StackElement():
         return self.element
     
 
-class QueueElement():
+class QueueElement:
     def __init__(self, value):
         self.value = value
         self.dataText = Text(str(value), font_size=FSIZE, font=FONT, color=TEXTCOL)
@@ -240,12 +240,6 @@ class Queue(Scene):
             corner_radius=0.2
         ), num_dashes=80)
         explanatory_text = Text("<-Queue", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(surrRect, RIGHT, buff=0.1)
-        # self.play(Create(surrRect), run_time=0.5)
-        # self.wait(0.2)
-        # self.play(Write(explanatory_text), run_time=0.5)
-        # self.wait(0.6)
-        # self.play(FadeOut(surrRect), FadeOut(explanatory_text), run_time=0.5)
-        # self.wait(0.7)
 
         queueElements = deque()
 

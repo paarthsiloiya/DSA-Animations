@@ -1,51 +1,14 @@
-from manim import *
-from manim.utils.unit import Percent, Pixels
-from manim import CurvedArrow
 import random
+
+from common import ListElement, Node
 from env_config import *
+from manim import *
 
 random.seed(30)
 
 # Override specific font sizes for Arrays
 POINTER_FONT_SIZE = 32      # For "Low", "High", "Mid", etc.
 
-
-class ListElement(VGroup):
-    def __init__(self, value : int, size:int=0.8, mult:int=100):
-        super().__init__()
-        self.size = size
-        self.value = value
-        self.isFound = False
-        self.elementValue = Text(str(self.value), font_size=(mult*self.size), color=TEXTCOL, font=FONT)
-        self.circle = Circle(radius=self.size, color=BASECOL, fill_opacity=1)
-        self.elementValue.move_to(self.circle.get_center())
-        self.add(self.circle, self.elementValue)
-
-    def Select(self):
-        return self.circle.animate.set_stroke(color=SELCOL, width=10)
-    
-    def Clear(self):
-        if not self.isFound:
-            return self.circle.animate.set_stroke(color=BASECOL)
-        else:
-            return self.circle.animate.set_stroke(color=SORTCOL)
-
-class Node(VGroup):
-    def __init__(self, value):
-        super().__init__()
-        self.text = Text(str(value), font=FONT, color=TEXTCOL, font_size=2*FSIZE)
-        self.circle = Circle(radius=0.8, color=NODE_COL, fill_color=NODE_COL, fill_opacity=1, stroke_width=0)
-        self.text.move_to(self.circle.get_center())
-        self.add(self.circle, self.text)
-
-    def Select(self):
-        return self.circle.animate.set_stroke(color=SORTCOL, width=10)
-    
-    def Clear(self):
-            return self.circle.animate.set_stroke(color=NODE_COL, width=0)
-        
-    def Highlight(self):
-        return self.circle.animate.set_fill(color=SORTCOL), self.text.animate.set_color(color=BASECOL)
 
 class MemoryAllocation(Scene):
     def construct(self):
@@ -165,7 +128,8 @@ class TwoDArraysAsMatrix(Scene):
         self.wait(0.5)
 
         mobject_matrix = Matrix(array, h_buff=1.8, v_buff=1.8,
-                                element_to_mobject=Node)
+                                element_to_mobject=Node,
+                                element_to_mobject_config={"radius": 0.8, "font_size": 2*FSIZE})
 
         self.play(Create(mobject_matrix), run_time=1)
         self.wait(1)
@@ -225,12 +189,6 @@ class TwoDArraysAsMatrix(Scene):
 
         self.play(Write(i_pointer), Write(j_pointer), Write(i_text_group), Write(j_text_group), run_time=0.5)
         self.wait(1)
-
-        # self.play(
-        #     i.animate.set_value(1),
-        #     j.animate.set_value(2),
-        #     run_time=1
-        # )
 
         for x in range(3):
             for y in range(3):
@@ -393,6 +351,6 @@ class TwoDArraysMultiplication(Scene):
 
         mobject_matrixR = Matrix(result_array, h_buff=1.4, v_buff=1.4,
                                 element_to_mobject=ListElement,
-                                element_to_mobject_config={"size": 0.5, "mult": 70}).next_to(mobject_matrixB, RIGHT, buff=1.7)
+                                element_to_mobject_config={"size": 0.5, "font_mul": 70}).next_to(mobject_matrixB, RIGHT, buff=1.7)
         self.play(Create(mobject_matrixR), run_time=0.5)
         self.wait(1)
