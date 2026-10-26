@@ -1,7 +1,9 @@
 import logging
+from typing import ClassVar
 
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 logger = logging.getLogger(__name__)
 
@@ -319,7 +321,57 @@ class BTree(VGroup):
                 self.root.insert_non_full(k)
         
 
-class BTreeScene(Scene):
+class BTreeScene(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "def insert(tree, k):",
+        "    root = tree.root",
+        "    if root is None:                            # empty tree: the first key",
+        "        tree.root = Node(leaf=True)              # lands in a fresh leaf root",
+        "        insert_non_full(tree.root, k)",
+        "        return",
+        "    if root and root.n == 2 * tree.t - 1:       # root is full",
+        "        i = 0",
+        "        while i < root.n and root.keys[i] < k:  # where k is heading",
+        "            i += 1",
+        "        if root.leaf or root.children[i].n == 2 * tree.t - 1:",
+        "            s = Node(leaf=False)               # grow the tree upward:",
+        "            s.children = [root]                # a new root above the old one",
+        "            split_child(s, 0, root)            # hoist the middle key to s",
+        "            tree.root = s",
+        "            root = s",
+        "    insert_non_full(root, k)",
+        "",
+        "def insert_non_full(node, k):",
+        "    if node.leaf:",
+        "        i = 0",
+        "        while i < node.n and node.keys[i] < k:  # find k's slot,",
+        "            i += 1                              # keeping the node sorted",
+        "        node.keys.insert(i, k)                  # ...and place it",
+        "        node.n += 1",
+        "    else:",
+        "        i = 0",
+        "        while i < node.n and node.keys[i] < k:  # find the child for k",
+        "            i += 1",
+        "        if node.children[i].n == 2 * node.t - 1:  # child full? split on the way down",
+        "            split_child(node, i, node.children[i])",
+        "            if node.keys[i] < k:                # the split may redirect k",
+        "                i += 1",
+        "        insert_non_full(node.children[i], k)",
+        "",
+        "def split_child(parent, i, y):",
+        "    z = Node(y.leaf)                            # y's new right sibling",
+        "    z.keys = y.keys[parent.t:]                  # upper keys move to z",
+        "    z.n = parent.t - 1                         # z starts with t-1 keys",
+        "    if not y.leaf:                              # ...together with their children",
+        "        z.children = y.children[parent.t:]",
+        "        y.children = y.children[:parent.t]",
+        "    parent.keys.insert(i, y.keys[parent.t-1])   # y's middle key goes up",
+        "    parent.children.insert(i + 1, z)",
+        "    y.keys = y.keys[:parent.t - 1]              # y keeps the lower t-1 keys",
+        "    y.n = parent.t - 1",
+        "    parent.n += 1                              # the promoted key grows the parent",
+    ]
+
     def construct(self):
         t = 2  # Minimum degree
         btree = BTree(t)
@@ -327,8 +379,20 @@ class BTreeScene(Scene):
         self.add(btree)
 
         keys = range(1, 11) # Example keys to insert
-        
+
+        # The structural event each demo insert triggers (t=2, keys 1..10):
+        # 4 splits the full root leaf; 6 and 8 split a full child on the way
+        # down; 9 descends past a full internal root without splitting (its
+        # target child has room); 10 splits the full root and then a child.
+        step_for_key = {
+            4: "split-root",
+            6: "split-child",
+            8: "split-child",
+            10: "split-root",
+        }
+
         for key in keys:
+            self.code_step(step_for_key.get(key, "insert"))
             btree.insert(key)
             self.wait(2)
         

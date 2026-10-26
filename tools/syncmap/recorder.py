@@ -164,9 +164,11 @@ def record_scene(
 
     Returns ``{scene, module, manim_version, duration, num_plays, events, error,
     traceback}``. ``events`` holds ``{t, type: play|wait|code_step, run_time?,
-    frozen?, lines?, key?}`` dicts with cumulative start times rounded to
-    ``PRECISION`` decimals. If ``construct()`` raises, ``error``/``traceback``
-    are filled in and the events recorded so far are still returned.
+    frozen?, key?}`` dicts with cumulative start times rounded to ``PRECISION``
+    decimals; ``code_step`` events carry the semantic step key (per-language line
+    numbers are resolved later from ``tools/syncmap/langs/<slug>.json``). If
+    ``construct()`` raises, ``error``/``traceback`` are filled in and the events
+    recorded so far are still returned.
 
     ``text_dir`` defaults to the repo's gitignored ``Animations/media/texts``
     SVG cache so Pango ``Text`` layout stays warm and leaves no files outside
@@ -185,13 +187,12 @@ def record_scene(
     events: list[dict] = []
     renderer = NullRenderer(on_event=events.append)
 
-    def code_hook(lines, key):
+    def code_hook(key):
         events.append(
             {
                 "t": round(renderer.time, PRECISION),
                 "type": "code_step",
-                "lines": str(lines),
-                "key": str(key or ""),
+                "key": str(key),
             }
         )
 

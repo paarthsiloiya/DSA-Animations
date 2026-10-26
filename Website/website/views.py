@@ -106,3 +106,103 @@ def singly_linked_list():
 @views.route('/doubly-linked-list')
 def doubly_linked_list():
     return render_template('LinkedList/doubly_linked_list.html', user=current_user)
+
+@views.route('/rotation')
+def rotation():
+    return render_template('LinkedList/rotation.html', user=current_user)
+
+@views.route('/types-of-trees')
+def types_of_trees():
+    return render_template('Trees/types_of_trees.html', user=current_user)
+
+@views.route('/tree-traversals')
+def tree_traversals():
+    return render_template('Trees/tree_traversals.html', user=current_user)
+
+@views.route('/tree-list-correlation')
+def tree_list_correlation():
+    return render_template('Trees/tree_list_correlation.html', user=current_user)
+
+@views.route('/union-find')
+def union_find():
+    return render_template('Trees/union_find.html', user=current_user)
+
+@views.route('/binary-search-tree')
+def binary_search_tree():
+    return render_template('Trees/binary_search_tree.html', user=current_user)
+
+@views.route('/ternary-tree')
+def ternary_tree():
+    return render_template('Trees/ternary_tree.html', user=current_user)
+
+@views.route('/types-of-heaps')
+def types_of_heaps():
+    return render_template('Trees/types_of_heaps.html', user=current_user)
+
+@views.route('/avl-tree')
+def avl_tree():
+    return render_template('AVLTree/avl_tree.html', user=current_user)
+
+@views.route('/b-tree')
+def b_tree():
+    return render_template('Trees/b_tree.html', user=current_user)
+
+@views.route('/types-of-graphs')
+def types_of_graphs():
+    return render_template('Graphs/types_of_graphs.html', user=current_user)
+
+@views.route('/graph-representation')
+def graph_representation():
+    return render_template('Graphs/graph_representation.html', user=current_user)
+
+@views.route('/graph-traversals')
+def graph_traversals():
+    return render_template('Graphs/graph_traversals.html', user=current_user)
+
+@views.route('/dijkstra-algorithm')
+def dijkstra_algorithm():
+    return render_template('Graphs/dijkstra_algorithm.html', user=current_user)
+
+@views.route('/bellman-ford-algorithm')
+def bellman_ford_algorithm():
+    return render_template('Graphs/bellman_ford_algorithm.html', user=current_user)
+
+@views.route('/floyd-warshall-algorithm')
+def floyd_warshall_algorithm():
+    return render_template('Graphs/floyd_warshall_algorithm.html', user=current_user)
+
+@views.route('/prims-algorithm')
+def prims_algorithm():
+    return render_template('Graphs/prims_algorithm.html', user=current_user)
+
+@views.route('/kruskal-algorithm')
+def kruskal_algorithm():
+    return render_template('Graphs/kruskal_algorithm.html', user=current_user)
+
+@views.route('/topological-sort')
+def topological_sort():
+    return render_template('Graphs/topological_sort.html', user=current_user)
+
+@views.route('/count-inversions')
+def count_inversions():
+    return render_template('DivideAndConquer/count_inversions.html', user=current_user)
+
+@views.route('/closest-pair')
+def closest_pair():
+    return render_template('DivideAndConquer/closest_pair.html', user=current_user)
+
+@views.route('/longest-common-subsequence')
+def longest_common_subsequence():
+    return render_template('DivideAndConquer/longest_common_subsequence.html', user=current_user)
+
+@views.route('/median-of-medians')
+def median_of_medians():
+    return render_template('DivideAndConquer/median_of_medians.html', user=current_user)
+
+@views.route('/interval-scheduling')
+def interval_scheduling():
+    return render_template('Greedy/interval_scheduling.html', user=current_user)
+
+@views.route('/huffman-encoding')
+def huffman_encoding():
+    return render_template('Greedy/huffman_encoding.html', user=current_user)

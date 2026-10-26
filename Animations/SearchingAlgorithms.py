@@ -31,12 +31,12 @@ class LinearSearch(SyncedScene):
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
 
-        self.code_step("11")
+        self.code_step("call")
         self.wait(1)
 
         # Show the key visually
         target_text = Text(f"Target = {target}", color=SELCOL, font=FONT).scale(1.2).next_to(visuals, UP, buff=1.6)
-        self.code_step("1")
+        self.code_step("define")
         self.play(Write(target_text), run_time=0.4)
 
         n = len(list_elements)
@@ -44,18 +44,18 @@ class LinearSearch(SyncedScene):
         for i in range(n):
             # Step label
             step_text = Text(f"Checking index {i}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(visuals, DOWN, buff=1)
-            self.code_step("2")
+            self.code_step("loop")
             self.play(Write(step_text), run_time=0.2)
 
-            self.code_step("3")
+            self.code_step("compare")
             self.play(list_elements[i].SelectElement(), run_time=0.2)
             self.wait(0.5)
             if array[i] == target:
-                self.code_step("4")
+                self.code_step("return")
                 self.play(*(list_elements[i].MarkFound()), run_time=0.2)
                 found_text = Text("Found!", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(visuals, DOWN, buff=1.8)
                 self.play(Write(found_text), run_time=0.4)
-                self.code_step("11")
+                self.code_step("call")
                 self.wait(1)
                 self.play(FadeOut(step_text), FadeOut(found_text))
                 break

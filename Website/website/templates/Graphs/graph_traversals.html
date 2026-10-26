@@ -1,0 +1,219 @@
+{% extends "content.html" %} {% block title %} Graph Traversals {% endblock %} {% block main_content %}
+<h1>Graph Traversals</h1>
+<p>
+    A <strong>traversal</strong> visits every vertex reachable from a start vertex, exactly once.
+    The two classic orders differ in one data structure: <strong>BFS</strong> (breadth-first
+    search) processes a <strong>queue</strong> — the oldest discovery first — so it sweeps
+    outward in <strong>levels</strong>; <strong>DFS</strong> (depth-first search) processes a
+    <strong>stack</strong> — the newest discovery first — so it <strong>dives</strong> along one
+    path before backtracking. The four animations below run both on the same 7-vertex demo
+    graph, first undirected, then directed.
+</p>
+
+<div class="subcontent" id="bfs-undirected">
+    <h3>BFS — Undirected</h3>
+    <p>
+        The <strong>queue invariant</strong>: vertices enter the queue the moment they are
+        discovered and leave in that same order — so BFS processes all vertices at distance
+        $d$ before any vertex at distance $d+1$. That level property is exactly why BFS finds
+        <strong>shortest paths in unweighted graphs</strong>: the first time it reaches a
+        vertex, it has reached it via the fewest edges possible.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/undirected-graph-bfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/UndirectedGraphBFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo graph on vertices
+        <code>1&ndash;7</code> with edges <code>1-2, 1-4, 2-4, 2-3, 2-5, 3-6, 5-6, 5-7,
+        6-7</code>. Starting from node <strong>1</strong>, each processed vertex reads
+        <em>"Processing node X"</em> while the <em>Queue</em> display above tracks the
+        container — watch it hold <code>[1]</code> &rarr; <code>[2, 4]</code> &rarr;
+        <code>[4, 3, 5]</code> &rarr; &hellip; exactly the level frontier. The traversal
+        edges are kept at the end as the <strong>BFS tree</strong>.
+    </p>
+    <p>
+        <strong>Visit order:</strong> <strong><code>1 &rarr; 2 &rarr; 4 &rarr; 3 &rarr; 5
+        &rarr; 6 &rarr; 7</code></strong> — levels 0: {1}, 1: {2, 4}, 2: {3, 5}, 3: {6, 7},
+        in that exact level order.
+    </p>
+</div>
+
+<div class="subcontent" id="dfs-undirected">
+    <h3>DFS — Undirected</h3>
+    <p>
+        Swap the queue for a <strong>stack</strong> and the character changes completely:
+        the newest discovery is processed first, so DFS <strong>dives as deep as
+        possible</strong> along one path and only backtracks when the path is exhausted. The
+        video's <em>Stack</em> display shows that LIFO discipline directly.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/undirected-graph-dfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/UndirectedGraphDFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same graph and start node 1, but the
+        container is a <em>Stack</em> — the label literally reads <em>"Stack: [...]"</em>.
+        Note the neighbour order is <strong>reversed</strong> on purpose (the code's
+        <code>reversed(...)</code> line): the stack then pops the <em>lowest-numbered</em>
+        neighbour first, so the dive follows the natural 1&ndash;2&ndash;3&ndash;6&ndash;7
+        chain rather than jumping. The kept edges form the <strong>DFS tree</strong>.
+    </p>
+    <p>
+        <strong>Visit order:</strong> <strong><code>1 &rarr; 2 &rarr; 3 &rarr; 6 &rarr; 7
+        &rarr; 5 &rarr; 4</code></strong> — one long dive 1-2-3-6-7, backtrack to 6, take
+        5, backtrack twice, finally 4. Compare with BFS's level order on the same graph.
+    </p>
+</div>
+
+<div class="subcontent" id="bfs-directed">
+    <h3>BFS — Directed</h3>
+    <p>
+        Nothing about the algorithm changes on a digraph — only the edges are one-way now.
+        Neighbours come from the <strong>out-adjacency</strong> only, so a vertex is
+        reachable only along the arrows. The demo uses the same nine edges, now oriented
+        exactly as the scene draws them.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/directed-graph-bfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/DirectedGraphBFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same seven vertices but each edge
+        carries an arrow; the adjacency in the code lists only out-edges
+        (<code>2: [4, 3, 5]</code> — no back-entry 1). The queue mechanics are identical
+        to the undirected video; the directed edges each light up with their orientation.
+    </p>
+    <p>
+        <strong>Visit order:</strong> <strong><code>1 &rarr; 2 &rarr; 4 &rarr; 3 &rarr; 5
+        &rarr; 6 &rarr; 7</code></strong> — the same order as the undirected BFS here,
+        because every undirected edge happened to be traversed in its recorded direction.
+        Change one arrow (e.g. 2&rarr;1 becomes 1&rarr;2 only) and the reachable set
+        itself would change — that is the directed caveat.
+    </p>
+</div>
+
+<div class="subcontent" id="dfs-directed">
+    <h3>DFS — Directed</h3>
+    <p>
+        DFS on a digraph is the backbone of <strong>cycle detection</strong>,
+        <strong>topological sort</strong> (the finish order is a valid topological order
+        reversed), and <strong>strongly connected components</strong>. Its stack behaviour is
+        identical to the undirected case; what changes is that the traversal
+        <em>follows arrows only</em> — a vertex reachable only against an arrow is never
+        discovered from this start.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/directed-graph-dfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/DirectedGraphDFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> arrows only, <em>Stack</em> display,
+        reversed neighbour order. The dive 1 &rarr; 2 &rarr; 3 &rarr; 6 &rarr; 7 exhausts
+        its arrows, backtracks, picks up 5 (whose out-edges 5&rarr;6, 5&rarr;7 are already
+        discovered), backtracks again, and finishes with 4 — every edge in this demo points
+        "downhill", so no back-edge is ever traversed; the kept DFS-tree edges are all
+        one-way, exactly the kind of orientation a topological sort consumes.
+    </p>
+    <p>
+        <strong>Visit order:</strong> <strong><code>1 &rarr; 2 &rarr; 3 &rarr; 6 &rarr; 7
+        &rarr; 5 &rarr; 4</code></strong> — identical to the undirected DFS order for the
+        same reason as BFS above: the demo's edge orientations happen to align with the
+        undirected traversal. The <em>structure</em> is what differs: the kept DFS-tree
+        edges are all one-way here.
+    </p>
+    <p>
+        <strong>Must know:</strong> both algorithms visit each vertex once and each edge at
+        most twice (once per endpoint in the undirected case), giving
+        <strong>$O(V + E)$</strong> time and <strong>$O(V)$</strong> space (visited set +
+        container) — matching the reference implementations. BFS's shortest-path property
+        holds <strong>only in unweighted graphs</strong> (in weighted graphs use Dijkstra);
+        DFS's order is not "shortest" anything, but its <em>finish order</em> powers
+        topological sort and SCC algorithms.
+    </p>
+    <p>
+        <strong>Applications:</strong> BFS — shortest paths (unweighted), level/degree
+        analysis, web crawlers, social-network "degrees of separation". DFS — cycle
+        detection, topological sort, SCCs, maze/path existence.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        See how the graph is stored before walking it —
+        <a href="{{ url_for('views.graph_representation') }}">Graph Representation</a> — or
+        watch traversal power a shortest-path algorithm on the weighted versions
+        (<a href="{{ url_for('views.types_of_graphs') }}">graph types</a> first, then Dijkstra).
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

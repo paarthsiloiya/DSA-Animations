@@ -1,0 +1,125 @@
+{
+    "python": {
+        "code": [
+            "class Node:",
+            "    def __init__(self, data):",
+            "        self.data = data",
+            "        self.next = None",
+            "",
+            "# list: 5 -> 2 -> 4 -> 6 -> 3 -> 1 -> None",
+            "head = Node(5)",
+            "head.next = Node(2)",
+            "head.next.next = Node(4)",
+            "head.next.next.next = Node(6)",
+            "head.next.next.next.next = Node(3)",
+            "head.next.next.next.next.next = Node(1)",
+            "",
+            "current = head              # traversal starts at the head",
+            "while current is not None:  # until we pass the tail",
+            "    print(current.data)      # visit the node",
+            "    current = current.next  # follow the next address"
+        ],
+        "steps": {
+            "declare": "6-12",
+            "link": "8-12",
+            "start": "14",
+            "advance": "17",
+            "visit": "16"
+        }
+    },
+    "c": {
+        "code": [
+            "struct Node {",
+            "    int data;",
+            "    struct Node *next;",
+            "};",
+            "",
+            "/* list: 5 -> 2 -> 4 -> 6 -> 3 -> 1 -> NULL */",
+            "struct Node n5 = {5, NULL}, n2 = {2, NULL}, n4 = {4, NULL};",
+            "struct Node n6 = {6, NULL}, n3 = {3, NULL}, n1 = {1, NULL};",
+            "n5.next = &n2;   /* 5 -> 2 */",
+            "n2.next = &n4;   /* 2 -> 4 */",
+            "n4.next = &n6;   /* 4 -> 6 */",
+            "n6.next = &n3;   /* 6 -> 3 */",
+            "n3.next = &n1;   /* 3 -> 1 */",
+            "struct Node *head = &n5;",
+            "",
+            "struct Node *current = head;     /* traversal starts at the head */",
+            "while (current != NULL) {        /* until we pass the tail */",
+            "    printf(\"%d \", current->data);  /* visit the node */",
+            "    current = current->next;      /* follow the next address */",
+            "}"
+        ],
+        "steps": {
+            "declare": "6-8",
+            "link": "9-13",
+            "start": "16",
+            "advance": "19",
+            "visit": "18"
+        }
+    },
+    "cpp": {
+        "code": [
+            "struct Node {",
+            "    int data;",
+            "    Node *next;",
+            "};",
+            "",
+            "// list: 5 -> 2 -> 4 -> 6 -> 3 -> 1 -> nullptr",
+            "Node n5 = {5, nullptr}, n2 = {2, nullptr}, n4 = {4, nullptr};",
+            "Node n6 = {6, nullptr}, n3 = {3, nullptr}, n1 = {1, nullptr};",
+            "n5.next = &n2;   // 5 -> 2",
+            "n2.next = &n4;   // 2 -> 4",
+            "n4.next = &n6;   // 4 -> 6",
+            "n6.next = &n3;   // 6 -> 3",
+            "n3.next = &n1;   // 3 -> 1",
+            "Node *head = &n5;",
+            "",
+            "Node *current = head;             // traversal starts at the head",
+            "while (current != nullptr) {      // until we pass the tail",
+            "    std::cout << current->data << \" \"; // visit the node",
+            "    current = current->next;       // follow the next address",
+            "}"
+        ],
+        "steps": {
+            "declare": "6-8",
+            "link": "9-13",
+            "start": "16",
+            "advance": "19",
+            "visit": "18"
+        }
+    },
+    "java": {
+        "code": [
+            "class Node {",
+            "    int data;",
+            "    Node next;",
+            "",
+            "    Node(int data) { this.data = data; }",
+            "}",
+            "",
+            "// list: 5 -> 2 -> 4 -> 6 -> 3 -> 1 -> null",
+            "Node n1 = new Node(5), n2 = new Node(2), n3 = new Node(4);",
+            "Node n4 = new Node(6), n5 = new Node(3), n6 = new Node(1);",
+            "n1.next = n2;   // 5 -> 2",
+            "n2.next = n3;   // 2 -> 4",
+            "n3.next = n4;   // 4 -> 6",
+            "n4.next = n5;   // 6 -> 3",
+            "n5.next = n6;   // 3 -> 1",
+            "Node head = n1;",
+            "",
+            "Node current = head;                 // traversal starts at the head",
+            "while (current != null) {            // until we pass the tail",
+            "    System.out.print(current.data + \" \"); // visit the node",
+            "    current = current.next;          // follow the next address",
+            "}"
+        ],
+        "steps": {
+            "declare": "8-10",
+            "link": "11-15",
+            "start": "18",
+            "advance": "21",
+            "visit": "20"
+        }
+    }
+}

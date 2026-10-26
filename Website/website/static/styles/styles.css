@@ -431,6 +431,34 @@ p code,
     background-color: var(--secondary);
 }
 
+.lang-tabs {
+    display: flex;
+    gap: var(--padding-sm);
+    margin: 0 0 var(--padding-sm) 0;
+    flex-wrap: wrap;
+}
+
+.lang-tab {
+    background-color: var(--background);
+    color: var(--text);
+    border: 1px solid var(--primary);
+    border-radius: calc(var(--border-radius) - var(--padding-sm));
+    padding: var(--padding-sm) var(--spacing);
+    font-size: var(--font-size-small);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.lang-tab:hover {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.lang-tab.active {
+    background-color: var(--primary);
+    color: white;
+}
+
 .video-container {
     display: flex;
     justify-content: center;

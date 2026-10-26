@@ -1,0 +1,158 @@
+{% extends "content.html" %} {% block title %} Kruskal's Algorithm {% endblock %} {% block main_content %}
+<h1>Kruskal's Algorithm</h1>
+<p>
+    <strong>Kruskal's algorithm</strong> builds a <strong>minimum spanning tree (MST)</strong>
+    of a weighted graph by ignoring trees entirely at first: sort <em>all</em> edges by
+    weight, then take them cheapest-first, skipping any edge whose two endpoints are
+    already connected — because that edge would close a cycle and contribute nothing.
+    The result is a forest of fragments that merges, edge by edge, into one minimum tree.
+</p>
+
+<div class="subcontent">
+    <h3>Sort, Take, Skip</h3>
+    <p>
+        The one insight doing all the work: if an edge's endpoints already lie in the same
+        fragment, some cheaper path connects them, so the edge is redundant. Checking
+        "same fragment?" is a <strong>union-find</strong> job — the code labels every vertex
+        with its fragment and relabels one whole fragment on a merge (label propagation).
+        The optimized version of that structure
+        (<a href="{{ url_for('views.union_find') }}">union by rank with path
+        compression</a>) is what the reference implementation uses; it makes every check
+        nearly $O(1)$ amortized.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/kruskal-mcst.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/KruskalMCST.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same seven-vertex demo graph as the
+        Prim's page, with edges <code>0&ndash;1 (10), 0&ndash;2 (80), 1&ndash;2 (6),
+        1&ndash;4 (20), 2&ndash;3 (70), 4&ndash;5 (50), 4&ndash;6 (5), 5&ndash;6 (10)</code>
+        &mdash; each stored in both directions, which is why the sorted list holds 16 edge
+        copies. Only six edges are ever announced:
+    </p>
+    <p>
+        <strong>Accepted edges (verified against the reference implementation on this exact
+        graph):</strong>
+        <code>(4, 6) w5 &rarr; (1, 2) w6 &rarr; (0, 1) w10 &rarr; (5, 6) w10 &rarr;
+        (1, 4) w20 &rarr; (2, 3) w70</code>, for a total MST cost of <strong>121</strong>
+        — identical to Prim's answer, a nice sanity check that both strategies are correct.
+    </p>
+    <p>
+        <strong>Watch for the silent skips:</strong> edges whose endpoints already share a
+        fragment — like <code>(6, 4)</code>, the reverse copy of an accepted edge, and the
+        heavy <code>0&ndash;2 (80)</code> — produce <em>no</em> announcement at all; the
+        scan simply moves on. That silence <em>is</em> the cycle check succeeding. After
+        the sixth edge every vertex belongs to one fragment, so the remaining ten edge
+        copies are all skipped.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $O(E \log E)$</strong> — the sort dominates.
+            Each of the $E$ edges costs one union-find query; with union by rank +
+            path compression that is $O(\alpha(V))$ amortized (inverse Ackermann,
+            effectively constant), so the total is
+            $O(E \log E) + O(E \,\alpha(V)) = O(E \log E)$ in every case — Kruskal's
+            has no input order that skips the sort. Since $E \le V^2$,
+            $\log E \le 2 \log V$, so this is commonly written $O(E \log V)$.
+        </li>
+        <li>
+            <strong>The label-propagation merge shown in the code:</strong> relabelling a
+            fragment costs $O(V)$ per merge in the worst case, making this specific
+            variant $O(E V)$ worst-case — honest about what the video shows. It is
+            easy to follow visually and correct; rank-based union is the production
+            upgrade.
+        </li>
+        <li>
+            <strong>Space: $O(V + E)$</strong> — the sorted edge list plus one label per
+            vertex.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> Kruskal's never adds a cycle edge (the union-find
+        check guarantees it); it can stop after $V-1$ accepts; it works on
+        <em>disconnected</em> graphs, producing a minimum spanning <em>forest</em> —
+        one tree per component; sorting is the whole time budget, so Kruskal's favours
+        sparse graphs where $E \log E$ is small.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Network design:</strong> same MST use as Prim's — wiring, pipelines, road links at minimum cost.</li>
+        <li><strong>Single-link clustering:</strong> cutting the largest MST edges clusters data by graph distance.</li>
+        <li><strong>Circuit layout:</strong> minimum wire length between component pads.</li>
+        <li><strong>Approximation algorithms:</strong> MST-based approximations (e.g. metric TSP) usually start from a Kruskal tree.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Kruskal's vs. Prim's</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;"></th>
+                <th style="text-align: left; padding: 0.4em;">Kruskal's</th>
+                <th style="text-align: left; padding: 0.4em;">Prim's</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Grows</td>
+                <td style="padding: 0.4em;">a forest that merges into one tree</td>
+                <td style="padding: 0.4em;">one tree outward from a start vertex</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Chooses</td>
+                <td style="padding: 0.4em;">globally cheapest non-cycle edge</td>
+                <td style="padding: 0.4em;">cheapest edge <em>leaving the tree</em></td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Core structure</td>
+                <td style="padding: 0.4em;">sorted edge list + union-find</td>
+                <td style="padding: 0.4em;">cut scan / heap over key values</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Best for</td>
+                <td style="padding: 0.4em;">sparse graphs ($O(E \log E)$)</td>
+                <td style="padding: 0.4em;">dense graphs ($O(V^2)$ array variant)</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Disconnected input</td>
+                <td style="padding: 0.4em;">spanning forest, fine</td>
+                <td style="padding: 0.4em;">spans only the start component</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        See the other strategy on the identical demo graph at
+        <a href="{{ url_for('views.prims_algorithm') }}">Prim's Algorithm</a>, the union
+        and find operations in isolation at
+        <a href="{{ url_for('views.union_find') }}">Union-Find</a>, or continue to
+        <a href="{{ url_for('views.topological_sort') }}">Topological Sort</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

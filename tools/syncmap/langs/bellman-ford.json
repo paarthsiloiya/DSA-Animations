@@ -1,0 +1,121 @@
+{
+    "python": {
+        "code": [
+            "# the demo graph (note the negative weights)",
+            "edges = [(0, 7, 8), (0, 1, 10), (7, 6, 1), (6, 1, -4), (1, 5, 2),",
+            "          (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]",
+            "",
+            "start = 0",
+            "dist = {v: float('inf') for v in range(8)}   # tentative distances",
+            "dist[start] = 0",
+            "",
+            "for _ in range(8 - 1):          # V-1 relaxation rounds",
+            "    for u, v, weight in edges:  # relax every edge",
+            "        if dist[u] != float('inf') and dist[u] + weight < dist[v]:",
+            "            dist[v] = dist[u] + weight",
+            "",
+            "# one more pass: any further relaxation = negative cycle"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "6",
+            "round": "9",
+            "edge": "10",
+            "update": "12",
+            "skip": "11"
+        }
+    },
+    "c": {
+        "code": [
+            "/* the demo graph (note the negative weights) */",
+            "int edges[11][3] = {{0,7,8},{0,1,10},{7,6,1},{6,1,-4},{1,5,2},{6,5,-1},",
+            "                     {5,2,-2},{2,1,1},{2,3,1},{3,4,3},{4,5,-1}};",
+            "",
+            "int start = 0;",
+            "double dist[8];                       /* tentative distances */",
+            "",
+            "void bellman_ford(void) {",
+            "    for (int v = 0; v < 8; v++) dist[v] = 1e18;",
+            "    dist[start] = 0;",
+            "    for (int round = 0; round < 7; round++) {   /* V-1 relaxation rounds */",
+            "        for (int e = 0; e < 11; e++) {         /* relax every edge */",
+            "            int u = edges[e][0], v = edges[e][1], w = edges[e][2];",
+            "            if (dist[u] != 1e18 && dist[u] + w < dist[v])",
+            "                dist[v] = dist[u] + w;",
+            "        }",
+            "    }",
+            "    /* one more pass: any further relaxation = negative cycle */",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "9",
+            "round": "11",
+            "edge": "12",
+            "update": "14",
+            "skip": "14"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// the demo graph (note the negative weights) ",
+            "int edges[11][3] = {{0,7,8},{0,1,10},{7,6,1},{6,1,-4},{1,5,2},{6,5,-1},",
+            "                     {5,2,-2},{2,1,1},{2,3,1},{3,4,3},{4,5,-1}};",
+            "",
+            "int start = 0;",
+            "double dist[8];                       // tentative distances ",
+            "",
+            "void bellman_ford(void) {",
+            "    for (int v = 0; v < 8; v++) dist[v] = 1e18;",
+            "    dist[start] = 0;",
+            "    for (int round = 0; round < 7; round++) {   // V-1 relaxation rounds ",
+            "        for (int e = 0; e < 11; e++) {         // relax every edge ",
+            "            int u = edges[e][0], v = edges[e][1], w = edges[e][2];",
+            "            if (dist[u] != 1e18 && dist[u] + w < dist[v])",
+            "                dist[v] = dist[u] + w;",
+            "        }",
+            "    }",
+            "    // one more pass: any further relaxation = negative cycle ",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "9",
+            "round": "11",
+            "edge": "12",
+            "update": "14",
+            "skip": "14"
+        }
+    },
+    "java": {
+        "code": [
+            "// the demo graph (note the negative weights)",
+            "int[][] edges = { {0,7,8},{0,1,10},{7,6,1},{6,1,-4},{1,5,2},{6,5,-1},",
+            "                  {5,2,-2},{2,1,1},{2,3,1},{3,4,3},{4,5,-1} };",
+            "",
+            "int start = 0;",
+            "double[] dist = new double[8];       // tentative distances",
+            "",
+            "void bellmanFord() {",
+            "    java.util.Arrays.fill(dist, Double.POSITIVE_INFINITY);",
+            "    dist[start] = 0;",
+            "    for (int round = 0; round < 7; round++) {   // V-1 relaxation rounds",
+            "        for (int[] e : edges) {                  // relax every edge",
+            "            int u = e[0], v = e[1], w = e[2];",
+            "            if (dist[u] != Double.POSITIVE_INFINITY && dist[u] + w < dist[v])",
+            "                dist[v] = dist[u] + w;",
+            "        }",
+            "    }",
+            "    // one more pass: any further relaxation = negative cycle",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "9",
+            "round": "11",
+            "edge": "12",
+            "update": "14",
+            "skip": "14"
+        }
+    }
+}

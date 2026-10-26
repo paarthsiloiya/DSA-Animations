@@ -1,0 +1,96 @@
+{
+    "python": {
+        "code": [
+            "V = [0, 1, 2, 3, 4]",
+            "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+            "     (1, 3, 6), (2, 4, 8), (3, 4, 70)]",
+            "",
+            "adj = {v: [] for v in V}           # one (empty) neighbor list per vertex",
+            "",
+            "for u, v, w in W:",
+            "    adj[u].append((v, w))          # (neighbor, weight) ordered pairs",
+            "    adj[v].append((u, w))          # both ways: undirected",
+            "",
+            "# adj[u] holds u's (neighbor, weight) pairs"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5",
+            "edge": "7-11"
+        }
+    },
+    "c": {
+        "code": [
+            "int V[5] = {0, 1, 2, 3, 4};",
+            "int W[6][3] = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{3,4,70}};",
+            "",
+            "/* one neighbor list per vertex; pairs packed as 2 ints */",
+            "int adj[5][6];",
+            "int deg[5] = {0};",
+            "",
+            "void build(void) {",
+            "    for (int e = 0; e < 6; e++) {",
+            "        int u = W[e][0], v = W[e][1], w = W[e][2];",
+            "        adj[u][deg[u]++] = v;  adj[u][deg[u]++] = w;  /* (neighbor, weight) */",
+            "        adj[v][deg[v]++] = u;  adj[v][deg[v]++] = w;  /* both ways: undirected */",
+            "    }",
+            "}",
+            "",
+            "/* adj[u] packs u's (neighbor, weight) pairs */"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5-6",
+            "edge": "8-16"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int V[5] = {0, 1, 2, 3, 4};",
+            "int W[6][3] = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{3,4,70}};",
+            "",
+            "// one neighbor list per vertex; pairs packed as 2 ints",
+            "int adj[5][6];",
+            "int deg[5] = {0};",
+            "",
+            "void build(void) {",
+            "    for (int e = 0; e < 6; e++) {",
+            "        int u = W[e][0], v = W[e][1], w = W[e][2];",
+            "        adj[u][deg[u]++] = v;  adj[u][deg[u]++] = w;  // (neighbor, weight)",
+            "        adj[v][deg[v]++] = u;  adj[v][deg[v]++] = w;  // both ways: undirected",
+            "    }",
+            "}",
+            "",
+            "// adj[u] packs u's (neighbor, weight) pairs"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5-6",
+            "edge": "8-16"
+        }
+    },
+    "java": {
+        "code": [
+            "int[] V = {0, 1, 2, 3, 4};",
+            "int[][] W = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{3,4,70}};",
+            "",
+            "int[][] adj = new int[5][6];      // pairs packed as 2 ints per slot",
+            "int[] deg = new int[5];",
+            "",
+            "void build() {",
+            "    for (int[] e : W) {",
+            "        int u = e[0], v = e[1], w = e[2];",
+            "        adj[u][deg[u]++] = v;  adj[u][deg[u]++] = w;  // (neighbor, weight)",
+            "        adj[v][deg[v]++] = u;  adj[v][deg[v]++] = w;  // both ways",
+            "    }",
+            "}",
+            "",
+            "// adj[u] packs u's (neighbor, weight) pairs"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "4-5",
+            "edge": "7-15"
+        }
+    }
+}

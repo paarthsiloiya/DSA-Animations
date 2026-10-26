@@ -1,0 +1,114 @@
+{% extends "content.html" %} {% block title %} Floyd-Warshall Algorithm {% endblock %} {% block main_content %}
+<h1>Floyd-Warshall Algorithm</h1>
+<p>
+    <strong>Floyd-Warshall</strong> solves the <strong>all-pairs shortest path</strong>
+    problem: shortest distances between <em>every</em> ordered pair of vertices in one
+    dynamic-programming pass — with negative weights allowed, detecting negative cycles via
+    the diagonal.
+</p>
+
+<div class="subcontent">
+    <h3>The DP Formulation</h3>
+    <p>
+        Let $d^{(k)}[i][j]$ = the shortest path from $i$ to $j$ using only vertices
+        $\{0, \dots, k-1\}$ as <strong>intermediates</strong>. Then:
+    </p>
+    <p style="text-align: center;">
+        $d^{(k+1)}[i][j] = \min\big(d^{(k)}[i][j],\; d^{(k)}[i][k] + d^{(k)}[k][j]\big)$
+    </p>
+    <p>
+        Either vertex $k$ doesn't help (keep the old distance), or the best route splits at
+        $k$: best-known $i \rightarrow k$, then best-known $k \rightarrow j$. The base case
+        $d^{(0)}[i][i] = 0$, $d^{(0)}[i][j] = w(i,j)$ for direct edges, $\infty$ otherwise.
+        After allowing all $V$ vertices as intermediates, $d[i][j]$ is the true shortest
+        distance. The in-place triple loop works because $d[i][k]$ and $d[k][j]$ are already
+        correct for the first $k$ intermediates when row/column $k$ is read.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/floyd-warshall.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-5">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/FloydWarshall.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same negative-weight demo graph as
+        Bellman-Ford, on seven vertices <code>0&ndash;6</code> with edges
+        <code>0&rarr;6 (8), 0&rarr;1 (10), 6&rarr;1 (-4), 1&rarr;5 (2), 6&rarr;5 (-1),
+        5&rarr;2 (-2), 2&rarr;1 (1), 2&rarr;3 (1), 3&rarr;4 (3), 4&rarr;5 (-1)</code>.
+        The <em>Shortest Pair</em> matrix starts as the direct-edge matrix (0 on the diagonal,
+        weights on edges, <code>&infty;</code> elsewhere). Then seven iterations run — the
+        <code>SP_1</code>&hellip;<code>SP_7</code> counter in the corner of the matrix tracks
+        the intermediate vertex being admitted, including vertex 0. Watch cell (0, 1): direct
+        10, but 0&rarr;6&rarr;1 gives $8 + (-4) = 4$. The animation also highlights the
+        full path on the graph for every improved cell.
+    </p>
+    <p>
+        <strong>Final matrix (verified against the reference implementation on this exact
+        graph; &infin; = unreachable):</strong>
+    </p>
+    <p style="font-family: monospace; text-align: center;">
+        0&ensp;4&ensp;4&ensp;5&ensp;8&ensp;6&ensp;8<br />
+        &infin;&ensp;0&ensp;0&ensp;1&ensp;4&ensp;2&ensp;&infin;<br />
+        &infin;&ensp;1&ensp;0&ensp;1&ensp;4&ensp;3&ensp;&infin;<br />
+        &infin;&ensp;1&ensp;0&ensp;0&ensp;3&ensp;2&ensp;&infin;<br />
+        &infin;&ensp;-2&ensp;-3&ensp;-2&ensp;0&ensp;-1&ensp;&infin;<br />
+        &infin;&ensp;-1&ensp;-2&ensp;-1&ensp;2&ensp;0&ensp;&infin;<br />
+        &infin;&ensp;-4&ensp;-4&ensp;-3&ensp;0&ensp;-2&ensp;0
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity and the Negative-Cycle Note</h3>
+    <ul>
+        <li>
+            <strong>Time: $\Theta(V^3)$</strong> — three nested loops over $V$, unconditional:
+            best = worst = average. Cheap for the all-pairs question on small $V$, hopeless
+            for large sparse graphs (there, $V$ runs of Dijkstra usually win).
+        </li>
+        <li>
+            <strong>Space: $\Theta(V^2)$</strong> — the distance matrix itself (the
+            predecessor/next matrix for path reconstruction adds another $V^2$).
+        </li>
+        <li>
+            <strong>Negative cycles:</strong> the algorithm tolerates negative edges (as this
+            demo shows) but a <strong>negative diagonal after the loops</strong>
+            ($d[i][i] < 0$) reveals a negative cycle through vertex $i$. Here the diagonal
+            stays all zeros — the negative edges feed forward, never back, so no cycle.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> Floyd-Warshall is for <em>dense</em> all-pairs; for a
+        single source use <a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra</a>
+        (non-negative) or
+        <a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman-Ford</a>
+        (negative-safe, $O(VE)$), and re-run per source.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Compare the single-source twins —
+        <a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra</a> and
+        <a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman-Ford</a> — or revisit
+        <a href="{{ url_for('views.graph_representation') }}">graph representation</a> to see
+        the matrix this DP runs on.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

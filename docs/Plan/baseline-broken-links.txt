@@ -2,3 +2,5 @@
 # emptied 2026-09-24 by PROMPT 006 (B2/B3/B4): every entry was fixed (url_for
 # targets, Videos/ casing) or converted to a pending span / hidden footer.
 # Re-generate with: python tools/link_check.py --strict
+# confirmed still empty 2026-10-25 by PROMPT 043 (C14): footer un-hidden and fully wired,
+# every pending span converted or intentionally gray; --strict exits 0 with zero entries below.

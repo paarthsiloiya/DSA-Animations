@@ -1,0 +1,95 @@
+{
+    "python": {
+        "code": [
+            "from collections import deque",
+            "",
+            "# demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "root = build_tree()",
+            "",
+            "def bfs(root):",
+            "    order = []",
+            "    queue = deque([root])       # FIFO: the oldest node leaves first",
+            "    while queue:",
+            "        current = queue.popleft()",
+            "        order.append(current.data)   # visit",
+            "        for child in current.children:",
+            "            queue.append(child)      # discoveries join at the rear",
+            "    return order",
+            "",
+            "bfs(root)   # A B C D E F G H I J K"
+        ],
+        "steps": {
+            "declare": "3-4",
+            "visit": "10-11",
+            "discover": "13"
+        }
+    },
+    "c": {
+        "code": [
+            "/* demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K) */",
+            "",
+            "void bfs(struct Node *root) {",
+            "    struct Node *queue[16];",
+            "    int head = 0, tail = 0;          /* FIFO: the oldest node leaves first */",
+            "    queue[tail++] = root;",
+            "    while (head < tail) {",
+            "        struct Node *current = queue[head++];   /* leave from the front */",
+            "        visit(current);              /* visit */",
+            "        for (int i = 0; i < current->count; i++)",
+            "            queue[tail++] = current->children[i];  /* discoveries join at the rear */",
+            "    }",
+            "}",
+            "/* bfs(root) visits: A B C D E F G H I J K */"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "8-9",
+            "discover": "11"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "",
+            "void bfs(Node *root) {",
+            "    std::queue<Node *> queue;        // FIFO: the oldest node leaves first",
+            "    queue.push(root);",
+            "    while (!queue.empty()) {",
+            "        Node *current = queue.front();   // leave from the front",
+            "        queue.pop();",
+            "        visit(current);              // visit",
+            "        for (Node *child : current->children)",
+            "            queue.push(child);      // discoveries join at the rear",
+            "    }",
+            "}",
+            "// bfs(root) visits: A B C D E F G H I J K"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "8-10",
+            "discover": "12"
+        }
+    },
+    "java": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "",
+            "void bfs(Node root) {",
+            "    Queue<Node> queue = new ArrayDeque<>();   // FIFO: oldest first",
+            "    queue.add(root);",
+            "    while (!queue.isEmpty()) {",
+            "        Node current = queue.poll();           // leave from the front",
+            "        visit(current);                        // visit",
+            "        for (Node child : current.children)",
+            "            queue.add(child);                  // discoveries join at the rear",
+            "    }",
+            "}",
+            "// bfs(root) visits: A B C D E F G H I J K"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "7-8",
+            "discover": "10"
+        }
+    }
+}

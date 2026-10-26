@@ -1,0 +1,134 @@
+{
+    "python": {
+        "code": [
+            "# the demo graph, edge list (undirected: stored both ways)",
+            "edges = sorted((w, u, v) for u in adj for v, w in adj[u])",
+            "",
+            "component = {v: v for v in range(7)}   # label-propagation union-find",
+            "tree, total = [], 0",
+            "",
+            "for w, u, v in edges:                   # smallest weight first",
+            "    if component[u] != component[v]:    # different trees -> no cycle",
+            "        tree.append((u, v))",
+            "        total += w",
+            "        old = component[u]              # merge: one label wins",
+            "        for t in component:",
+            "            if component[t] == old:",
+            "                component[t] = component[v]"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "4",
+            "select": "7",
+            "accept": "9",
+            "total": "10",
+            "done": "11"
+        }
+    },
+    "c": {
+        "code": [
+            "/* the 16 edge copies already sorted by weight (then u, v) */",
+            "int edges[16][3] = {{4,6,5},{6,4,5},{1,2,6},{2,1,6},",
+            "                    {0,1,10},{1,0,10},{5,6,10},{6,5,10},",
+            "                    {1,4,20},{4,1,20},{4,5,50},{5,4,50},",
+            "                    {2,3,70},{3,2,70},{0,2,80},{2,0,80}};",
+            "",
+            "int component[7];                    /* label-propagation union-find */",
+            "int total = 0;",
+            "",
+            "void kruskal(void) {",
+            "    for (int v = 0; v < 7; v++) component[v] = v;",
+            "    for (int e = 0; e < 16; e++) {   /* smallest weight first */",
+            "        int u = edges[e][0], v = edges[e][1], w = edges[e][2];",
+            "        if (component[u] != component[v]) {  /* different trees -> no cycle */",
+            "            total += w;",
+            "            int old = component[u];   /* merge: one label wins */",
+            "            for (int t = 0; t < 7; t++)",
+            "                if (component[t] == old)",
+            "                    component[t] = component[v];",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "7",
+            "select": "12",
+            "accept": "14",
+            "total": "15",
+            "done": "16"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// the 16 edge copies already sorted by weight (then u, v) ",
+            "int edges[16][3] = {{4,6,5},{6,4,5},{1,2,6},{2,1,6},",
+            "                    {0,1,10},{1,0,10},{5,6,10},{6,5,10},",
+            "                    {1,4,20},{4,1,20},{4,5,50},{5,4,50},",
+            "                    {2,3,70},{3,2,70},{0,2,80},{2,0,80}};",
+            "",
+            "int component[7];                    // label-propagation union-find ",
+            "int total = 0;",
+            "",
+            "void kruskal(void) {",
+            "    for (int v = 0; v < 7; v++) component[v] = v;",
+            "    for (int e = 0; e < 16; e++) {   // smallest weight first ",
+            "        int u = edges[e][0], v = edges[e][1], w = edges[e][2];",
+            "        if (component[u] != component[v]) {  // different trees -> no cycle ",
+            "            total += w;",
+            "            int old = component[u];   // merge: one label wins ",
+            "            for (int t = 0; t < 7; t++)",
+            "                if (component[t] == old)",
+            "                    component[t] = component[v];",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "7",
+            "select": "12",
+            "accept": "14",
+            "total": "15",
+            "done": "16"
+        }
+    },
+    "java": {
+        "code": [
+            "// the demo graph's 16 edge copies, before sorting",
+            "int[][] edges = { {0,1,10},{0,2,80},{1,0,10},{1,2,6},{1,4,20},",
+            "                  {2,0,80},{2,1,6},{2,3,70},{3,2,70},{4,1,20},",
+            "                  {4,5,50},{4,6,5},{5,4,50},{5,6,10},{6,4,5},{6,5,10} };",
+            "",
+            "int[] component = new int[7];        // label-propagation union-find",
+            "int total = 0;",
+            "",
+            "void kruskal() {",
+            "    for (int v = 0; v < 7; v++) component[v] = v;",
+            "    java.util.Arrays.sort(edges, (a, b) -> {   // by weight, then u, then v",
+            "        if (a[2] != b[2]) return Integer.compare(a[2], b[2]);",
+            "        if (a[0] != b[0]) return Integer.compare(a[0], b[0]);",
+            "        return Integer.compare(a[1], b[1]);",
+            "    });",
+            "    for (int[] e : edges) {          // smallest weight first",
+            "        int u = e[0], v = e[1], w = e[2];",
+            "        if (component[u] != component[v]) {  // different trees -> no cycle",
+            "            total += w;",
+            "            int old = component[u];   // merge: one label wins",
+            "            for (int t = 0; t < 7; t++)",
+            "                if (component[t] == old)",
+            "                    component[t] = component[v];",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "build": "2",
+            "init": "6",
+            "select": "16",
+            "accept": "18",
+            "total": "19",
+            "done": "20"
+        }
+    }
+}

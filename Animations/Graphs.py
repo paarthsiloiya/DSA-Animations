@@ -1,15 +1,26 @@
-from typing import Any
+from typing import Any, ClassVar
 
 import numpy as np
 from common import Node, WeightedLine, animate_traversal
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 # Override specific font sizes for Graphs
 EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 
 
-class UndirectedGraphs(Scene):
+class UndirectedGraphs(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "vertices = [0, 1, 2, 3, 4]",
+        "edges = [(0, 2), (0, 1), (1, 3), (4, 1), (4, 2), (2, 3), (3, 4)]",
+        "",
+        "G = Graph(vertices, edges)   # undirected: (0, 2) links 0 and 2 BOTH ways",
+        "",
+        "# the degree of a vertex = the number of edges touching it",
+        "degrees = {0: 2, 1: 3, 2: 3, 3: 3, 4: 3}",
+    ]
+
     def construct(self):
         vertices = [4, 3, 2, 0, 1]
         edges = [(0, 2), (0, 1), (1, 3), (4, 1), (4, 2), (2, 3), (3, 4)]
@@ -23,12 +34,14 @@ class UndirectedGraphs(Scene):
         nodes = list(graph.vertices.values())
         graphVertices = graph.vertices
 
+        self.code_step("vertices")
         for idx in range(len(vertices)):
             self.play(*[FadeIn(nodes[idx])], run_time=0.3)
             self.wait(0.1)
 
         self.wait(1)
 
+        self.code_step("node")
         self.play(graphVertices[1].Select(), run_time=0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
@@ -43,6 +56,7 @@ class UndirectedGraphs(Scene):
         for i, item in enumerate(graph.edges.items()):
             points, edge = item
             n1, n2 = edges[i]
+            self.code_step("edge")
             self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
             pointText = Text(f"{points[0]}-{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.2)
             self.play(Create(edge), run_time=0.5)
@@ -73,6 +87,7 @@ class UndirectedGraphs(Scene):
             self.wait(0.3)
         
         degreesGroup.shift([-0.25, 0, 0])
+        self.code_step("degree")
         self.play(FadeIn(degreesGroup, lag_ratio=0.1), run_time=0.5)
 
         nodeSurr = DashedVMobject(SurroundingRectangle(degreesGroup.submobjects[-1], color=TEXTCOL, buff=0.1, corner_radius=0.15))
@@ -86,7 +101,20 @@ class UndirectedGraphs(Scene):
         self.wait(2)
 
 
-class AdjacencyMatrixUD(Scene):
+class AdjacencyMatrixUD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "E = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]",
+        "",
+        "M = [[0] * len(V) for _ in V]      # V x V grid of zeros",
+        "",
+        "for u, v in E:",
+        "    M[u][v] = 1",
+        "    M[v][u] = 1                    # symmetric: undirected",
+        "",
+        "# M[u][v] == 1  <=>  edge (u, v) exists; row u lists u's neighbors",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4]
         edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]
@@ -96,6 +124,7 @@ class AdjacencyMatrixUD(Scene):
                       edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
@@ -119,12 +148,14 @@ class AdjacencyMatrixUD(Scene):
         
         matrixTable.to_edge(RIGHT, buff=1.2)
         
+        self.code_step("init")
         self.play(matrixTable.create(), Write(Text("Adjacency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
         self.wait(1.2)
 
         graphVertices = graph.vertices
 
         for u, v in edges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 graph.edges[(u, v)].animate.set_stroke(color=TEXTCOL, width=7),
@@ -172,7 +203,20 @@ class AdjacencyMatrixUD(Scene):
 
 
 
-class AdjacencyListUD(Scene):
+class AdjacencyListUD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "E = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]",
+        "",
+        "adj = {v: [] for v in V}           # one (empty) neighbor list per vertex",
+        "",
+        "for u, v in E:",
+        "    adj[u].append(v)",
+        "    adj[v].append(u)                # both ways: undirected",
+        "",
+        "# adj[u] lists u's neighbors; len(adj[u]) = degree(u)",
+    ]
+
     def construct(self):
         def get_adjacency_list_VGroup(adjacency_list):
 
@@ -197,17 +241,20 @@ class AdjacencyListUD(Scene):
                       edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
 
         adjecencyList = {v: [] for v in vertices}
         adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.code_step("init")
         self.play(Create(adjecencyListVGroup), run_time=0.5)
 
         graphVertices = graph.vertices
 
         for u, v in edges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 graph.edges[(u, v)].animate.set_stroke(color=TEXTCOL, width=7),
@@ -239,7 +286,25 @@ class AdjacencyListUD(Scene):
         self.wait(2)
 
 
-class UndirectedGraphBFS(Scene):
+class UndirectedGraphBFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph's adjacency (built from the edges)",
+        "adjacency_list = {1: [2, 4], 2: [1, 4, 3, 5], 3: [2, 6],",
+        "                  4: [1, 2], 5: [2, 6, 7], 6: [3, 5, 7],",
+        "                  7: [5, 6]}",
+        "",
+        "s = 1                                  # the start vertex",
+        "",
+        "visited = {s}                          # discovered vertices",
+        "queue = [s]                            # FIFO: discovered, not yet processed",
+        "while queue:",
+        "    current = queue.pop(0)            # take the oldest",
+        "    for neighbor in adjacency_list[current]:",
+        "        if neighbor not in visited:",
+        "            visited.add(neighbor)",
+        "            queue.append(neighbor)     # joins the rear",
+    ]
+
     def construct(self):
         vertices = [4, 1, 2, 3, 6, 7, 5]
         edges = [(1,2),(1,4),(2,4),(2,3),(2,5),(3,6),(5,6),(5,7),(6,7)]
@@ -252,6 +317,7 @@ class UndirectedGraphBFS(Scene):
         graph.to_edge(LEFT, buff=1.2)
 
         BFSTree = []
+        self.code_step("declare")
         self.play(Create(graph), run_time=2)
         self.wait(1)
 
@@ -264,21 +330,51 @@ class UndirectedGraphBFS(Scene):
 
         # Show starting node selection
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.code_step("start")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        def bfs_neighbors(current):
+            self.code_step("visit")
+            return adjacencyList[current]
+
+        _traversal_edges = []
+
+        def bfs_on_visit(current, neighbor):
+            self.code_step("discover")
+            _traversal_edges.append((current, neighbor))
 
         animate_traversal(self, graph, adjacencyList, s, start_text,
                           container_shift=4,
                           processing_buff=1.2,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
-                          on_visit=lambda current, neighbor: BFSTree.append((current, neighbor)))
+                          neighbors_of=bfs_neighbors,
+                          on_visit=bfs_on_visit)
         self.play(graph.animate.remove_edges(*[edge for edge in graph.edges if edge not in BFSTree]), run_time=1.5)
         self.wait(0.5)
         self.play(graph.animate.center())
         self.wait(2)
 
 
-class UndirectedGraphDFS(Scene):
+class UndirectedGraphDFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph's adjacency (built from the edges)",
+        "adjacency_list = {1: [2, 4], 2: [1, 4, 3, 5], 3: [2, 6],",
+        "                  4: [1, 2], 5: [2, 6, 7], 6: [3, 5, 7],",
+        "                  7: [5, 6]}",
+        "",
+        "s = 1                                  # the start vertex",
+        "",
+        "visited = {s}                          # discovered vertices",
+        "stack = [s]                            # LIFO: newest is processed first",
+        "while stack:",
+        "    current = stack.pop()              # take the newest",
+        "    for neighbor in reversed(adjacency_list[current]):",
+        "        if neighbor not in visited:",
+        "            visited.add(neighbor)",
+        "            stack.append(neighbor)     # dives deeper first",
+    ]
+
     def construct(self):
         vertices = [4, 1, 2, 3, 6, 7, 5]
         edges = [(1,2),(1,4),(2,4),(2,3),(2,5),(3,6),(5,6),(5,7),(6,7)]
@@ -291,6 +387,7 @@ class UndirectedGraphDFS(Scene):
         graph.to_edge(LEFT, buff=1.2)
 
         DFSTree = []
+        self.code_step("declare")
         self.play(Create(graph), run_time=2)
         self.wait(1)
 
@@ -303,23 +400,46 @@ class UndirectedGraphDFS(Scene):
 
         # Show starting node selection
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.code_step("start")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        _traversal_edges = []
+
+        def dfs_neighbors(current):
+            self.code_step("visit")
+            return reversed(adjacencyList[current])
+
+        def dfs_on_visit(current, neighbor):
+            self.code_step("discover")
+            _traversal_edges.append((current, neighbor))
 
         animate_traversal(self, graph, adjacencyList, s, start_text,
                           use_stack=True,
                           container_shift=4,
                           processing_buff=1.2,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
-                          neighbors_of=lambda current: reversed(adjacencyList[current]),
-                          on_visit=lambda current, neighbor: DFSTree.append((current, neighbor)))
+                          neighbors_of=dfs_neighbors,
+                          on_visit=dfs_on_visit)
+        DFSTree.extend(_traversal_edges)
         self.play(graph.animate.remove_edges(*[edge for edge in graph.edges if edge not in DFSTree]), run_time=1.5)
         self.wait(0.5)
         self.play(graph.animate.center())
         self.wait(2)
 
 
-class DirectedGraphs(Scene):
+class DirectedGraphs(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "vertices = [0, 1, 2, 3, 4]",
+        "edges = [(0, 2), (0, 1), (1, 3), (4, 1), (4, 2), (2, 3), (3, 4)]",
+        "",
+        "G = DiGraph(vertices, edges)   # directed: (0, 2) links 0 -> 2 ONLY",
+        "",
+        "# in-degree = edges arriving at a vertex; out-degree = edges leaving it",
+        "indegree = {0: 0, 1: 2, 2: 2, 3: 2, 4: 1}",
+        "outdegree = {0: 2, 1: 1, 2: 1, 3: 1, 4: 2}",
+    ]
+
     def construct(self):
         vertices = [4, 3, 2, 0, 1]
         edges = [(0, 2), (0, 1), (1, 3), (4, 1), (4, 2), (2, 3), (3, 4)]
@@ -333,12 +453,14 @@ class DirectedGraphs(Scene):
         nodes = list(graph.vertices.values())
         graphVertices = graph.vertices
 
+        self.code_step("vertices")
         for idx in range(len(vertices)):
             self.play(*[FadeIn(nodes[idx])], run_time=0.3)
             self.wait(0.1)
 
         self.wait(1)
 
+        self.code_step("node")
         self.play(graphVertices[1].Select(), run_time=0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
@@ -353,6 +475,7 @@ class DirectedGraphs(Scene):
         for i, item in enumerate(graph.edges.items()):
             points, edge = item
             n1, n2 = edges[i]
+            self.code_step("edge")
             self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
             pointText = Text(f"{points[0]}->{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.2)
             self.play(Create(edge), run_time=0.5)
@@ -389,6 +512,7 @@ class DirectedGraphs(Scene):
         indegreeVGroup.shift([0.25, 0, 0])
         exdegreeVGroup.shift([-0.25, 0, 0])
 
+        self.code_step("indegree")
         self.play(FadeIn(indegreeVGroup, lag_ratio=0.1), run_time=0.5)
         self.wait(1.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(indegreeVGroup.submobjects[-1], color=TEXTCOL, buff=0.1, corner_radius=0.15))
@@ -401,6 +525,7 @@ class DirectedGraphs(Scene):
 
         self.wait(2)
 
+        self.code_step("outdegree")
         self.play(FadeIn(exdegreeVGroup, lag_ratio=0.1), run_time=0.5)
         self.wait(1.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(exdegreeVGroup.submobjects[-1], color=TEXTCOL, buff=0.1, corner_radius=0.15))
@@ -414,7 +539,19 @@ class DirectedGraphs(Scene):
         self.wait(2)
 
 
-class AdjacencyMatrixD(Scene):
+class AdjacencyMatrixD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "E = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]",
+        "",
+        "M = [[0] * len(V) for _ in V]      # V x V grid of zeros",
+        "",
+        "for u, v in E:",
+        "    M[u][v] = 1                     # directed: only the (u, v) direction",
+        "",
+        "# M[u][v] == 1  <=>  u -> v exists; row u lists u's out-neighbors",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4]
         edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]
@@ -424,6 +561,7 @@ class AdjacencyMatrixD(Scene):
                       edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
@@ -447,12 +585,14 @@ class AdjacencyMatrixD(Scene):
         
         matrixTable.to_edge(RIGHT, buff=1.2)
         
+        self.code_step("init")
         self.play(matrixTable.create(), Write(Text("Adjacency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
         self.wait(1.2)
 
         graphVertices = graph.vertices
 
         for u, v in edges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 graph.edges[(u, v)].animate.set_color(color=TEXTCOL),
@@ -490,7 +630,24 @@ class AdjacencyMatrixD(Scene):
         self.wait(4)
 
 
-class DirectedGraphBFS(Scene):
+class DirectedGraphBFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph's adjacency (built from the edges)",
+        "adjacency_list = {1: [2, 4], 2: [4, 3, 5], 3: [6],",
+        "                  4: [], 5: [6, 7], 6: [7], 7: []}",
+        "",
+        "s = 1                                  # the start vertex",
+        "",
+        "visited = {s}                          # discovered vertices",
+        "queue = [s]                            # FIFO: discovered, not yet processed",
+        "while queue:",
+        "    current = queue.pop(0)            # take the oldest",
+        "    for neighbor in adjacency_list[current]:",
+        "        if neighbor not in visited:",
+        "            visited.add(neighbor)",
+        "            queue.append(neighbor)     # joins the rear",
+    ]
+
     def construct(self):
         vertices = [4, 1, 2, 3, 6, 7, 5]
         edges = [(1,2),(1,4),(2,4),(2,3),(2,5),(3,6),(5,6),(5,7),(6,7)]
@@ -504,6 +661,7 @@ class DirectedGraphBFS(Scene):
         graph.to_edge(LEFT, buff=1.2)
 
         BFSTree = []
+        self.code_step("declare")
         self.play(Create(graph), run_time=2)
         self.wait(1)
 
@@ -515,22 +673,52 @@ class DirectedGraphBFS(Scene):
 
         # Show starting node selection
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.code_step("start")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        _traversal_edges = []
+
+        def bfs_neighbors(current):
+            self.code_step("visit")
+            return adjacencyList[current]
+
+        def bfs_on_visit(current, neighbor):
+            self.code_step("discover")
+            _traversal_edges.append((current, neighbor))
 
         animate_traversal(self, graph, adjacencyList, s, start_text,
                           container_shift=4,
                           processing_buff=1.2,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
                           edge_highlight=lambda graph, edge: graph.edges[edge].animate.set_color(color=TEXTCOL),
-                          on_visit=lambda current, neighbor: BFSTree.append((current, neighbor)))
+                          neighbors_of=bfs_neighbors,
+                          on_visit=bfs_on_visit)
+        BFSTree.extend(_traversal_edges)
         self.play(graph.animate.remove_edges(*[edge for edge in graph.edges if edge not in BFSTree]), run_time=1.5)
         self.wait(0.5)
         self.play(graph.animate.center())
         self.wait(2)
 
 
-class DirectedGraphDFS(Scene):
+class DirectedGraphDFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph's adjacency (built from the edges)",
+        "adjacency_list = {1: [2, 4], 2: [4, 3, 5], 3: [6],",
+        "                  4: [], 5: [6, 7], 6: [7], 7: []}",
+        "",
+        "s = 1                                  # the start vertex",
+        "",
+        "visited = {s}                          # discovered vertices",
+        "stack = [s]                            # LIFO: newest is processed first",
+        "while stack:",
+        "    current = stack.pop()              # take the newest",
+        "    for neighbor in reversed(adjacency_list[current]):",
+        "        if neighbor not in visited:",
+        "            visited.add(neighbor)",
+        "            stack.append(neighbor)     # dives deeper first",
+    ]
+
     def construct(self):
         vertices = [4, 1, 2, 3, 6, 7, 5]
         edges = [(1,2),(1,4),(2,4),(2,3),(2,5),(3,6),(5,6),(5,7),(6,7)]
@@ -544,6 +732,7 @@ class DirectedGraphDFS(Scene):
         graph.to_edge(LEFT, buff=1.2)
 
         DFSTree = []
+        self.code_step("declare")
         self.play(Create(graph), run_time=2)
         self.wait(1)
 
@@ -555,24 +744,48 @@ class DirectedGraphDFS(Scene):
 
         # Show starting node selection
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
+        self.code_step("start")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        _traversal_edges = []
+
+        def dfs_neighbors(current):
+            self.code_step("visit")
+            return reversed(adjacencyList[current])
+
+        def dfs_on_visit(current, neighbor):
+            self.code_step("discover")
+            _traversal_edges.append((current, neighbor))
 
         animate_traversal(self, graph, adjacencyList, s, start_text,
                           use_stack=True,
                           container_shift=4,
                           processing_buff=1.2,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
-                          neighbors_of=lambda current: reversed(adjacencyList[current]),
+                          neighbors_of=dfs_neighbors,
                           edge_highlight=lambda graph, edge: graph.edges[edge].animate.set_color(color=TEXTCOL),
-                          on_visit=lambda current, neighbor: DFSTree.append((current, neighbor)))
+                          on_visit=dfs_on_visit)
+        DFSTree.extend(_traversal_edges)
         self.play(graph.animate.remove_edges(*[edge for edge in graph.edges if edge not in DFSTree]), run_time=1.5)
         self.wait(0.5)
         self.play(graph.animate.center())
         self.wait(2)
 
 
-class AdjacencyListD(Scene):
+class AdjacencyListD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "E = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 3), (2, 4), (4, 3)]",
+        "",
+        "adj = {v: [] for v in V}           # one (empty) neighbor list per vertex",
+        "",
+        "for u, v in E:",
+        "    adj[u].append(v)               # directed: one direction only",
+        "",
+        "# adj[u] lists u's out-neighbors; len(adj[u]) = out-degree(u)",
+    ]
+
     def construct(self):
         def get_adjacency_list_VGroup(adjacency_list):
 
@@ -597,17 +810,20 @@ class AdjacencyListD(Scene):
                       edge_config={"stroke_color": EDGE_COL, "stroke_width": 6})
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
 
         adjecencyList = {v: [] for v in vertices}
         adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.code_step("init")
         self.play(Create(adjecencyListVGroup), run_time=0.5)
 
         graphVertices = graph.vertices
 
         for u, v in edges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 graph.edges[(u, v)].animate.set_color(color=TEXTCOL),
@@ -636,7 +852,17 @@ class AdjacencyListD(Scene):
 
         self.wait(2)
 
-class WeightedUDGraphs(Scene):
+class WeightedUDGraphs(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "vertices = [0, 1, 2, 3, 4]",
+        "wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "           (1, 3, 6), (2, 4, 8), (3, 4, 70)]",
+        "",
+        "# (u, v, w) = an edge between u and v whose weight (cost) is w",
+        "G = Graph(vertices, [(u, v) for u, v, _ in wedges])",
+        "G.set_edge_weights({(u, v): w for u, v, w in wedges})",
+    ]
+
     def construct(self):
         vertices = [3, 2, 0, 1, 4]
         wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
@@ -651,12 +877,14 @@ class WeightedUDGraphs(Scene):
         nodes = list(graph.vertices.values())
         graphVertices = graph.vertices
 
+        self.code_step("vertices")
         for idx in range(len(vertices)):
             self.play(*[FadeIn(nodes[idx])], run_time=0.3)
             self.wait(0.1)
 
         self.wait(1)
 
+        self.code_step("node")
         self.play(graphVertices[1].Select(), run_time=0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
@@ -671,6 +899,7 @@ class WeightedUDGraphs(Scene):
         for i, item in enumerate(graph.edges.items()):
             points, edge = item
             n1, n2 = edges[i]
+            self.code_step("edge")
             self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
             pointText = Text(f"{points[0]}-{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.35)
             self.play(Create(edge), run_time=0.5)
@@ -694,6 +923,7 @@ class WeightedUDGraphs(Scene):
             self.wait(0.5)
 
         self.wait(1)
+        self.code_step("weight")
         nodeSurr = DashedVMobject(SurroundingRectangle(list(graph.edges.values())[-1]._get_weight_mob(), color=TEXTCOL, buff=0.03, corner_radius=0.2))
         nodeText = Text("Weight", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT + DOWN, buff=0.01)
         self.play(Create(nodeSurr), run_time=0.5)
@@ -705,7 +935,21 @@ class WeightedUDGraphs(Scene):
         self.wait(2)
 
 
-class WeightedAdjacencyMatrixUD(Scene):
+class WeightedAdjacencyMatrixUD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "     (1, 3, 6), (2, 4, 8), (3, 4, 70)]",
+        "",
+        "M = [[0] * len(V) for _ in V]      # V x V grid, 0 = no edge",
+        "",
+        "for u, v, w in W:",
+        "    M[u][v] = w",
+        "    M[v][u] = w                    # symmetric: undirected",
+        "",
+        "# M[u][v] = the weight of edge (u, v); 0 = no edge",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4]
         wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
@@ -718,6 +962,7 @@ class WeightedAdjacencyMatrixUD(Scene):
                       edge_config=edge_config)
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
@@ -741,12 +986,14 @@ class WeightedAdjacencyMatrixUD(Scene):
         
         matrixTable.to_edge(RIGHT, buff=1.2)
         
+        self.code_step("init")
         self.play(matrixTable.create(), Write(Text("Adjacency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
         self.wait(1.2)
 
         graphVertices = graph.vertices
 
         for u, v, w in wedges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 *graph.edges[(u, v)].highlight_line(),
@@ -794,7 +1041,21 @@ class WeightedAdjacencyMatrixUD(Scene):
         self.wait(4)
 
 
-class WeightedAdjacencyListUD(Scene):
+class WeightedAdjacencyListUD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "     (1, 3, 6), (2, 4, 8), (3, 4, 70)]",
+        "",
+        "adj = {v: [] for v in V}           # one (empty) neighbor list per vertex",
+        "",
+        "for u, v, w in W:",
+        "    adj[u].append((v, w))          # (neighbor, weight) ordered pairs",
+        "    adj[v].append((u, w))          # both ways: undirected",
+        "",
+        "# adj[u] holds u's (neighbor, weight) pairs",
+    ]
+
     def construct(self):
         def get_adjacency_list_VGroup(adjacency_list):
 
@@ -822,17 +1083,20 @@ class WeightedAdjacencyListUD(Scene):
                       edge_config=edge_config)
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
 
         adjecencyList = {v: [] for v in vertices}
         adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.code_step("init")
         self.play(Create(adjecencyListVGroup), run_time=0.5)
 
         graphVertices = graph.vertices
 
         for u, v, w in wedges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 *graph.edges[(u, v)].highlight_line(),
@@ -864,7 +1128,17 @@ class WeightedAdjacencyListUD(Scene):
         self.wait(4)
 
 
-class WeightedDGraphs(Scene):
+class WeightedDGraphs(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "vertices = [0, 1, 2, 3, 4]",
+        "wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "           (1, 3, 6), (2, 4, 8), (3, 4, 70)]",
+        "",
+        "# (u, v, w) = an edge from u to v whose weight (cost) is w",
+        "G = DiGraph(vertices, [(u, v) for u, v, _ in wedges])",
+        "G.set_edge_weights({(u, v): w for u, v, w in wedges})",
+    ]
+
     def construct(self):
         vertices = [3, 2, 0, 1, 4]
         wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (3, 4, 70)]
@@ -879,12 +1153,14 @@ class WeightedDGraphs(Scene):
         nodes = list(graph.vertices.values())
         graphVertices = graph.vertices
 
+        self.code_step("vertices")
         for idx in range(len(vertices)):
             self.play(*[FadeIn(nodes[idx])], run_time=0.3)
             self.wait(0.1)
 
         self.wait(1)
 
+        self.code_step("node")
         self.play(graphVertices[1].Select(), run_time=0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[1], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Node", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
@@ -899,6 +1175,7 @@ class WeightedDGraphs(Scene):
         for i, item in enumerate(graph.edges.items()):
             points, edge = item
             n1, n2 = edges[i]
+            self.code_step("edge")
             self.play(graphVertices[n1].Select(), graphVertices[n2].Select(), run_time=0.5)
             pointText = Text(f"{points[0]}-{points[1]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(edge.get_center(), direction=rotate_vector(edge.get_unit_vector(), PI / 2), buff=0.35)
             self.play(Create(edge), run_time=0.5)
@@ -922,6 +1199,7 @@ class WeightedDGraphs(Scene):
             self.wait(0.5)
 
         self.wait(1)
+        self.code_step("weight")
         nodeSurr = DashedVMobject(SurroundingRectangle(list(graph.edges.values())[-1]._get_weight_mob(), color=TEXTCOL, buff=0.07, corner_radius=0.2))
         nodeText = Text("Weight", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT + DOWN, buff=0.01)
         self.play(Create(nodeSurr), run_time=0.5)
@@ -933,7 +1211,20 @@ class WeightedDGraphs(Scene):
         self.wait(2)
 
 
-class WeightedAdjacencyMatrixD(Scene):
+class WeightedAdjacencyMatrixD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "     (1, 3, 6), (2, 4, 8), (4, 3, 70)]",
+        "",
+        "M = [[0] * len(V) for _ in V]      # V x V grid, 0 = no edge",
+        "",
+        "for u, v, w in W:",
+        "    M[u][v] = w                    # directed: only the (u, v) direction",
+        "",
+        "# M[u][v] = the weight of u -> v; 0 = no edge",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4]
         wedges = [(0, 1, 10), (0, 3, 18), (1, 2, 20), (1, 3, 6), (2, 4, 8), (4, 3, 70)]
@@ -946,6 +1237,7 @@ class WeightedAdjacencyMatrixD(Scene):
                       edge_config=edge_config)
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
@@ -969,12 +1261,14 @@ class WeightedAdjacencyMatrixD(Scene):
         
         matrixTable.to_edge(RIGHT, buff=1.2)
         
+        self.code_step("init")
         self.play(matrixTable.create(), Write(Text("Adjacency Matrix", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)), run_time=1.5)   
         self.wait(1.2)
 
         graphVertices = graph.vertices
 
         for u, v, w in wedges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 *graph.edges[(u, v)].highlight_line(),
@@ -1013,7 +1307,20 @@ class WeightedAdjacencyMatrixD(Scene):
         self.wait(4)
 
 
-class WeightedAdjacencyListD(Scene):
+class WeightedAdjacencyListD(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "V = [0, 1, 2, 3, 4]",
+        "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+        "     (1, 3, 6), (2, 4, 8), (4, 3, 70)]",
+        "",
+        "adj = {v: [] for v in V}           # one (empty) neighbor list per vertex",
+        "",
+        "for u, v, w in W:",
+        "    adj[u].append((v, w))          # directed: one (out-neighbor, weight) pair",
+        "",
+        "# adj[u] holds u's (out-neighbor, weight) pairs",
+    ]
+
     def construct(self):
         def get_adjacency_list_VGroup(adjacency_list):
 
@@ -1041,17 +1348,20 @@ class WeightedAdjacencyListD(Scene):
                       edge_config=edge_config)
         
         graph.to_edge(LEFT, buff=1.2)
+        self.code_step("build")
         self.play(Create(graph), run_time=5)
         self.wait(2)
 
 
         adjecencyList = {v: [] for v in vertices}
         adjecencyListVGroup = get_adjacency_list_VGroup(adjecencyList)
+        self.code_step("init")
         self.play(Create(adjecencyListVGroup), run_time=0.5)
 
         graphVertices = graph.vertices
 
         for u, v, w in wedges:
+            self.code_step("edge")
             self.play(
                 graphVertices[u].Select(), graphVertices[v].Select(),
                 *graph.edges[(u, v)].highlight_line(),
@@ -1081,7 +1391,32 @@ class WeightedAdjacencyListD(Scene):
         self.wait(4)
 
 
-class Dijkstra(Scene):
+class Dijkstra(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph: dist labels appear over every vertex",
+        "adj_list = {0: [(1, 10), (2, 80)], 1: [(2, 6), (4, 20)],",
+        "            2: [(3, 70)], 3: [], 4: [(5, 50), (6, 5)], 5: [(6, 10)], 6: []}",
+        "",
+        "start = 0",
+        "dist = {v: float('inf') for v in range(7)}   # tentative distances",
+        "dist[start] = 0",
+        "visited = set()",
+        "",
+        "while len(visited) < 7:",
+        "    # select the unvisited node with the minimum tentative distance",
+        "    min_node = None",
+        "    for node in range(7):",
+        "        if node not in visited and (min_node is None or dist[node] < dist[min_node]):",
+        "            min_node = node",
+        "    visited.add(min_node)",
+        "",
+        "    for neighbor, weight in adj_list[min_node]:   # relax its edges",
+        "        if neighbor not in visited:",
+        "            new_dist = dist[min_node] + weight",
+        "            if new_dist < dist[neighbor]:",
+        "                dist[neighbor] = new_dist",
+    ]
+
     def construct(self):
         def add_dist(dist):
             distMob = VGroup()
@@ -1120,6 +1455,7 @@ class Dijkstra(Scene):
                       edge_config=edge_config).center()
 
         graphVertices = graph.vertices
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=1.3), run_time=1.5)
@@ -1130,12 +1466,14 @@ class Dijkstra(Scene):
         dist = {i: float('inf') for i in range(len(vertices))}
         
         distMob = add_dist(dist)
+        self.code_step("init")
         self.play(FadeIn(distMob))
 
         dist[start] = 0 
 
         nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[0], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Starting Node", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT, buff=0.1)
+        self.code_step("start")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -1164,6 +1502,7 @@ class Dijkstra(Scene):
         while len(visited) < len(vertices):
             min_node = None
             explanatory_text = Text("Selecting the unvisited \nnode with the minimum \ntentative distance", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.8).shift(UP * 0.2)
+            self.code_step("select")
             self.play(Write(explanatory_text), run_time=0.5)
             self.wait(0.4)
             for node in range(len(vertices)):
@@ -1189,6 +1528,7 @@ class Dijkstra(Scene):
             for neighbor, weight in adj_list[min_node]:
                 if neighbor not in visited:
                     nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[neighbor], color=TEXTCOL, buff=0, corner_radius=0.52))
+                    self.code_step("relax")
                     self.play(Create(nodeSurr), run_time=0.3)
                     self.wait(0.1)
                     self.play(graph.edges[(min_node, neighbor)].highlight_line())
@@ -1233,6 +1573,7 @@ class Dijkstra(Scene):
             self.play(FadeOut(explanatory_text), run_time=0.5)
             
             explanatory_text = Text("Marking the selected \nnode as visited", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.8).shift(UP * 0.2)
+            self.code_step("mark")
             self.play(Write(explanatory_text), run_time=0.3)
             self.wait(0.4)
             self.play(graphVertices[min_node].Clear(), run_time=0.5)
@@ -1246,7 +1587,24 @@ class Dijkstra(Scene):
         self.wait(4)
 
 
-class BellmanFord(Scene):
+class BellmanFord(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph (note the negative weights)",
+        "edges = [(0, 7, 8), (0, 1, 10), (7, 6, 1), (6, 1, -4), (1, 5, 2),",
+        "          (6, 5, -1), (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]",
+        "",
+        "start = 0",
+        "dist = {v: float('inf') for v in range(8)}   # tentative distances",
+        "dist[start] = 0",
+        "",
+        "for _ in range(8 - 1):          # V-1 relaxation rounds",
+        "    for u, v, weight in edges:  # relax every edge",
+        "        if dist[u] != float('inf') and dist[u] + weight < dist[v]:",
+        "            dist[v] = dist[u] + weight",
+        "",
+        "# one more pass: any further relaxation = negative cycle",
+    ]
+
     def construct(self):
         def add_dist(dist):
             distMob = VGroup()
@@ -1284,6 +1642,7 @@ class BellmanFord(Scene):
                       edge_config=edge_config).center()
 
         graphVertices = graph.vertices
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=1.3), run_time=1.5)
@@ -1296,15 +1655,18 @@ class BellmanFord(Scene):
         dist[start] = 0
 
         distMob = add_dist(dist)
+        self.code_step("init")
         self.play(FadeIn(distMob))
         self.wait(1)
 
         for _ in range(len(vertices) - 1):
             itterText = Text(f"Iteration {_}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 0.6)
+            self.code_step("round")
             self.play(Write(itterText), run_time=0.2)
 
             for u, v, weight in wedges:
                 edgeText = Text(f"{u} -> {v} ({weight})", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(itterText, DOWN, buff=0.5)
+                self.code_step("edge")
                 self.play(Write(edgeText), run_time=0.2)
                 self.play(
                     graphVertices[u].Select(),
@@ -1318,6 +1680,7 @@ class BellmanFord(Scene):
                 distV = str(dist[v]) if dist[v] != float('inf') else "∞"
                 if dist[u] != float('inf') and dist[u] + weight < dist[v]:
                     explanatoryText = Text(f"Updating : {dist[u]} + {weight} < {distV}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(edgeText, DOWN, buff=0.8)
+                    self.code_step("update")
                     self.play(Write(explanatoryText), run_time=0.2)
                     
                     dist[v] = dist[u] + weight
@@ -1331,6 +1694,7 @@ class BellmanFord(Scene):
                     self.wait(0.1)
                 else:
                     explanatoryText = Text(f"No Update : {dist[u]} + {weight} >= {distV}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(edgeText, DOWN, buff=0.8)
+                    self.code_step("skip")
                     self.play(Write(explanatoryText), run_time=0.2)
                     self.wait(0.6)
                     self.play(FadeOut(explanatoryText), run_time=0.2)
@@ -1354,7 +1718,23 @@ class BellmanFord(Scene):
         self.wait(4)
 
 
-class FloydWarshall(Scene):
+class FloydWarshall(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph: dist[i][j] starts as the direct edge weight",
+        "dist = [[0 if i == j else float('inf') for j in range(7)] for i in range(7)]",
+        "for u, v, w in [(0, 6, 8), (0, 1, 10), (6, 1, -4), (1, 5, 2), (6, 5, -1),",
+        "                 (5, 2, -2), (2, 1, 1), (2, 3, 1), (3, 4, 3), (4, 5, -1)]:",
+        "    dist[u][v] = w",
+        "",
+        "for k in range(7):                  # allow vertex k as intermediate",
+        "    for i in range(7):",
+        "        for j in range(7):",
+        "            if dist[i][k] + dist[k][j] < dist[i][j]:",
+        "                dist[i][j] = dist[i][k] + dist[k][j]",
+        "",
+        "# negative diagonal after the loops = negative cycle",
+    ]
+
     def construct(self):
         def get_path(u, v, nextMatrix):
             if nextMatrix[u][v] == -1:
@@ -1392,6 +1772,7 @@ class FloydWarshall(Scene):
                       edge_config=edge_config).center()
 
         graphVertices = graph.vertices
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=0.8), run_time=1.5)
@@ -1433,6 +1814,7 @@ class FloydWarshall(Scene):
         
         
         SP_Text = Text("Shortest Pair", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(matrixTable, UP, 0.3)
+        self.code_step("init")
         self.play(Create(VGroup(matrixTable, SP_Text).next_to(graph, RIGHT, buff=1)), run_time=1.5)   
         self.wait(1.2)
 
@@ -1448,6 +1830,7 @@ class FloydWarshall(Scene):
         for k in range(len(vertices)):
             kittrText = Text(f"Iteration : {k+1}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, UP, buff=1)
             # nodeSurr = DashedVMobject(SurroundingRectangle(graphVertices[k], color=TEXTCOL, buff=0, corner_radius=0.52))
+            self.code_step("intermediate")
             self.play(matrixTable.get_entries(pos=(1,1)).animate.become(
                 MathTex(f"SP_{k+1}", font_size=FSIZE, color=TEXTCOL).move_to(matrixTable.get_entries(pos=(1,1))),
                 ),
@@ -1509,6 +1892,7 @@ class FloydWarshall(Scene):
                         
                         cell_to_highlight = matrixTable.get_cell(pos=(u+2, v+2), color=GREEN).set_stroke(color=GREEN, width=7)
                         
+                        self.code_step("skip")
                         self.play(Write(explanatoryText), run_time=0.2)
                         self.play(FadeIn(cell_to_highlight), run_time=0.2)
                         self.wait(0.3)
@@ -1518,7 +1902,28 @@ class FloydWarshall(Scene):
         self.wait(4)
 
 
-class PrimsMCST(Scene):
+class PrimsMCST(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph (undirected: every edge is stored both ways)",
+        "adj = {0: [(1, 10), (2, 80)], 1: [(0, 10), (2, 6), (4, 20)],",
+        "      2: [(0, 80), (1, 6), (3, 70)], 3: [(2, 70)],",
+        "      4: [(1, 20), (5, 50), (6, 5)], 5: [(4, 50), (6, 10)],",
+        "      6: [(4, 5), (5, 10)]}",
+        "",
+        "visited = {0}                        # the tree starts at vertex 0",
+        "tree, total = [], 0",
+        "",
+        "while len(visited) < 7:             # V-1 growth rounds",
+        "    best = None                      # scan every cut edge (visited -> unvisited)",
+        "    for u in visited:                # for the minimum-weight one",
+        "        for v, w in adj[u]:",
+        "            if v not in visited and (best is None or w < best[2]):",
+        "                best = (u, v, w)",
+        "    visited.add(best[1])             # grow the tree by that edge",
+        "    tree.append(best[:2])",
+        "    total += best[2]",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4, 5, 6]
         wedges = [(0, 1, 10), (0, 2, 80), (1, 2, 6), (1, 4, 20), (2, 3, 70), (4, 5, 50), (4, 6, 5), (6, 5, 10)]
@@ -1548,6 +1953,7 @@ class PrimsMCST(Scene):
                       edge_type=WeightedLine,
                       edge_config=edge_config).center()
 
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=1.5), run_time=1.5)
@@ -1557,6 +1963,7 @@ class PrimsMCST(Scene):
         visited, TreeEdge, minCost = {}, [], 0
 
         minCostText = Text("Minimum Cost: 0", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 2)
+        self.code_step("init")
         self.play(Write(minCostText), run_time=0.5)
 
         for v in vertices:
@@ -1565,6 +1972,7 @@ class PrimsMCST(Scene):
         visited[0] = True
 
         explanatoryText = Text("Selecting the edge with \nminimum weight connected \nto MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.code_step("select")
         self.play(Write(explanatoryText), run_time=0.5)
         for i in range(1, len(vertices)):
             mindist = float('inf')
@@ -1572,6 +1980,7 @@ class PrimsMCST(Scene):
             for u in vertices:
                 for v, d in adj_list[u]:
                     if visited[u] and (not visited[v]):
+                        self.code_step("scan")
                         try:
                             self.play(*graph.edges[(u, v)].select_line(), run_time = 0.3)
                             self.wait(0.3)
@@ -1587,6 +1996,7 @@ class PrimsMCST(Scene):
                             nexte = (u, v)
 
             subExplanatoryText = Text(f"Selected Edge: {nexte}, weight: {mindist}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+            self.code_step("accept")
             self.play(Write(subExplanatoryText), run_time=0.5)
             self.wait(0.4)
             
@@ -1607,6 +2017,7 @@ class PrimsMCST(Scene):
 
             self.wait(0.2)
 
+            self.code_step("total")
             self.play(
                 minCostText.animate.become(
                     Text(f"Minimum Cost: {minCost}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 1.5)
@@ -1641,7 +2052,24 @@ class PrimsMCST(Scene):
         # treeEdges = [graph.edges[e] for e in TreeEdge if e in graph.edges]
 
 
-class KruskalMCST(Scene):
+class KruskalMCST(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo graph, edge list (undirected: stored both ways)",
+        "edges = sorted((w, u, v) for u in adj for v, w in adj[u])",
+        "",
+        "component = {v: v for v in range(7)}   # label-propagation union-find",
+        "tree, total = [], 0",
+        "",
+        "for w, u, v in edges:                   # smallest weight first",
+        "    if component[u] != component[v]:    # different trees -> no cycle",
+        "        tree.append((u, v))",
+        "        total += w",
+        "        old = component[u]              # merge: one label wins",
+        "        for t in component:",
+        "            if component[t] == old:",
+        "                component[t] = component[v]",
+    ]
+
     def construct(self):
         vertices = [0, 1, 2, 3, 4, 5, 6]
         wedges = [(0, 1, 10), (0, 2, 80), (1, 2, 6), (1, 4, 20), (2, 3, 70), (4, 5, 50), (4, 6, 5), (5, 6, 10)]
@@ -1671,6 +2099,7 @@ class KruskalMCST(Scene):
                       edge_type=WeightedLine,
                       edge_config=edge_config).center()
 
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=1.5), run_time=1.5)
@@ -1686,9 +2115,11 @@ class KruskalMCST(Scene):
         edgesK = sorted(edgesK, key=lambda x: x[0])  # Sort edges by weight
 
         minCostText = Text("Minimum Cost: 0", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 2)
+        self.code_step("init")
         self.play(Write(minCostText), run_time=0.5)
         self.wait(0.3)
         explanatoryText = Text("Selecting edge with the \nsmallest weights that do \nnot create a cycle in \nthe MST", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.code_step("select")
         self.play(Write(explanatoryText), run_time=0.5)
         self.wait(0.5)
         
@@ -1697,6 +2128,7 @@ class KruskalMCST(Scene):
                 TreeEdge.append((u, v))
 
                 subExplanatoryText = Text(f"Selected Edge: ({u}, {v}), weight: {d}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+                self.code_step("accept")
                 self.play(Write(subExplanatoryText), run_time=0.5)
 
                 self.wait(0.2)
@@ -1709,6 +2141,7 @@ class KruskalMCST(Scene):
                 c = component[u]
 
                 minCost += d
+                self.code_step("total")
                 self.play(
                     minCostText.animate.become(
                         Text(f"Minimum Cost: {minCost}", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.7).shift(UP * 2)
@@ -1731,6 +2164,7 @@ class KruskalMCST(Scene):
         )
 
         explanatoryText = Text("All Components \nare connected", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=1.3).shift(UP * 0.2)
+        self.code_step("done")
         self.play(Write(explanatoryText), run_time=0.5)
         self.wait(0.4)
         self.play(FadeOut(explanatoryText),run_time=0.5)
@@ -1758,7 +2192,28 @@ class DAGArrow(Arrow): #There was some wierd bug with DiGraph, that it was not p
     ):
         super().__init__(*args, buff=0.46, **kwargs)
 
-class TopologicalSort(Scene):
+class TopologicalSort(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the demo DAG's out-adjacency (arrows only)",
+        "adj = {0: [2, 3, 4], 1: [2, 7], 2: [5], 3: [5, 7],",
+        "       4: [7], 5: [6], 6: [7], 7: []}",
+        "",
+        "indegree = {v: 0 for v in adj}          # count arriving edges",
+        "for neighbors in adj.values():",
+        "    for v in neighbors:",
+        "        indegree[v] += 1",
+        "",
+        "queue = deque(v for v in indegree if indegree[v] == 0)",
+        "order = []",
+        "while queue:",
+        "    v = queue.popleft()                  # take a zero-indegree vertex",
+        "    order.append(v)",
+        "    for n in adj[v]:                     # removing v frees its out-edges",
+        "        indegree[n] -= 1",
+        "        if indegree[n] == 0:",
+        "            queue.append(n)",
+    ]
+
     def construct(self):
         from collections import deque
         vertices = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -1774,6 +2229,7 @@ class TopologicalSort(Scene):
                       edge_config={"stroke_color": EDGE_COL, "stroke_width": 6},
                       edge_type=DAGArrow,)
                 
+        self.code_step("build")
         self.play(Create(graph), run_time=6)
         self.wait(0.5)
         self.play(graph.animate.to_edge(LEFT, buff=0.5), run_time=1.5)
@@ -1795,10 +2251,12 @@ class TopologicalSort(Scene):
                 Text(str(indegree[v]), font_size=WEIGHT_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(graphVertices[v], DOWN, buff=0.1)
             )
 
+        self.code_step("indegree")
         self.play(FadeIn(indegreeVgroup, lag_ratio=0.1), run_time=0.5)
         self.wait(0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(indegreeVgroup.submobjects[1], color=TEXTCOL, buff=0.1, corner_radius=0.15))
         nodeText = Text("<-Indegree", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, RIGHT, buff=0.08)
+        self.code_step("label")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -1810,6 +2268,7 @@ class TopologicalSort(Scene):
                 zerodegreeq.append(v)
 
         explanatoryText = Text("Selecting the vertex\nwith zero indegree", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(graph, RIGHT, buff=0.7).shift(UP * 0.2)
+        self.code_step("start")
         self.play(Write(explanatoryText), run_time=0.5)
 
         topSortVGroup = VGroup(Text("t")).shift(UP * 3.4).shift(LEFT * 2.5)
@@ -1817,6 +2276,7 @@ class TopologicalSort(Scene):
         while zerodegreeq:
             curr_vertex = zerodegreeq.popleft()
             subExplanatoryText = Text(f"Selected Vertex: {curr_vertex}", font_size=EXPLANATORY_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(explanatoryText, DOWN, buff=0.5)
+            self.code_step("pop")
             self.play(Write(subExplanatoryText), run_time=0.5)
             self.wait(0.4)
             self.play(graphVertices[curr_vertex].Select(), run_time=0.5)
@@ -1828,6 +2288,7 @@ class TopologicalSort(Scene):
             for adj_vertex in adj_list[curr_vertex]:
                 indegree[adj_vertex] -= 1
 
+                self.code_step("free")
                 self.play(FadeOut(graph.edges[(curr_vertex, adj_vertex)]))
                 self.remove(graph.edges[(curr_vertex, adj_vertex)])
                 self.wait(0.2)
@@ -1845,6 +2306,7 @@ class TopologicalSort(Scene):
             self.play(FadeOut(indegreeVgroup.submobjects[curr_vertex]))
             self.remove(indegreeVgroup.submobjects[curr_vertex])
             self.wait(0.1)
+            self.code_step("move")
             self.play(graphVertices[curr_vertex].animate.next_to(topSortVGroup, RIGHT, buff=0.27))
             topSortVGroup.add(graphVertices[curr_vertex])
             self.wait(0.3)

@@ -1,0 +1,100 @@
+{% extends "content.html" %} {% block title %} Bellman-Ford Algorithm {% endblock %} {% block main_content %}
+<h1>Bellman-Ford Algorithm</h1>
+<p>
+    <strong>Bellman-Ford</strong> computes shortest paths from a single start vertex — and,
+    unlike Dijkstra, it tolerates <strong>negative edge weights</strong>. Its engine is
+    <strong>edge relaxation</strong>: for an edge $u \rightarrow v$ of weight $w$, whenever
+    <code>dist[u] + w < dist[v]</code>, vertex $v$'s tentative distance improves. Repeating
+    the pass over <em>every</em> edge for $V-1$ rounds guarantees every shortest path (which
+    uses at most $V-1$ edges) has been fully propagated.
+</p>
+
+<div class="subcontent">
+    <h3>Why Exactly V&minus;1 Rounds?</h3>
+    <p>
+        A shortest path without cycles visits at most $V-1$ edges. After round $k$, every
+        shortest path using $\le k$ edges is guaranteed correct — one more edge of the path
+        becomes provable per round. $V-1$ rounds therefore cover every possible path length.
+        This is also why the algorithm survives negative weights: it never commits greedily,
+        it just keeps improving until the arithmetic settles.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/bellman-ford.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/BellmanFord.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo graph on eight vertices
+        <code>0&ndash;7</code> with <em>negative</em> edges among
+        <code>6&rarr;1 (-4), 6&rarr;5 (-1), 5&rarr;2 (-2), 4&rarr;5 (-1)</code>, start vertex
+        <strong>0</strong>. Distances start at <code>&infin;</code>, then seven rounds run
+        (labelled <em>Iteration 0</em>&hellip;<em>Iteration 6</em>), each sweeping the edge
+        list in the order
+        <code>0&rarr;7, 0&rarr;1, 7&rarr;6, 6&rarr;1, 1&rarr;5, 6&rarr;5, 5&rarr;2,
+        2&rarr;1, 2&rarr;3, 3&rarr;4, 4&rarr;5</code>
+        and announcing <em>Updating</em> or <em>No Update</em> per edge. Vertex 1's distance
+        drops from the direct 10 to <strong>5</strong> once the negative chain
+        0&rarr;7&rarr;6&rarr;1 (8 + 1 + (-4)) is found. The video covers the relaxation
+        phase.
+    </p>
+    <p>
+        <strong>Final distances (verified against the reference implementation on this exact
+        graph):</strong>
+        <code>0: 0, 1: 5, 2: 5, 3: 6, 4: 9, 5: 7, 6: 9, 7: 8</code>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Negative-Cycle Detection</h3>
+    <p>
+        The standard algorithm ends with a <strong>V-th pass</strong>: if any edge can still be
+        relaxed after $V-1$ rounds, distances can still improve — which is only possible when
+        the graph contains a <strong>negative-weight cycle</strong> reachable from the start
+        (you can loop through it forever, driving the distance to $-\infty$). The code on the
+        right shows it as the final commented pass; the video covers the relaxation rounds
+        only. On this demo graph the V-th pass finds nothing to relax — all distances are
+        stable, so no negative cycle is reachable from vertex 0 — the negative edges here sit
+        only on cycles that are positive overall (e.g. the loop $1 \rightarrow 5
+        \rightarrow 2 \rightarrow 1$ sums to $2 + (-2) + 1 = 1 > 0$).
+    </p>
+    <p>
+        <strong>Complexity:</strong> $V-1$ rounds &times; $E$ edge relaxations each —
+        <strong>$O(V \cdot E)$</strong> time, <strong>$O(V)$</strong> space (the distance
+        array; the edge list is the input itself). Best case still runs all rounds — the loop
+        count is fixed, only the work per edge varies.
+    </p>
+    <p>
+        <strong>Must know:</strong> Dijkstra is faster on non-negative graphs
+        ($O((V+E)\log V)$ with a heap), but <em>only</em> Bellman-Ford (of the two) can be
+        trusted when weights go below zero. For all-pairs, see
+        <a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd-Warshall</a>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Compare with <a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra</a> (the
+        non-negative twin), continue to
+        <a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd-Warshall</a>, or
+        revisit <a href="{{ url_for('views.graph_traversals') }}">BFS/DFS</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

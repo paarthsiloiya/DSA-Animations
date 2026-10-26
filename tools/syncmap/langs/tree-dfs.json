@@ -1,0 +1,93 @@
+{
+    "python": {
+        "code": [
+            "# demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "root = build_tree()",
+            "",
+            "def dfs(root):",
+            "    order = []",
+            "    stack = [root]             # LIFO: the newest node leaves first",
+            "    while stack:",
+            "        current = stack.pop()",
+            "        order.append(current.data)   # visit",
+            "        for child in reversed(current.children):   # reversed, so the",
+            "            stack.append(child)                      # first child pops first",
+            "    return order",
+            "",
+            "dfs(root)   # A B D I J E K C F G H"
+        ],
+        "steps": {
+            "declare": "1-2",
+            "visit": "8-9",
+            "discover": "11"
+        }
+    },
+    "c": {
+        "code": [
+            "/* demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K) */",
+            "",
+            "void dfs(struct Node *root) {",
+            "    struct Node *stack[16];",
+            "    int top = 0;                    /* LIFO: the newest node leaves first */",
+            "    stack[top++] = root;",
+            "    while (top > 0) {",
+            "        struct Node *current = stack[--top];   /* leave from the top */",
+            "        visit(current);              /* visit */",
+            "        for (int i = current->count - 1; i >= 0; i--)   /* reversed, so */",
+            "            stack[top++] = current->children[i];         /* the first child pops first */",
+            "    }",
+            "}",
+            "/* dfs(root) visits: A B D I J E K C F G H */"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "8-9",
+            "discover": "11"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "",
+            "void dfs(Node *root) {",
+            "    std::stack<Node *> stk;         // LIFO: the newest node leaves first",
+            "    stk.push(root);",
+            "    while (!stk.empty()) {",
+            "        Node *current = stk.top();   // leave from the top",
+            "        stk.pop();",
+            "        visit(current);              // visit",
+            "        for (int i = (int)current->children.size() - 1; i >= 0; i--)   // reversed, so",
+            "            stk.push(current->children[i]);                           // the first child pops first",
+            "    }",
+            "}",
+            "// dfs(root) visits: A B D I J E K C F G H"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "8-10",
+            "discover": "12"
+        }
+    },
+    "java": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+            "",
+            "void dfs(Node root) {",
+            "    Deque<Node> stack = new ArrayDeque<>();   // LIFO: newest first",
+            "    stack.push(root);",
+            "    while (!stack.isEmpty()) {",
+            "        Node current = stack.pop();   // leave from the top",
+            "        visit(current);              // visit",
+            "        for (int i = current.children.size() - 1; i >= 0; i--)  // reversed, so",
+            "            stack.push(current.children.get(i));                // first child pops first",
+            "    }",
+            "}",
+            "// dfs(root) visits: A B D I J E K C F G H"
+        ],
+        "steps": {
+            "declare": "1",
+            "visit": "7-8",
+            "discover": "10"
+        }
+    }
+}

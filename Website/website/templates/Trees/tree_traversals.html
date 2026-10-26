@@ -1,0 +1,284 @@
+{% extends "content.html" %} {% block title %} Tree Traversals {% endblock %} {% block main_content %}
+<h1>Tree Traversals</h1>
+<p>
+    A traversal is a systematic way to <strong>visit every node of a tree exactly once</strong>. Two families
+    cover everything: <strong>breadth-first</strong> walking level by level through a queue, and
+    <strong>depth-first</strong> diving to a leaf before backtracking — with three recursive orders that differ
+    only in <em>when</em> the current node is processed relative to its two subtrees.
+</p>
+<p>
+    The animations below use two demo trees: the <strong>BFS</strong> and <strong>DFS</strong> videos walk the
+    general 11-node tree <code>A&ndash;(B, C)</code>, <code>B&ndash;(D, E)</code>,
+    <code>C&ndash;(F, G, H)</code>, <code>D&ndash;(I, J)</code>, <code>E&ndash;(K)</code>, while the three
+    recursive orders run on the binary tree <code>A&ndash;(B, C)</code>, <code>B&ndash;(D, E)</code>,
+    <code>D&ndash;(H, I)</code>, <code>C&ndash;(F, G)</code>, <code>E&ndash;(J)</code>.
+</p>
+
+<div class="subcontent" id="bfs">
+    <h3>Breadth-First Search (Level-Order) — the Queue</h3>
+    <p>
+        BFS visits the root first, then the root's children, then the grandchildren — <strong>level by level</strong>.
+        A <strong>FIFO queue</strong> makes this natural: join newly discovered nodes at the rear, always take the
+        next node to process from the front. The oldest waiting node always belongs to the shallowest unfinished
+        level, so levels complete in order.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/tree-bfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="3-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/TreeBFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> starting from node <code>A</code>, the queue display at the top
+        tracks the container — <code>Queue: [A]</code>, then after <code>A</code> is processed,
+        <code>Queue: [B, C]</code>, and so on. Each processed node is highlighted, its unvisited neighbours are
+        selected and join the <strong>rear</strong> of the queue, and the front node leaves in turn. The visit
+        order for this tree is <strong>A B C D E F G H I J K</strong> — exactly the level order.
+    </p>
+    <p>
+        <strong>Complexity:</strong> every node enters and leaves the queue once, so time is
+        <strong>$\Theta(n)$</strong> (best = worst = average — every traversal must touch all $n$ nodes). Space is
+        <strong>$O(w)$</strong> where $w$ is the maximum number of nodes queued at once — at most an entire level,
+        which for a balanced binary tree is $\Theta(n/2)$ at the widest level, and for a path-shaped tree is $O(1)$.
+    </p>
+</div>
+
+<div class="subcontent" id="dfs">
+    <h3>Depth-First Search — the Stack</h3>
+    <p>
+        DFS dives along one path as deep as possible before backing up. A <strong>LIFO stack</strong> provides the
+        memory for the backtrack: newly discovered children join the top, and the next node processed is always
+        the most recently discovered one — so the dive continues instead of spreading out.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/tree-dfs.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/TreeDFS.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same tree and the same highlight pattern as BFS — but the
+        container at the top now reads <strong>Stack</strong>, and nodes leave from the <em>top</em> (the newest
+        entry), not the front. The stack runs <code>[A]</code> &rarr; <code>[C, B]</code> &rarr; <code>[C, E, D]</code>
+        &rarr; <code>[C, E, I, H]</code> &rarr; &hellip; as the traversal dives down the <code>B</code> branch to
+        its leaves before ever touching <code>C</code>. The visit order is
+        <strong>A B D I J E K C F G H</strong> — one full root-to-leaf dive at a time.
+    </p>
+    <p>
+        <strong>Complexity:</strong> time <strong>$\Theta(n)$</strong>, same argument as BFS. Space is
+        <strong>$O(h)$</strong> — the stack holds one pending sibling set per level of the current dive, bounded by
+        the tree height $h$: $O(n)$ for a degenerate chain, $O(\log n)$ for a balanced tree. This $O(h)$ bound is
+        the classic argument for preferring DFS over BFS when the tree is deep and narrow.
+    </p>
+</div>
+
+<div class="subcontent" id="inorder">
+    <h3>In-Order Traversal — Left, Root, Right</h3>
+    <p>
+        The three recursive orders differ only in <em>when</em> the current node is visited: in-order processes the
+        <strong>left subtree first, then the node itself, then the right subtree</strong>. On a binary search tree
+        this visits values in sorted order.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/in-order-traversal.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/InOrderTraversal.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the recursion literally walks the tree — the blue edge marks each
+        <em>"going to left subtree"</em> step, the green edge each <em>"going to right subtree"</em> step, and the
+        <em>Order</em> display at the top grows as nodes are processed. The run bottoms out at the leftmost leaf
+        <code>H</code> before anything is appended. The final order for the demo tree is
+        <strong>H D I B J E A F C G</strong>.
+    </p>
+    <p>
+        <strong>Complexity:</strong> time <strong>$\Theta(n)$</strong> — the recursion visits every node exactly
+        once (the recurrence $T(n) = T(n_L) + T(n_R) + O(1)$ sums to $n$ calls). Space is the recursion stack:
+        <strong>$O(h)$</strong> — $O(n)$ worst case on a degenerate tree, $O(\log n)$ balanced.
+    </p>
+</div>
+
+<div class="subcontent" id="preorder">
+    <h3>Pre-Order Traversal — Root, Left, Right</h3>
+    <p>
+        Pre-order processes <strong>the node first</strong>, then recurses into the left and right subtrees. It is
+        the order for copying serialising a tree (a node is known before its children, so the reader can build it),
+        and it is exactly the order the DFS stack produced above.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/pre-order-traversal.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/PreOrderTraversal.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> node <code>A</code> is processed <em>immediately</em> — position
+        1 in the order display — <em>before</em> the walk descends into <code>B</code>'s subtree. The order grows
+        one node at a time as the recursion descends, completing the whole left side before <code>C</code>. The
+        final order is <strong>A B D H I E J C F G</strong>.
+    </p>
+    <p>
+        <strong>Complexity:</strong> time <strong>$\Theta(n)$</strong>, space <strong>$O(h)$</strong> recursion
+        stack — identical analysis to in-order; only the position of the <code>visit</code> call changed.
+    </p>
+</div>
+
+<div class="subcontent" id="postorder">
+    <h3>Post-Order Traversal — Left, Right, Root</h3>
+    <p>
+        Post-order processes <strong>both subtrees first</strong>, then the node itself. Children complete before
+        their parent — exactly what deleting or freeing a tree needs (and what evaluating an expression tree needs:
+        operands before the operator that combines them).
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/post-order-traversal.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/PostOrderTraversal.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> nothing enters the order display until the first leaf
+        <code>H</code> completes — the root <code>A</code> is processed <em>last</em>, position 10. Both children
+        always precede their parent in the growing order line. The final order is
+        <strong>H I D J E B F G C A</strong>.
+    </p>
+    <p>
+        <strong>Complexity:</strong> time <strong>$\Theta(n)$</strong>, space <strong>$O(h)$</strong> — the same
+        recurrence as its siblings.
+    </p>
+    <p>
+        <strong>Comparing the three:</strong> the same ten nodes, three different valid orders —
+        in-order <code>H D I B J E A F C G</code>, pre-order <code>A B D H I E J C F G</code>, post-order
+        <code>H I D J E B F G C A</code>. Each is the same recursion with the <code>visit</code> line moved; each is
+        $\Theta(n)$ time and $O(h)$ stack space. Pre-order serialises, in-order sorts (on a BST), post-order
+        frees/evaluates — pick by purpose, not by performance.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Review the vocabulary these traversals rely on with
+        <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a>, or see how a complete binary tree fits
+        into a plain array on the
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a> page.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

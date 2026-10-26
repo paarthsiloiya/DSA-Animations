@@ -1,8 +1,10 @@
 import random
+from typing import ClassVar
 
 from common import ListElement, Node
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(30)
 
@@ -10,7 +12,18 @@ random.seed(30)
 POINTER_FONT_SIZE = 32      # For "Low", "High", "Mid", etc.
 
 
-class MemoryAllocation(Scene):
+class MemoryAllocation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# An array stores its elements in ONE contiguous",
+        "# block of memory - side by side.",
+        "arr = [5, 2, 4, 6, 3, 1]",
+        "",
+        "# The first element's address is the base address;",
+        "# element i then lives at base + i.",
+        "base = 1000",
+        "addresses = [base + i for i in range(len(arr))]",
+    ]
+
     def construct(self):
         array = [5, 2, 4, 6, 3, 1]
         list_elements = [ListElement(i) for i in array]
@@ -18,10 +31,12 @@ class MemoryAllocation(Scene):
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
 
+        self.code_step("create")
         self.wait(0.5)
 
         nodeSurr = DashedVMobject(SurroundingRectangle(visuals[0], color=TEXTCOL, buff=0.15, corner_radius=0.9))
         nodeText = Text("List Element", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.code_step("element")
         self.play(
             Create(nodeSurr),
             Write(nodeText),
@@ -36,11 +51,13 @@ class MemoryAllocation(Scene):
             *[Text('0x' + str(addr), font_size=ADDRESS_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(el, UP) for el, addr in zip(visuals, addresses)]
         )
 
+        self.code_step("address")
         self.play(Write(address_labels), run_time=0.5)
 
         self.wait(0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(address_labels[0], color=TEXTCOL, buff=0.15, corner_radius=0.1), num_dashes=18)
         nodeText = Text("Memory Location", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.code_step("memory")
         self.play(
             Create(nodeSurr),
             Write(nodeText),
@@ -52,7 +69,19 @@ class MemoryAllocation(Scene):
         self.wait(1)
         
 
-class Indexing(Scene):
+class Indexing(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "arr = [5, 2, 4, 6, 3, 1]",
+        "",
+        "# Forward indexing: positions 0 to N-1",
+        "print(arr[0])    # 5 - first element",
+        "print(arr[3])    # 6 - fourth element",
+        "",
+        "# Reverse indexing: positions -N to -1",
+        "print(arr[-6])   # 5 - first element again",
+        "print(arr[-1])   # 1 - last element",
+    ]
+
     def construct(self):
         array = [5, 2, 4, 6, 3, 1]
         list_elements = [ListElement(i) for i in array]
@@ -60,21 +89,25 @@ class Indexing(Scene):
         visuals.arrange(RIGHT, buff=0.5)
         self.add(visuals)
 
+        self.code_step("create")
         self.wait(0.5)
 
         operationText = Text("Forward Indexing", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE)
         operationText.to_edge(UP, buff=0.5)
+        self.code_step("forward")
         self.play(Write(operationText), run_time=0.5)
         self.wait(0.2)
 
         index_labels = VGroup(
             *[Text(str(i), font_size=ADDRESS_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(el.circle, DOWN) for i, el in enumerate(list_elements)]
         )
+        self.code_step("forward-index")
         self.play(Write(index_labels), run_time=0.5)
 
         self.wait(0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(index_labels[0], color=TEXTCOL, buff=0.15, corner_radius=0.1), num_dashes=18)
         nodeText = Text("Index", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, DOWN, buff=0.1)
+        self.code_step("index")
         self.play(
             Create(nodeSurr),
             Write(nodeText),
@@ -88,16 +121,19 @@ class Indexing(Scene):
 
         operationText = Text("Reverse Indexing", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE)
         operationText.to_edge(UP, buff=0.5)
+        self.code_step("reverse")
         self.play(Write(operationText), run_time=0.5)
 
         reverse_index_labels = VGroup(
             *[Text(str(i - len(array)), font_size=ADDRESS_FONT_SIZE, font=FONT, color=TEXTCOL).next_to(el.circle, DOWN) for i, el in enumerate(list_elements)]
         )
 
+        self.code_step("reverse-index")
         self.play(Write(reverse_index_labels), run_time=0.5)
         self.wait(0.5)
         nodeSurr = DashedVMobject(SurroundingRectangle(reverse_index_labels[0], color=TEXTCOL, buff=0.15, corner_radius=0.1), num_dashes=18)
         nodeText = Text("Index", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, DOWN, buff=0.1)
+        self.code_step("index-rev")
         self.play(
             Create(nodeSurr),
             Write(nodeText),
@@ -110,7 +146,19 @@ class Indexing(Scene):
 
         self.wait(1)
 
-class TwoDArraysAsMatrix(Scene):
+class TwoDArraysAsMatrix(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "matrix = [",
+        "    [5, 2, 8],",
+        "    [6, 3, 1],",
+        "    [4, 7, 9],",
+        "]",
+        "",
+        "for i in range(3):            # rows",
+        "    for j in range(3):        # columns",
+        "        print(matrix[i][j])   # row-major visit",
+    ]
+
     def construct(self):
         array = [
             [5, 2, 8],
@@ -122,6 +170,7 @@ class TwoDArraysAsMatrix(Scene):
                         element_to_mobject_config={"font_size": 50, "color": TEXTCOL},
                         bracket_config={"color": TEXTCOL})
 
+        self.code_step("declare")
         self.play(Create(matrix), run_time=0.5)
         self.wait(0.5)
         self.play(matrix.animate.to_edge(UL), run_time=0.3)
@@ -131,6 +180,7 @@ class TwoDArraysAsMatrix(Scene):
                                 element_to_mobject=Node,
                                 element_to_mobject_config={"radius": 0.8, "font_size": 2*FSIZE})
 
+        self.code_step("declare")
         self.play(Create(mobject_matrix), run_time=1)
         self.wait(1)
 
@@ -187,16 +237,19 @@ class TwoDArraysAsMatrix(Scene):
         i_text_group = VGroup(Text("i = ", font_size=FSIZE, color=TEXTCOL), i_text).arrange(RIGHT, buff=0.1).to_edge(RIGHT, buff=0.8)
         j_text_group = VGroup(Text("j = ", font_size=FSIZE, color=TEXTCOL), j_text).arrange(RIGHT, buff=0.1).to_edge(RIGHT, buff=0.8).next_to(i_text_group, DOWN, buff=0.5)
 
+        self.code_step("loops")
         self.play(Write(i_pointer), Write(j_pointer), Write(i_text_group), Write(j_text_group), run_time=0.5)
         self.wait(1)
 
         for x in range(3):
             for y in range(3):
+                self.code_step("set")
                 self.play(
                     i.animate.set_value(x),
                     j.animate.set_value(y),
                     run_time=0.3
                 )
+                self.code_step("visit")
                 self.play(
                     mobject_matrix.get_entries()[x * 3 + y].Select(), 
                     matrix.get_entries()[x * 3 + y].animate.set_color(SELCOL),
@@ -223,7 +276,23 @@ class TwoDArraysAsMatrix(Scene):
         self.wait(1)
 
 
-class TwoDArraysMultiplication(Scene):
+class TwoDArraysMultiplication(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "A = [[5, 2, 8],",
+        "     [6, 3, 1],",
+        "     [4, 7, 9]]",
+        "B = [[1, 9, 2],",
+        "     [3, 4, 5],",
+        "     [6, 7, 8]]",
+        "",
+        "C = [[0] * 3 for _ in range(3)]",
+        "",
+        "for i in range(3):            # row of A",
+        "    for j in range(3):        # column of B",
+        "        for k in range(3):   # shared dimension",
+        "            C[i][j] += A[i][k] * B[k][j]",
+    ]
+
     def construct(self):
         arrayA = [
             [5, 2, 8],
@@ -246,10 +315,12 @@ class TwoDArraysMultiplication(Scene):
                         bracket_config={"color": TEXTCOL}
                 )
 
+        self.code_step("declare-a")
         self.play(Create(matrixA), run_time=0.5)
         self.wait(0.5)
         self.play(matrixA.animate.to_edge(UL), run_time=0.3)
         self.wait(0.5)
+        self.code_step("declare-b")
         self.play(Create(matrixB), run_time=0.5)
         self.wait(0.5)
         self.play(matrixB.animate.next_to(matrixA, RIGHT, buff=0.5), run_time=0.3)
@@ -261,13 +332,16 @@ class TwoDArraysMultiplication(Scene):
                                 element_to_mobject=ListElement,
                                 element_to_mobject_config={"size": 0.5}).shift(RIGHT * 2.5)
 
+        self.code_step("declare-a")
         self.play(Create(mobject_matrixA), run_time=1)
         self.play(mobject_matrixA.animate.shift(LEFT * 2.5), run_time=0.3)
+        self.code_step("declare-b")
         self.play(Create(mobject_matrixB), run_time=1)
 
         self.play(VGroup(mobject_matrixA, mobject_matrixB).animate.to_edge(LEFT, buff=0.2).shift(DOWN * 0.5), run_time=0.3)
         self.wait(1)
 
+        self.code_step("multiply")
         self.play(
             Write(MathTex(r"\times", font_size=FSIZE, color=TEXTCOL).next_to(matrixA, RIGHT, buff=0.15)), 
             Write(MathTex(r"\times", font_size=2*FSIZE, color=TEXTCOL).next_to(mobject_matrixA, RIGHT, buff=0.1)),
@@ -287,6 +361,7 @@ class TwoDArraysMultiplication(Scene):
                                 element_to_mobject_config={"font_size": 40, "color": TEXTCOL},
                                 bracket_config={"color": TEXTCOL}
                 ).next_to(matrixB, RIGHT, buff=0.5)
+        self.code_step("init-c")
         self.play(Create(result_matrix), run_time=0.5)
         result_array = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
@@ -294,6 +369,7 @@ class TwoDArraysMultiplication(Scene):
             for j in range(len(arrayB[0])):
                 surrRecti = SurroundingRectangle(matrixA.get_rows()[i], color=SORTCOL, buff=0.15, corner_radius=0.1)
                 surrRectj = SurroundingRectangle(matrixB.get_columns()[j], color=SORTCOL, buff=0.15, corner_radius=0.1)
+                self.code_step("select")
                 self.play(
                     Create(surrRecti),
                     Create(surrRectj),
@@ -305,6 +381,7 @@ class TwoDArraysMultiplication(Scene):
                     sum += arrayA[i][k] * arrayB[k][j]
                     result_array[i][j] += arrayA[i][k] * arrayB[k][j]
                     terms.append(f"({arrayA[i][k]} \\times {arrayB[k][j]})")
+                    self.code_step("multiply")
                     self.play(
                         mobject_matrixA.get_entries()[i * len(arrayA[0]) + k].Select(),
                         mobject_matrixB.get_entries()[k * len(arrayB[0]) + j].Select(),
@@ -340,6 +417,7 @@ class TwoDArraysMultiplication(Scene):
                     run_time=0.2
                 )
 
+        self.code_step("result")
         self.play(
             result_matrix.animate.become(
                 Matrix(result_array, h_buff=0.7, v_buff=0.5, bracket_h_buff=0.2, bracket_v_buff=0.2,

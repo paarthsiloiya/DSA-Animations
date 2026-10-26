@@ -46,115 +46,231 @@
         </details>
 
         <details open>
+            <summary><a href="{{ url_for('views.count_inversions') }}">Divide & Conquer</a></summary>
+            <ul>
+                <li><a href="{{ url_for('views.count_inversions') }}">Count Inversions</a></li>
+                <li><a href="{{ url_for('views.closest_pair') }}">Closest Pair of Points</a></li>
+                <li><a href="{{ url_for('views.longest_common_subsequence') }}">Longest Common Subsequence</a></li>
+                <li><a href="{{ url_for('views.median_of_medians') }}">Median of Medians</a></li>
+            </ul>
+        </details>
+
+        <details open>
+            <summary><a href="{{ url_for('views.home') }}">Greedy Algorithms</a></summary>
+            <ul>
+                <li><a href="{{ url_for('views.interval_scheduling') }}">Interval Scheduling</a></li>
+                <li><a href="{{ url_for('views.huffman_encoding') }}">Huffman Encoding</a></li>
+            </ul>
+        </details>
+
+        <details open>
             <summary><a href="{{ url_for('views.linked_list') }}">Linked List</a></summary>
             <ul>
+                <li><a href="{{ url_for('views.singly_linked_list') }}#node">What is a Node?</a></li>
                 <li><a href="{{ url_for('views.singly_linked_list') }}">Singly Linked List</a></li>
-                <li><a href="{{ url_for('views.singly_linked_list') }}#length">Traversal</a></li>
+                <li><a href="{{ url_for('views.singly_linked_list') }}#traverse">Traversal</a></li>
                 <li><a href="{{ url_for('views.singly_linked_list') }}#insertion">Insertion</a></li>
                 <li><a href="{{ url_for('views.singly_linked_list') }}#deletion">Deletion</a></li>
                 <li><a href="{{ url_for('views.doubly_linked_list') }}">Doubly Linked List</a></li>
-                <li><span class="nav-item-pending" data-target="/rotation">Rotation</span></li>
+                <li><a href="{{ url_for('views.rotation') }}">Rotation</a></li>
             </ul>
         </details>
 
         <details open>
             <summary><a href="{{ url_for('views.home') }}">Trees</a></summary>
             <ul>
-                <li><span class="nav-item-pending" data-target="/types_of_trees">Types of Trees</span></li>
-                <li><span class="nav-item-pending" data-target="/properties_of_trees">Properties of Trees</span></li>
-                <li><span class="nav-item-pending" data-target="/traversal">Traversal</span></li>
-                <li><span class="nav-item-pending" data-target="/breadth_first_search">Breadth First Search</span></li>
-                <li><span class="nav-item-pending" data-target="/depth_first_search">Depth First Search</span></li>
-                <li><span class="nav-item-pending" data-target="/list_tree_correlation">List-Tree Correlation</span></li>
-                <li><span class="nav-item-pending" data-target="/binary_search_tree">Binary Search Tree</span></li>
-                <li><span class="nav-item-pending" data-target="/ternary_tree">Ternary Tree</span></li>
-                <li><span class="nav-item-pending" data-target="/avl_tree">AVL Tree</span></li>
+                <li><a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a></li>
+                <li><a href="{{ url_for('views.types_of_trees') }}#properties">Properties of Trees</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}">Traversal</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}#bfs">Breadth First Search</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}#dfs">Depth First Search</a></li>
+                <li><a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a></li>
+                <li><a href="{{ url_for('views.binary_search_tree') }}">Binary Search Tree</a></li>
+                <li><a href="{{ url_for('views.ternary_tree') }}">Ternary Tree</a></li>
+                <li><a href="{{ url_for('views.avl_tree') }}">AVL Tree</a></li>
+                <li><a href="{{ url_for('views.b_tree') }}">B-Trees</a></li>
+                <li><a href="{{ url_for('views.union_find') }}">Union-Find</a></li>
             </ul>
         </details>
 
         <details open>
             <summary><a href="{{ url_for('views.home') }}">Heaps</a></summary>
             <ul>
-                <li><span class="nav-item-pending" data-target="/types_of_heaps">Types of Heaps</span></li>
-                <li><span class="nav-item-pending" data-target="/properties_of_heap">Properties of Heap</span></li>
+                <li><a href="{{ url_for('views.types_of_heaps') }}">Types of Heaps</a></li>
+                <li><a href="{{ url_for('views.types_of_heaps') }}#properties">Properties of Heap</a></li>
             </ul>
         </details>
 
         <details open>
             <summary><a href="{{ url_for('views.home') }}">Graphs</a></summary>
             <ul>
-                <li><span class="nav-item-pending" data-target="/types_of_graphs">Types of Graphs</span></li>
-                <li><span class="nav-item-pending" data-target="/graph_representation">Graph Representation</span></li>
-                <li><span class="nav-item-pending" data-target="/traversal">Traversal</span></li>
-                <li><span class="nav-item-pending" data-target="/breadth_first_search">Breadth First Search</span></li>
-                <li><span class="nav-item-pending" data-target="/depth_first_search">Depth First Search</span></li>
-                <li><span class="nav-item-pending" data-target="/dijkstra_algorithm">Dijkstra's Algorithm</span></li>
-                <li><span class="nav-item-pending" data-target="/floyd_warshall_algorithm">Floyd Warshall Algorithm</span></li>
-                <li><span class="nav-item-pending" data-target="/bellman_ford_algorithm">Bellman Ford Algorithm</span></li>
-                <li><span class="nav-item-pending" data-target="/prims_algorithm">Prim's Algorithm</span></li>
-                <li><span class="nav-item-pending" data-target="/kruskal_algorithm">Kruskal's Algorithm</span></li>
+                <li><a href="{{ url_for('views.types_of_graphs') }}">Types of Graphs</a></li>
+                <li><a href="{{ url_for('views.graph_representation') }}">Graph Representation</a></li>
+                <li><a href="{{ url_for('views.graph_traversals') }}">Graph Traversals</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}">Traversal</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}#bfs">Breadth First Search</a></li>
+                <li><a href="{{ url_for('views.tree_traversals') }}#dfs">Depth First Search</a></li>
+                <li><a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra's Algorithm</a></li>
+                <li><a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd Warshall Algorithm</a></li>
+                <li><a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman Ford Algorithm</a></li>
+                <li><a href="{{ url_for('views.prims_algorithm') }}">Prim's Algorithm</a></li>
+                <li><a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's Algorithm</a></li>
+                <li><a href="{{ url_for('views.topological_sort') }}">Topological Sort</a></li>
             </ul>
         </details>
-        <p class="nav-pending-note">More topics are being added — these sections arrive soon.</p>
     </div>
     <div class="content">{% block main_content %} {% endblock %}</div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const video = document.getElementById("code-video");
-        const codeBlock = document.getElementById("code-block");
+    /*
+     * Sync loader v2 (C0M). Every element carrying data-sync="<url>" is one
+     * synced section: its combined JSON ({"video", "default", "langs": {...}})
+     * is fetched, a Python/C/C++/Java tab set is inserted above the code block,
+     * and the section's video drives the active language's highlight map.
+     * Section markup: put data-sync on a wrapper containing both the <video>
+     * and the <pre> code block (multi-video pages: one wrapper + one slug per
+     * section). Optional attributes: data-map-var names an inline JS map used
+     * as the per-section fallback when the fetch fails; data-from-sync on the
+     * <pre> fills its code from the JSON (also filled when <code> is empty, or
+     * on any tab click). The language choice is page-wide and persists in
+     * localStorage under "algoviz-code-lang".
+     */
+    const ALGOVIZ_LANGS = ["python", "c", "cpp", "java"];
+    const ALGOVIZ_LANG_LABELS = { python: "Python", c: "C", cpp: "C++", java: "Java" };
+    const ALGOVIZ_LANG_KEY = "algoviz-code-lang";
+    const ALGOVIZ_LANG_RE = /(?:^|\s)language-[a-z0-9+#-]+/g;
+
+    const syncedSections = [];
+
+    function currentStoredLanguage() {
+        const lang = localStorage.getItem(ALGOVIZ_LANG_KEY);
+        return ALGOVIZ_LANGS.includes(lang) ? lang : null;
+    }
+
+    function selectLanguage(lang) {
+        localStorage.setItem(ALGOVIZ_LANG_KEY, lang);
+        syncedSections.forEach((section) => section.apply(lang, true));
+    }
+
+    function setLanguageClass(pre, codeElement, lang) {
+        pre.className = pre.className.replace(ALGOVIZ_LANG_RE, "").trim();
+        codeElement.className = codeElement.className.replace(ALGOVIZ_LANG_RE, "").trim();
+        pre.classList.add(`language-${lang}`);
+        codeElement.classList.add(`language-${lang}`);
+    }
+
+    function startTracking(video, codeBlock, readMap) {
+        let lastLine = null;
+        const tick = () => {
+            const currentTime = video.currentTime;
+            let currentHighlight = "";
+            const highlightMap = readMap();
+
+            for (let i = highlightMap.length - 1; i >= 0; i--) {
+                if (currentTime >= highlightMap[i].time) {
+                    currentHighlight = highlightMap[i].lines;
+                    break;
+                }
+            }
+
+            if (currentHighlight !== lastLine) {
+                codeBlock.setAttribute("data-line", currentHighlight);
+                Prism.highlightElement(codeBlock.querySelector("code"));
+                lastLine = currentHighlight;
+            }
+        };
+        setInterval(tick, 100);
+        return tick;
+    }
+
+    function makeSyncedController(section, video, codeBlock, data) {
+        const langs = data.langs || {};
+        const codeElement = codeBlock.querySelector("code") || codeBlock;
+        let activeMap = [];
+
+        const tabBar = document.createElement("div");
+        tabBar.className = "lang-tabs";
+        ALGOVIZ_LANGS.forEach((lang) => {
+            if (!langs[lang]) return;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "lang-tab";
+            button.dataset.lang = lang;
+            button.textContent = ALGOVIZ_LANG_LABELS[lang];
+            button.addEventListener("click", () => selectLanguage(lang));
+            tabBar.appendChild(button);
+        });
+        if (tabBar.childElementCount && codeBlock.parentElement) {
+            codeBlock.parentElement.prepend(tabBar);
+        }
+
+        function apply(lang, userInitiated) {
+            if (!langs[lang]) {
+                lang = langs[data.default] ? data.default : ALGOVIZ_LANGS.find((l) => langs[l]);
+            }
+            if (!lang) return;
+            activeMap = (langs[lang] && langs[lang].map) || [];
+            tabBar.querySelectorAll(".lang-tab").forEach((button) => {
+                button.classList.toggle("active", button.dataset.lang === lang);
+            });
+            const shouldFill =
+                userInitiated ||
+                codeBlock.hasAttribute("data-from-sync") ||
+                !codeElement.textContent.trim();
+            if (shouldFill && langs[lang]) {
+                codeElement.textContent = langs[lang].code.join("\n");
+                setLanguageClass(codeBlock, codeElement, lang);
+                Prism.highlightElement(codeElement);
+            }
+            tick();
+        }
+
+        const tick = startTracking(video, codeBlock, () => activeMap);
+        return {
+            apply,
+            defaultLanguage: () =>
+                currentStoredLanguage() || (langs[data.default] ? data.default : "python"),
+        };
+    }
+
+    function wireSyncedSection(section) {
+        const video = section.querySelector("video");
+        const codeBlock = section.querySelector("pre") || document.getElementById("code-block");
         if (!video || !codeBlock) return;
 
-        const startTracking = () => {
-            let lastLine = "";
-            setInterval(() => {
-                const currentTime = video.currentTime;
-                let currentHighlight = "";
+        fetch(section.getAttribute("data-sync"))
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                const controller = makeSyncedController(section, video, codeBlock, data);
+                syncedSections.push(controller);
+                controller.apply(controller.defaultLanguage(), false);
+            })
+            .catch(() => {
+                const mapVar = section.getAttribute("data-map-var");
+                const inlineMap = mapVar
+                    ? window[mapVar]
+                    : typeof highlightMap !== "undefined"
+                      ? highlightMap
+                      : null;
+                if (inlineMap) startTracking(video, codeBlock, () => inlineMap);
+            });
+    }
 
-                for (let i = highlightMap.length - 1; i >= 0; i--) {
-                    if (currentTime >= highlightMap[i].time) {
-                        currentHighlight = highlightMap[i].lines;
-                        break;
-                    }
-                }
-
-                if (currentHighlight !== lastLine) {
-                    codeBlock.setAttribute("data-line", currentHighlight);
-                    Prism.highlightElement(codeBlock.querySelector("code"));
-                    lastLine = currentHighlight;
-                }
-            }, 100);
-        };
-
-        const syncUrl =
-            video.parentElement?.getAttribute("data-sync") || video.getAttribute("data-sync");
-        if (syncUrl) {
-            fetch(syncUrl)
-                .then((response) => {
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return response.json();
-                })
-                .then((data) => {
-                    window.highlightMap = data.map;
-                    const codeElement = codeBlock.querySelector("code");
-                    if (
-                        codeElement &&
-                        (codeBlock.hasAttribute("data-from-sync") ||
-                            !codeElement.textContent.trim())
-                    ) {
-                        codeElement.textContent = data.code.join("\n");
-                        Prism.highlightElement(codeElement);
-                    }
-                    startTracking();
-                })
-                .catch(() => {
-                    if (typeof highlightMap !== "undefined") startTracking();
-                });
+    document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll("[data-sync]");
+        if (sections.length) {
+            sections.forEach(wireSyncedSection);
             return;
         }
-        if (typeof highlightMap === "undefined") return;
-        startTracking();
+        // Legacy pages without data-sync: single video + inline highlightMap.
+        const video = document.getElementById("code-video");
+        const codeBlock = document.getElementById("code-block");
+        if (!video || !codeBlock || typeof highlightMap === "undefined") return;
+        startTracking(video, codeBlock, () => highlightMap);
     });
 
     function copyToClipboard(button) {

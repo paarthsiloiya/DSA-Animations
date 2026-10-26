@@ -8,6 +8,59 @@
         first one to be removed. Conceptually, a queue operates like a line of customers waiting at a cashier; the first
         customer in line is the first one served.
     </p>
+    <p>
+        The animation below runs a capacity-5 queue through its whole life: five <strong>enqueue</strong> operations,
+        an <strong>overflow</strong> attempt on the full queue, then five <strong>dequeue</strong> operations that
+        drain it in the same order the elements entered.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/queue.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="5-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/StackAndQueue/Queue.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> under the <em>Enqueue</em> title, the elements
+        <code>2, 4, 3, 5, 4</code> enter from the left and line up in order — each <code>append</code> places one
+        element at the rear. A sixth element (<code>8</code>) then tries to enter the now-full queue: it is marked
+        <em>Overflow</em>, crossed out, and discarded. Under the <em>Dequeue</em> title, the front element
+        (<code>2</code> first — the earliest inserted) leaves from the right, and the remaining elements slide
+        forward to close the gap; the repeats drain the queue as <code>4, 3, 5, 4</code>. That sliding is the visual
+        signature of an <strong>array-based</strong> queue: every dequeue costs $O(n)$ element moves — exactly what a
+        circular buffer (below) or a linked list with head/tail pointers avoids.
+    </p>
+    <p>
+        <strong>Complexity:</strong> with <code>collections.deque</code> (Python) or a circular buffer (C, Java's
+        <code>ArrayDeque</code>), <strong>enqueue and dequeue are both $O(1)$ worst-case</strong> — a pointer/index
+        update, no shifting. The shifting array version shown in the C tab is $O(1)$ per enqueue but
+        <strong>$O(n)$ per dequeue</strong>; amortized over a full drain it still moves every element, so the
+        circular buffer's two moving indices (<code>head</code> and <code>tail</code>, wrapping modulo the capacity)
+        are the standard fix — turning both operations into constant-time pointer arithmetic while keeping $O(n)$
+        pre-allocated space.
+    </p>
 </div>
 
 <div class="subcontent">

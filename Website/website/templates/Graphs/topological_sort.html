@@ -1,0 +1,146 @@
+{% extends "content.html" %} {% block title %} Topological Sort {% endblock %} {% block main_content %}
+<h1>Topological Sort</h1>
+<p>
+    A <strong>topological sort</strong> of a <strong>directed acyclic graph (DAG)</strong>
+    is a linear order of its vertices in which every edge points forward: for each edge
+    $u \to v$, vertex $u$ appears before $v$. Think of course prerequisites, build
+    dependencies, or task pipelines: the sort is any schedule that violates no
+    dependency. Cycles make this impossible — a dependency loop has no valid order, which
+    is exactly why the algorithm only applies to DAGs.
+</p>
+
+<div class="subcontent">
+    <h3>Kahn's Algorithm (indegree counting)</h3>
+    <p>
+        The animation shows the classic queue-based method. Each vertex carries an
+        <strong>indegree</strong> — the number of edges arriving at it, the number of
+        unfinished prerequisites. A vertex with indegree zero has none: it can go
+        <em>now</em>. Taking it doesn't just append it to the order — removing it
+        <strong>frees</strong> its outgoing edges, decrementing each neighbour's indegree,
+        possibly pushing a neighbour down to zero and into the queue:
+    </p>
+    <ol>
+        <li>Count every vertex's indegree; enqueue all that start at zero.</li>
+        <li>Pop a vertex, append it to the order, and decrement each neighbour's indegree.</li>
+        <li>Any neighbour that reaches zero joins the queue. Repeat until it empties.</li>
+    </ol>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/topological-sort.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/TopologicalSort.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> an 8-vertex DAG with edges
+        <code>0&rarr;2, 0&rarr;3, 0&rarr;4, 1&rarr;2, 1&rarr;7, 2&rarr;5, 3&rarr;5,
+        3&rarr;7, 4&rarr;7, 5&rarr;6, 6&rarr;7</code>. The indegree of each vertex fades
+        in as a number (vertex 1 gets the explicit <em>"&larr;Indegree"</em> callout).
+        Vertices 0 and 1 start at zero, so both are available immediately; each round
+        announces the <em>"Selected Vertex"</em>, its freed edges fade out, and the
+        vertex physically moves onto the ordering line at the bottom.
+    </p>
+    <p>
+        <strong>The order produced (validated edge-by-edge on this exact graph):</strong>
+        <code>0, 1, 3, 4, 2, 5, 6, 7</code> — check any edge against it, the earlier
+        vertex always comes first. All 8 vertices appear, which certifies the graph has
+        no cycle. Note the queue chose 3 before 2: when a zero-indegree vertex is
+        available the FIFO queue takes the oldest one, but <em>any</em> zero-indegree
+        vertex is a legal choice — topological orders are never unique.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $O(V + E)$</strong> — counting indegrees
+            touches each edge once ($E$); each vertex enters and leaves the queue at
+            most once ($V$); each freed edge is decremented exactly once ($E$).
+            Nothing depends on the shape of the graph, so every case is linear in the
+            graph's size.
+        </li>
+        <li>
+            <strong>Space: $O(V)$</strong> beyond the graph itself — one indegree
+            counter, one queue slot, and one output position per vertex (the queue
+            never holds more than $V$ entries).
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the output length is a cycle detector — fewer than
+        $V$ vertices at the end means every leftover vertex sits on a cycle (this is a
+        standard way to detect cycles in a directed graph); the order is not unique,
+        and which one you get depends on the queue's tie-breaking; the input must be a
+        DAG; the DFS alternative (reverse post-order finish times) produces the same
+        guarantees with the same $O(V + E)$.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Build systems:</strong> compile/link order derived from file dependency graphs.</li>
+        <li><strong>Course scheduling:</strong> prerequisites define the DAG; the sort is any legal study plan.</li>
+        <li><strong>Task pipelines:</strong> spreadsheet recalculation, dataflow execution, PERT/CPM project scheduling.</li>
+        <li><strong>Instruction scheduling:</strong> CPUs order independent instructions within dependency limits.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Kahn's vs. DFS Topological Sort</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;"></th>
+                <th style="text-align: left; padding: 0.4em;">Kahn's (queue)</th>
+                <th style="text-align: left; padding: 0.4em;">DFS (finish times)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Idea</td>
+                <td style="padding: 0.4em;">peel off zero-indegree vertices</td>
+                <td style="padding: 0.4em;">reverse the finish order of a DFS</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Cycle detection</td>
+                <td style="padding: 0.4em;">free — short output means cycle</td>
+                <td style="padding: 0.4em;">needs an explicit back-edge check</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Streaming</td>
+                <td style="padding: 0.4em;">yes — outputs vertices as they free up</td>
+                <td style="padding: 0.4em;">no — order known only after the full DFS</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Time</td>
+                <td style="padding: 0.4em;">$O(V + E)$</td>
+                <td style="padding: 0.4em;">$O(V + E)$</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Both orders are valid topological sorts of the same DAG — possibly different
+        ones. Revisit the ingredients in
+        <a href="{{ url_for('views.graph_traversals') }}">Graph Traversals</a> (BFS
+        runs Kahn's skeleton; DFS powers the alternative), or continue the weighted-graph
+        tour with <a href="{{ url_for('views.prims_algorithm') }}">Prim's</a> and
+        <a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

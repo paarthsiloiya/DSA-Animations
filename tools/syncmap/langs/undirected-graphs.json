@@ -1,0 +1,73 @@
+{
+    "python": {
+        "code": [
+            "vertices = [0, 1, 2, 3, 4]",
+            "edges = [(0, 2), (0, 1), (1, 3), (4, 1), (4, 2), (2, 3), (3, 4)]",
+            "",
+            "G = Graph(vertices, edges)   # undirected: (0, 2) links 0 and 2 BOTH ways",
+            "",
+            "# the degree of a vertex = the number of edges touching it",
+            "degrees = {0: 2, 1: 3, 2: 3, 3: 3, 4: 3}"
+        ],
+        "steps": {
+            "vertices": "1",
+            "node": "1",
+            "edge": "2",
+            "degree": "5-6"
+        }
+    },
+    "c": {
+        "code": [
+            "int vertices[5] = {0, 1, 2, 3, 4};",
+            "int edges[7][2] = {{0,2},{0,1},{1,3},{4,1},{4,2},{2,3},{3,4}};",
+            "",
+            "/* BOTH ways */",
+            "",
+            "/* the degree of a vertex = the number of edges touching it */",
+            "int degrees[5] = {2, 3, 3, 3, 3};            /* per vertex 0..4 */",
+            ""
+        ],
+        "steps": {
+            "vertices": "1",
+            "node": "1",
+            "edge": "2",
+            "degree": "4-5"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int vertices[5] = {0, 1, 2, 3, 4};",
+            "int edges[7][2] = {{0,2},{0,1},{1,3},{4,1},{4,2},{2,3},{3,4}};",
+            "",
+            "// BOTH ways ",
+            "",
+            "// the degree of a vertex = the number of edges touching it ",
+            "int degrees[5] = {2, 3, 3, 3, 3};            // per vertex 0..4 ",
+            ""
+        ],
+        "steps": {
+            "vertices": "1",
+            "node": "1",
+            "edge": "2",
+            "degree": "4-5"
+        }
+    },
+    "java": {
+        "code": [
+            "int[] vertices = {0, 1, 2, 3, 4};",
+            "int[][] edges = {{0,2},{0,1},{1,3},{4,1},{4,2},{2,3},{3,4}};",
+            "",
+            "// BOTH ways",
+            "",
+            "// the degree of a vertex = the number of edges touching it",
+            "int[] degrees = {2, 3, 3, 3, 3};            // per vertex 0..4",
+            ""
+        ],
+        "steps": {
+            "vertices": "1",
+            "node": "1",
+            "edge": "2",
+            "degree": "4-5"
+        }
+    }
+}

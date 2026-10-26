@@ -1,0 +1,169 @@
+{% extends "content.html" %} {% block title %} Huffman Encoding {% endblock %} {% block main_content %}
+<h1>Huffman Encoding</h1>
+<p>
+    <strong>Huffman coding</strong> builds the most compact <em>prefix code</em>
+    for a set of symbols: a binary code where no codeword is the start of
+    another (<em>prefix-free</em>), so an encoded stream can be decoded on the
+    fly with zero ambiguity. Frequent symbols get short codes, rare ones get
+    long codes — and the assignment provably minimizes the total number of
+    bits. It is a <strong>greedy</strong> algorithm: repeatedly merge the two
+    least frequent symbols.
+</p>
+
+<div class="subcontent">
+    <h3>Two Smallest, Merge, Repeat</h3>
+    <ol>
+        <li><strong>Count</strong> each symbol's frequency in the input.</li>
+        <li>
+            <strong>Repeatedly merge</strong> the two least frequent items into a
+            parent node: its frequency is their sum. Each merge draws a
+            <em>left edge labelled 0</em> and a <em>right edge labelled 1</em>.
+        </li>
+        <li>
+            When one item remains, it is the <strong>root</strong>. A symbol's
+            code is the $0/1$ path from the root down to its leaf — which is
+            exactly why no code can prefix another: every symbol lives at a
+            distinct leaf, and prefixes would require one leaf to sit on
+            another's path.
+        </li>
+    </ol>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/huffman-encoding.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Greedy/HuffmanEncoding.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo string
+        <code>"abbcaaaabbcdddeee"</code> (17 characters) with counts
+        <code>c: 2, d: 3, e: 3, b: 4, a: 5</code>. Leaf circles fade in, then
+        four merge rounds play out — each announcing
+        <em>"Select two nodes with smallest frequencies"</em>, the pair under
+        consideration (<em>"Combining c(2) + d(3)"</em>), the parent's frequency,
+        and the connecting edges with their $0$ (left) / $1$ (right) labels. The
+        verified merge order:
+    </p>
+    <p>
+        <strong>c(2) + d(3) &rarr; cd(5) &nbsp;&middot;&nbsp; e(3) + b(4) &rarr;
+        eb(7) &nbsp;&middot;&nbsp; a(5) + cd(5) &rarr; acd(10) &nbsp;&middot;&nbsp;
+        eb(7) + acd(10) &rarr; root(17)</strong>
+    </p>
+    <p>
+        <em>One honest note:</em> the animation focuses on tree construction —
+        it never displays the final binary codes for the symbols. Reading them
+        off is a text-book exercise on the finished tree: walk from the root,
+        appending $0$ for each left edge and $1$ for each right edge, and
+        collect the path at each leaf. Doing that on the tree built above
+        yields <code>a = 10</code>, <code>b = 01</code>,
+        <code>c = 110</code>, <code>d = 111</code>,
+        <code>e = 00</code> — verified prefix-free, and decoding the 17
+        characters bit by bit returns the original string. The encoding
+        weighs in at <strong>39 bits</strong> against 51 bits for a naive
+        fixed 3-bit code — and there is a neat identity to check any run: the
+        total bit cost equals the sum of all merged frequencies
+        ($5 + 7 + 10 + 17 = 39$), because a symbol's code length is exactly
+        the number of merges its subtree passes through.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $O(n \log n)$</strong> over $n$
+            distinct symbols — the standard implementation keeps the pool in a
+            min-heap: each of the $n - 1$ merges does two $O(\log n)$ extracts
+            and one $O(\log n)$ insert, and the initial frequency count is a
+            single $O(\text{len}(s))$ pass over the input. Every merge is
+            unconditional, so no case beats the bound.
+        </li>
+        <li>
+            <strong>The re-sort variant shown here:</strong> the animation and
+            the code re-sort the whole pool each round — simple to follow, at
+            the cost of an extra factor (each round's sort is
+            $O(k \log k)$ on a pool of size $k$). The classic two-queue
+            refinement exploits the fact that merged frequencies only grow:
+            one queue of sorted leaves plus one FIFO of merged parents makes
+            every round $O(1)$, leaving the initial sort's $O(n \log n)$ as the
+            whole cost.
+        </li>
+        <li>
+            <strong>Space: $O(n)$</strong> for the tree and the pool (one leaf
+            per distinct symbol, one internal node per merge).
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> Huffman coding is <em>optimal</em> among
+        prefix (symbol-by-symbol) codes — every Huffman tree for the same
+        frequencies costs the same total, though ties in the pool can produce
+        different trees and different (equally good) code lengths; the demo
+        breaks ties deterministically by $(\text{frequency}, \text{symbol})$ so
+        the video is reproducible; $0$/left and $1$/right is a convention —
+        swapping them mirrors every code; and the tree built bottom-up by
+        merges is a <em>full</em> binary tree: every internal node has exactly
+        two children.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>File compression:</strong> DEFLATE (zip, gzip, PNG) uses Huffman coding as its final stage.</li>
+        <li><strong>Media formats:</strong> JPEG and MP3 encode quantized coefficients with Huffman tables.</li>
+        <li><strong>Transmission coding:</strong> compacting teletext and Morse-like protocols by symbol frequency.</li>
+        <li><strong>Anywhere symbol frequencies are skewed:</strong> databases, log compression, custom archive formats.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Fixed-Length vs. Shannon&ndash;Fano vs. Huffman</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;">Scheme</th>
+                <th style="text-align: left; padding: 0.4em;">Codes</th>
+                <th style="text-align: left; padding: 0.4em;">Optimal?</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Fixed-length</td>
+                <td style="padding: 0.4em;">$\lceil \log_2 n \rceil$ bits each</td>
+                <td style="padding: 0.4em;">only for uniform frequencies</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Shannon&ndash;Fano</td>
+                <td style="padding: 0.4em;">top-down recursive splits</td>
+                <td style="padding: 0.4em;">close, not always optimal</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Huffman</td>
+                <td style="padding: 0.4em;">bottom-up merges (this page)</td>
+                <td style="padding: 0.4em;">optimal prefix code, guaranteed</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        More greedy: <a href="{{ url_for('views.interval_scheduling') }}">Interval Scheduling</a>
+        (the other classic in this section) and the greedy graph pair
+        <a href="{{ url_for('views.prims_algorithm') }}">Prim's</a> /
+        <a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

@@ -24,9 +24,9 @@ class FixtureSyncedScene(SyncedScene):
     ]
 
     def construct(self):
-        self.code_step("1", key="enter")
+        self.code_step("enter")
         self.play(Create(Square()))
-        self.code_step("2", key="call")
+        self.code_step("call")
         self.play(Uncreate(Square()))
         self.wait(0.5)
 
@@ -39,12 +39,12 @@ class FixtureDedupeScene(SyncedScene):
     ]
 
     def construct(self):
-        self.code_step("1")
-        self.code_step("1")
+        self.code_step("a")
+        self.code_step("a")
         self.play(Create(Square()))
-        self.code_step("3")
-        self.code_step("3")
-        self.code_step("1")
+        self.code_step("b")
+        self.code_step("b")
+        self.code_step("a")
         self.play(Uncreate(Square()))
 
 
@@ -56,4 +56,4 @@ class FixtureOutOfRangeScene(SyncedScene):
 
     def construct(self):
         self.play(Create(Square()))
-        self.code_step("3")
+        self.code_step("done")

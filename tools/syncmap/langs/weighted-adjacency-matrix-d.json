@@ -1,0 +1,89 @@
+{
+    "python": {
+        "code": [
+            "V = [0, 1, 2, 3, 4]",
+            "W = [(0, 1, 10), (0, 3, 18), (1, 2, 20),",
+            "     (1, 3, 6), (2, 4, 8), (4, 3, 70)]",
+            "",
+            "M = [[0] * len(V) for _ in V]      # V x V grid, 0 = no edge",
+            "",
+            "for u, v, w in W:",
+            "    M[u][v] = w                    # directed: only the (u, v) direction",
+            "",
+            "# M[u][v] = the weight of u -> v; 0 = no edge"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5",
+            "edge": "7-10"
+        }
+    },
+    "c": {
+        "code": [
+            "int V[5] = {0, 1, 2, 3, 4};",
+            "int W[6][3] = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{4,3,70}};",
+            "",
+            "/* V x V grid, 0 = no edge */",
+            "int M[5][5] = {0};",
+            "",
+            "void build(void) {",
+            "    for (int e = 0; e < 6; e++) {",
+            "        int u = W[e][0], v = W[e][1], w = W[e][2];",
+            "        M[u][v] = w;                    /* directed: only the (u, v) direction */",
+            "    }",
+            "}",
+            "",
+            "/* M[u][v] = the weight of u -> v; 0 = no edge */"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5",
+            "edge": "7-14"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int V[5] = {0, 1, 2, 3, 4};",
+            "int W[6][3] = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{4,3,70}};",
+            "",
+            "// V x V grid, 0 = no edge",
+            "int M[5][5] = {0};",
+            "",
+            "void build(void) {",
+            "    for (int e = 0; e < 6; e++) {",
+            "        int u = W[e][0], v = W[e][1], w = W[e][2];",
+            "        M[u][v] = w;                    // directed: only the (u, v) direction",
+            "    }",
+            "}",
+            "",
+            "// M[u][v] = the weight of u -> v; 0 = no edge"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "5",
+            "edge": "7-14"
+        }
+    },
+    "java": {
+        "code": [
+            "int[] V = {0, 1, 2, 3, 4};",
+            "int[][] W = {{0,1,10},{0,3,18},{1,2,20},{1,3,6},{2,4,8},{4,3,70}};",
+            "",
+            "int[][] M = new int[5][5];        // V x V grid, 0 = no edge",
+            "",
+            "void build() {",
+            "    for (int[] e : W) {",
+            "        int u = e[0], v = e[1], w = e[2];",
+            "        M[u][v] = w;                    // directed: only the (u, v) direction",
+            "    }",
+            "}",
+            "",
+            "// M[u][v] = the weight of u -> v; 0 = no edge"
+        ],
+        "steps": {
+            "build": "1-2",
+            "init": "4",
+            "edge": "6-13"
+        }
+    }
+}

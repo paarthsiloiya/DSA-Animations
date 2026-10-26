@@ -1,0 +1,98 @@
+{% extends "content.html" %} {% block title %} Ternary Tree {% endblock %} {% block main_content %}
+<h1>Ternary Tree</h1>
+<p>
+    A <strong>ternary tree</strong> relaxes the binary rule from two to three: every node holds
+    <strong>at most three children</strong>. The extra branching factor makes trees shallower — a complete
+    ternary tree fits $3^k$ nodes on level $k$, compared with $2^k$ for a binary tree — which is why ternary
+    structures appear in tries with three-way branches and in some search trees that split each comparison into
+    less / equal / greater.
+</p>
+
+<div class="subcontent">
+    <h3>The Structure, Visualized</h3>
+    <p>
+        The animation builds a complete ternary tree on eleven nodes, <code>A</code> through <code>K</code>, and
+        then labels the same roles every tree shares: a <strong>node</strong>, the <strong>root</strong>, and the
+        <strong>subtree</strong> rooted at each of several positions.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/ternary-tree.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="8-9">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/TernaryTreeExplanation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the tree places <code>A</code> at the root with children
+        <code>B, C, D</code>; <code>B</code> carries <code>E, F, G</code>; <code>C</code> carries
+        <code>H, I, J</code>; and <code>D</code> carries <code>K</code> — the last level's leftover slot left
+        empty. <code>B</code> is labelled as a <em>Node</em>, <code>A</code> as the <em>Root Node</em>, and then
+        six <em>Subtree</em> highlights walk through <code>B</code>, <code>E</code>, <code>F</code>,
+        <code>G</code>, <code>C</code> and <code>D</code> — note that a <strong>leaf's subtree is just the leaf
+        itself</strong> (E, F and G get the same label as B's whole three-level group).
+    </p>
+    <p>
+        <strong>The list correspondence</strong> (the code on the right): stored level by level in a flat list,
+        node <code>i</code>'s children sit at indices <strong>3i + 1, 3i + 2 and 3i + 3</strong> — the ternary
+        analogue of the binary tree's <code>2i + 1 / 2i + 2</code> from the
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a> page. Check it against
+        the video: B sits at index 1, and its children E, F, G sit at indices 4, 5, 6 — exactly
+        <code>3&middot;1 + 1, 3&middot;1 + 2, 3&middot;1 + 3</code>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Ternary vs. Binary — the Trade-offs</h3>
+    <ul>
+        <li><strong>Height</strong>: a complete ternary tree of $n$ nodes has height
+            $\lfloor \log_3 n \rfloor$ versus $\lfloor \log_2 n \rfloor$ for binary — shallower, but each node
+            compares against up to three children instead of two.</li>
+        <li><strong>Traversal cost</strong>: every traversal still visits all $n$ nodes once —
+            <strong>$\Theta(n)$</strong> regardless of branching factor; only the level sizes change (the BFS
+            queue can grow to $\Theta(n)$ faster, since a level triples rather than doubles).</li>
+        <li><strong>Storage</strong>: the array form needs three index slots per node instead of two, so sparse
+            ternary shapes waste more space — node-based ternary trees dodge that exactly like node-based binary
+            trees do.</li>
+        <li><strong>Where they earn their keep</strong>: ternary search tries (the classic TST stores one
+            character and three less/equal/greater pointers per node), 2-3 trees behind B-tree ideas, and
+            interpolation searches that branch three ways.</li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the <a href="{{ url_for('views.types_of_trees') }}">taxonomy rule</a> is the
+        only difference — parent/child, sibling, leaf, subtree and depth/height all mean exactly what they mean
+        for binary trees; "ternary" only caps the children per node at three.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Return to <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a> for the shared vocabulary,
+        or continue to <a href="{{ url_for('views.binary_search_tree') }}">Binary Search Trees</a> to see the
+        two-child version carry an ordering rule.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

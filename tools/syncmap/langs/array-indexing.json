@@ -1,0 +1,93 @@
+{
+    "python": {
+        "code": [
+            "arr = [5, 2, 4, 6, 3, 1]",
+            "",
+            "# Forward indexing: positions 0 to N-1",
+            "print(arr[0])    # 5 - first element",
+            "print(arr[3])    # 6 - fourth element",
+            "",
+            "# Reverse indexing: positions -N to -1",
+            "print(arr[-6])   # 5 - first element again",
+            "print(arr[-1])   # 1 - last element"
+        ],
+        "steps": {
+            "create": "1",
+            "forward": "3",
+            "forward-index": "4-5",
+            "index": "4",
+            "reverse": "7",
+            "reverse-index": "8-9",
+            "index-rev": "8"
+        }
+    },
+    "c": {
+        "code": [
+            "int arr[6] = {5, 2, 4, 6, 3, 1};",
+            "",
+            "/* Forward indexing: positions 0 to N-1 */",
+            "printf(\"%d\\n\", arr[0]);   /* 5 - first element */",
+            "printf(\"%d\\n\", arr[3]);   /* 6 - fourth element */",
+            "",
+            "/* Reverse indexing: C has no negative indices - */",
+            "/* emulate arr[-k] as arr[N - k] */",
+            "printf(\"%d\\n\", arr[6 - 6]);  /* 5 - first element again */",
+            "printf(\"%d\\n\", arr[6 - 1]);  /* 1 - last element */"
+        ],
+        "steps": {
+            "create": "1",
+            "forward": "3",
+            "forward-index": "4-5",
+            "index": "4",
+            "reverse": "7",
+            "reverse-index": "9-10",
+            "index-rev": "9"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int arr[6] = {5, 2, 4, 6, 3, 1};",
+            "",
+            "// Forward indexing: positions 0 to N-1",
+            "std::cout << arr[0] << \"\\n\";   // 5 - first element",
+            "std::cout << arr[3] << \"\\n\";   // 6 - fourth element",
+            "",
+            "// Reverse indexing: C++ has no negative indices -",
+            "// emulate arr[-k] as arr[N - k]",
+            "std::cout << arr[6 - 6] << \"\\n\";  // 5 - first element again",
+            "std::cout << arr[6 - 1] << \"\\n\";  // 1 - last element"
+        ],
+        "steps": {
+            "create": "1",
+            "forward": "3",
+            "forward-index": "4-5",
+            "index": "4",
+            "reverse": "7",
+            "reverse-index": "9-10",
+            "index-rev": "9"
+        }
+    },
+    "java": {
+        "code": [
+            "int arr[] = {5, 2, 4, 6, 3, 1};",
+            "",
+            "// Forward indexing: positions 0 to N-1",
+            "System.out.println(arr[0]);   // 5 - first element",
+            "System.out.println(arr[3]);   // 6 - fourth element",
+            "",
+            "// Reverse indexing: Java has no negative indices -",
+            "// emulate arr[-k] as arr[N - k]",
+            "System.out.println(arr[6 - 6]);  // 5 - first element again",
+            "System.out.println(arr[6 - 1]);  // 1 - last element"
+        ],
+        "steps": {
+            "create": "1",
+            "forward": "3",
+            "forward-index": "4-5",
+            "index": "4",
+            "reverse": "7",
+            "reverse-index": "9-10",
+            "index-rev": "9"
+        }
+    }
+}

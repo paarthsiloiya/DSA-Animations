@@ -1,0 +1,149 @@
+{% extends "content.html" %} {% block title %} Median of Medians {% endblock %} {% block main_content %}
+<h1>Median of Medians</h1>
+<p>
+    <strong>Median of medians</strong> answers one question: how do you pick a
+    <em>provably decent</em> pivot for selection, every single time? Quickselect is
+    blazing fast <em>on average</em>, but a stream of unlucky (or adversarial) pivots
+    degrades it to $O(n^2)$. Median-of-medians replaces the lucky guess with a pivot
+    that is guaranteed to sit between the 30th and 70th percentiles of the data —
+    which is exactly what selection needs to run in <strong>worst-case $O(n)$</strong>.
+</p>
+
+<div class="subcontent">
+    <h3>Groups of Five, Recursively</h3>
+    <ol>
+        <li>Split the $n$ values into groups of 5 (the last may be short).</li>
+        <li>Sort each group and take its middle element — the group's median.</li>
+        <li>Recurse on the <em>medians themselves</em>: their median is the pivot.</li>
+    </ol>
+    <p>
+        Why must that pivot be decent? The pivot is the median of roughly $n/5$ group
+        medians, so at least <em>half</em> the group medians are $\le$ pivot (and half
+        $\ge$). Each such group median exceeds 3 of its own group's 5 elements
+        (it sits in the middle). Multiply: about $3 \cdot n/10$ elements are
+        guaranteed below the pivot, and symmetrically above. Discard the wrong side
+        and you have thrown away at least $3n/10$ elements — a 30% haircut,
+        guaranteed, every level.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/median-of-medians.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/DivideAndConquer/MedianOfMedians.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> 50 values (with one duplicate,
+        <code>94</code>). Frames snap around the groups of 5; each group collapses
+        into a sorted column; the middle of each column lights up as its median and
+        everything else fades. The 10 surviving medians &mdash;
+        <code>[45, 56, 63, 52, 33, 61, 57, 66, 48, 58]</code> &mdash; get regrouped,
+        resorted, and re-medianed, leaving <code>52</code> and <code>58</code>; the
+        tiny final group's middle (its second element) is marked as the result:
+        <strong>58</strong>.
+    </p>
+    <p>
+        <strong>Honest framing:</strong> 58 is <em>not</em> the exact median of the
+        50 values (that honour falls to the 25th&ndash;26th sorted values, 56 and 57).
+        It doesn't have to be — median-of-medians is a <em>pivot selector</em>. The
+        verified scoreboard: 26 values below 58, 23 above — comfortably inside the
+        guaranteed 30&ndash;70% band, bought for a fraction of the work a true
+        median would cost.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $O(n)$</strong> — the recursion is
+            <em>uneven on purpose</em>:
+            $$T(n) = T(n/5) + T(7n/10) + O(n)$$
+            One call finds the pivot's rank among the medians ($T(n/5)$); the other
+            is the selection itself, which after the 30% haircut recurses on at most
+            $7n/10$ elements. The master theorem does not apply (the subproblems are
+            unequal), but the substitution proof is short: assume $T(k) \le ak$ for
+            $k < n$; then
+            $$T(n) \le a\tfrac{n}{5} + a\tfrac{7n}{10} + cn = 0.9\,an + cn \le an$$
+            for any $a \ge 10c$. The two fractions must sum below 1 — which is
+            exactly why the groups have <strong>5</strong> elements: groups of 3
+            give $n/3 + 2n/3 = n$ (dead even, no progress) and the argument collapses.
+        </li>
+        <li>
+            <strong>Space: $O(n)$</strong> as shown (the group copies and median
+            list), with $\log$-shaped recursion depth along the $n/5$ pivot chain;
+            in-place variants trim the extra space to $O(1)$ plus the stack.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> this algorithm selects a <em>pivot</em> — full
+        selection (finding the $k$-th smallest) is this + one partition + one
+        recursive call, the introselect structure; the constant is famously large,
+        so practical libraries use quickselect and only fall back to
+        median-of-medians when quickselect misbehaves; and the 30%-guarantee is a
+        <em>rank</em> guarantee on the pivot, not a promise of the exact median.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Guaranteed selection:</strong> the $k$-th smallest / median in worst-case linear time (introselect).</li>
+        <li><strong>Robust statistics:</strong> the true median resists outliers that poison the mean.</li>
+        <li><strong>Quicksort hardening:</strong> adversarial-input-proof pivot choice.</li>
+        <li><strong>Percentile queries:</strong> steady worst-case behaviour for order statistics at scale.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Selection: Three Strategies</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;">Strategy</th>
+                <th style="text-align: left; padding: 0.4em;">Average</th>
+                <th style="text-align: left; padding: 0.4em;">Worst case</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Sort, then index</td>
+                <td style="padding: 0.4em;">$O(n \log n)$</td>
+                <td style="padding: 0.4em;">$O(n \log n)$</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Quickselect (random pivot)</td>
+                <td style="padding: 0.4em;">$O(n)$</td>
+                <td style="padding: 0.4em;">$O(n^2)$</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Quickselect + median-of-medians</td>
+                <td style="padding: 0.4em;">$O(n)$</td>
+                <td style="padding: 0.4em;">$O(n)$</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        See the pivot's most famous customer at
+        <a href="{{ url_for('views.quick_sort') }}">Quick Sort</a>, or continue the
+        divide & conquer tour with
+        <a href="{{ url_for('views.count_inversions') }}">Count Inversions</a> and
+        <a href="{{ url_for('views.closest_pair') }}">Closest Pair of Points</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

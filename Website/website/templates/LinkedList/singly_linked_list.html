@@ -1,6 +1,58 @@
 {% extends "content.html" %} {% block title %} Singly Linked Lists {% endblock %} {% block main_content %}
 <h1>Singly Linked Lists</h1>
 
+<div class="subcontent" id="node">
+    <h3>What is a Node?</h3>
+    <p>
+        Before looking at the list itself, it helps to zoom in on its building block: the <strong>node</strong>. A node
+        stores a <strong>value</strong>, remembers the <strong>memory address of the next node</strong>, and itself
+        lives at its own address somewhere in memory. The animation below dissects a single node and then links a
+        second one to it.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/node-explanation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="9">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/LinkedList/NodeExplanation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the node holding the value <code>4</code> is drawn as three stacked
+        boxes. The top box is the node's <em>own address</em> (0x2268), the middle box its <em>value</em>, and the
+        bottom box the <em>address of the next node</em> — still <code>NULL</code> at first. A second node (value 1, at
+        0x4499) is then created, and the arrow from the first node's next-box lands on the second node's address box:
+        the first node's next field updates from <code>NULL</code> to <code>0x4499</code>. That single pointer write
+        is all it takes to link two nodes.
+    </p>
+    <p>
+        <strong>Complexity:</strong> creating a node and writing one <code>next</code> pointer are both
+        <strong>$O(1)$</strong> operations — no other node needs to be touched. The trade-off is memory: every node
+        carries one extra pointer compared with an array element.
+    </p>
+</div>
+
 <div class="subcontent">
     <h3>What is a Singly Linked List?</h3>
     <p>
@@ -153,6 +205,68 @@
                     </video>
                 </div>
             </div>
+        </li>
+        <li id="traverse">
+            <p><strong>Traversal (<code>traverse</code>)</strong></p>
+            <ul>
+                <li>
+                    <strong>Description</strong>: Traversal walks the list from the <code>head</code>, following each
+                    node's <code>next</code> address to the next node, until the <code>None</code> pointer after the
+                    tail is reached. It is the skeleton every other list operation — length, search, insert, delete —
+                    is built on.
+                </li>
+                <li>
+                    <strong>Time Complexity</strong>:
+                    <ul>
+                        <li><strong>Best Case</strong>: $O(1)$ — the operation that examines only the head.</li>
+                        <li>
+                            <strong>Worst Case</strong>: <strong>$O(n)$</strong> — every one of the $n$ nodes must be
+                            visited to walk the full list.
+                        </li>
+                        <li>
+                            <strong>Average Case</strong>: <strong>$O(n)$</strong> — a full traversal always touches
+                            all $n$ nodes, and a search stopping at the $i$-th node averages $\frac{n+1}{2}$ hops.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/traverse-linked-list.json') }}">
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24px"
+                            viewBox="0 -960 960 960"
+                            width="24px"
+                            fill="#e3e3e3"
+                        >
+                            <path
+                                d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                            />
+                        </svg>
+                    </button>
+                    <pre class="line-numbers line-highlight" data-from-sync data-line="6-12">
+                        <code class="language-python"></code>
+                    </pre>
+                </div>
+                <div class="video-container">
+                    <video controls>
+                        <source
+                            src="{{ url_for('static', filename='Videos/LinkedList/TraverseLinkedList.webm') }}"
+                            type="video/webm"
+                        />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <p>
+                <strong>What the animation shows:</strong> the six nodes
+                <code>5 &rarr; 2 &rarr; 4 &rarr; 6 &rarr; 3 &rarr; 1</code> fade in, and the five arrows between them
+                are drawn one by one — each arrow is one <code>.next</code> assignment in the code. The traversal then
+                starts at the head (value 5, highlighted): a dot travels along each arrow, and the highlight hops to
+                the node it lands on — 2, then 4, 6, 3 and finally 1. Following an arrow is exactly the
+                <code>current = current.next</code> step, repeated until the dot would fall off the tail.
+            </p>
         </li>
         <li>
             <p>

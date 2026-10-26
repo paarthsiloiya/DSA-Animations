@@ -1,15 +1,40 @@
 import random
 from math import pow, sqrt
+from typing import ClassVar
 
 import numpy as np
 from common import ListElement
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 # Override specific font sizes for DivideAndConquer
 POINTER_FONT_SIZE = 28      # For "i", "j", "Min", etc. above arrows
 
-class CountInversions(Scene):
+class CountInversions(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "rank = {'E': 1, 'B': 2, 'D': 3, 'F': 4, 'C': 5, 'A': 6}",
+        "values = [rank[c] for c in \"FBEADC\"]",
+        "",
+        "def merge_count(a):",
+        "    if len(a) <= 1:",
+        "        return a, 0",
+        "    mid = len(a) // 2",
+        "    left, nleft = merge_count(a[:mid])",
+        "    right, nright = merge_count(a[mid:])",
+        "    merged, i, j, split = [], 0, 0, 0",
+        "    while i < len(left) and j < len(right):",
+        "        if left[i] <= right[j]:",
+        "            merged.append(left[i]); i += 1",
+        "        else:",
+        "            split += len(left) - i     # the remaining left elements",
+        "            merged.append(right[j]); j += 1   # are inverted with right[j]",
+        "    merged += left[i:] + right[j:]",
+        "    return merged, nleft + nright + split",
+        "",
+        "print(merge_count(values))",
+    ]
+
     def construct(self):
         # Create scrambled alphabet sequences
         top_alphabets = ['E', 'B', 'D', 'F', 'C', 'A']  # This defines the mapping: E=1, B=2, D=3, F=4, C=5, A=6
@@ -28,6 +53,7 @@ class CountInversions(Scene):
         
         # Add title
         title = Text("Alphabet to Number Mapping", font_size=50, color=TEXTCOL, font=FONT).to_edge(UP)
+        self.code_step("build")
         self.add(title, top_visuals, bottom_visuals)
         self.wait(1)
         
@@ -50,6 +76,7 @@ class CountInversions(Scene):
         
         # Transform alphabets to numbers one by one
         transform_title = Text("Converting to Numbers", font_size=50, color=TEXTCOL, font=FONT).to_edge(UP)
+        self.code_step("convert")
         self.play(Transform(title, transform_title), run_time=0.5)
         
         # Transform both rows simultaneously, letter by letter
@@ -116,11 +143,13 @@ class CountInversions(Scene):
         self.wait(0.5)
 
         # Center the elements
+        self.code_step("done")
         self.play(VGroup(*list_elements).animate.center())
         self.wait(1)
 
     def recursive_merge_sort(self, arr : list[ListElement], left : int, right : int, buff_adjust):
         if left >= right:
+            self.code_step("base")
             self.wait(0.2)
             return 0
 
@@ -128,6 +157,7 @@ class CountInversions(Scene):
 
         # Highlight current subarray
         rect = SurroundingRectangle(VGroup(*[arr[i] for i in range(left, right + 1)]), color=SORTCOL, buff=buff_adjust, corner_radius=0.3, stroke_width=0.5)
+        self.code_step("divide")
         self.play(Create(rect), run_time=0.3)
 
         left_inv = self.recursive_merge_sort(arr, left, mid, buff_adjust-0.12)
@@ -160,11 +190,13 @@ class CountInversions(Scene):
 
         while i < len(left_vals) and j < len(right_vals):
             eli, elj = left_group[i], right_group[j]
+            self.code_step("compare")
             self.play(eli.SelectElement(), elj.SelectElement(), run_time=0.2)
             self.wait(0.2)
             if left_vals[i] <= right_vals[j]:
                 merged.append((left_group[i], left_vals[i]))
                 explanatoryText = Text(f"{left_vals[i]} <= {right_vals[j]}", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).to_edge(DOWN)
+                self.code_step("take_left")
                 self.play(Write(explanatoryText), run_time=0.3)
                 self.wait(0.6)
                 self.play(FadeOut(explanatoryText), run_time=0.2)
@@ -177,6 +209,7 @@ class CountInversions(Scene):
                 
                 merged.append((right_group[j], right_vals[j]))
                 explanatoryText = Text(f"{left_vals[i]} > {right_vals[j]} (+{inversions_count} inversions)", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).to_edge(DOWN)
+                self.code_step("take_right")
                 self.play(Write(explanatoryText), run_time=0.3)
                 
                 # Update counter
@@ -196,6 +229,7 @@ class CountInversions(Scene):
 
 
         while i < len(left_vals):
+            self.code_step("drain")
             self.play(left_group[i].SelectElement(), run_time=0.2)
             self.wait(0.2)
             merged.append((left_group[i], left_vals[i]))
@@ -210,6 +244,7 @@ class CountInversions(Scene):
 
 
         while j < len(right_vals):
+            self.code_step("drain")
             self.play(right_group[j].SelectElement(), run_time=0.2)
             self.wait(0.2)
             merged.append((right_group[j], right_vals[j]))
@@ -229,6 +264,7 @@ class CountInversions(Scene):
         animations = []
         for index, (el, val) in enumerate(merged):
             animations.append(el.animate.shift(DOWN * 2.6))
+        self.code_step("merge")
         self.play(*animations, run_time=1)
 
 
@@ -239,7 +275,60 @@ class CountInversions(Scene):
         return count
     
 
-class ClosestPairPoint(Scene):
+class ClosestPairPoint(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "def distance(p, q):",
+        "    return ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2) ** 0.5",
+        "",
+        "# the 35 demo points (fixed seed): x in [-7, 7], y in [-3.2, 2]",
+        "Pts = [(-6.828104536428343, -2.615525922382774), (-1.5002769382896037, 0.35609422195698803),",
+        " (-5.058326934995169, -2.615293473131186), (-3.7547670009646965, 0.7394809240540603),",
+        " (-4.936382906556102, 0.6514070344880314), (2.2703331772136846, -2.4897916734063634),",
+        " (0.49926446566904215, -0.8716951643261255), (-1.2240188355072914, 1.9809871962966294),",
+        " (-5.696440550282041, -3.0940944164597317), (6.157226819003869, -1.1046817796232347),",
+        " (-4.221033149339351, -1.4823910740160482), (-1.8914738866985337, 1.7665868020216315),",
+        " (-4.055348082366278, -2.0719846236336505), (1.1886132007698116, -0.3536164022067534),",
+        " (6.352402886166338, 1.1611508021908197), (-2.022942439568281, -2.1399393858935674),",
+        " (4.709789433664545, 1.942684870640507), (-6.574823996383105, 0.6222381708205749),",
+        " (5.156978995662392, 0.18598357294607748), (-3.9429733387502397, 0.9422902185352964),",
+        " (3.2174556042597082, -2.192178218667582), (1.9723954458796467, -2.060247190990375),",
+        " (-6.42021189862825, -1.4527477865998373), (-2.319201156447999, -1.1399365655669222),",
+        " (2.054690682222029, 1.1481007251527764), (6.458528913439745, 1.877440052450945),",
+        " (6.909084732340975, 0.907207420594264), (-2.7116161245851265, -2.28324975884402),",
+        " (1.7325252525767105, -0.3617422941387307), (2.4432102600568957, -2.7136762313350236),",
+        " (-4.3009253710314095, 1.5892890433090239), (1.4194535258877217, 0.41591084432990577),",
+        " (-5.6609671758560225, -1.1243041911643785), (5.741305606648977, 0.17651598128675472),",
+        "       (6.883153605373632, -2.1761551216783097)]",
+        "",
+        "Px = sorted(Pts)                       # by x-coordinate",
+        "Py = sorted(Pts, key=lambda p: p[1])   # by y-coordinate",
+        "",
+        "def closest_pair(Px, Py):",
+        "    n = len(Px)",
+        "    if n <= 3:                         # base case: check every pair",
+        "        return min(distance(Px[i], Px[j])",
+        "                   for i in range(n) for j in range(i + 1, n))",
+        "    m = n // 2",
+        "    Qx, Rx = Px[:m], Px[m:]            # split at the median x",
+        "    xQ, xR = Qx[-1][0], Rx[0][0]",
+        "    line_x = (xQ + xR) / 2",
+        "    Qy = [p for p in Py if p[0] < xR]  # same split, y-order kept",
+        "    Ry = [p for p in Py if p[0] >= xR]",
+        "    dQ = closest_pair(Qx, Qy)          # best inside the left half",
+        "    dR = closest_pair(Rx, Ry)          # best inside the right half",
+        "    delta = min(dQ, dR)",
+        "    Sy = [p for p in Py if abs(p[0] - line_x) <= delta]  # y-sorted strip",
+        "    minS = delta",
+        "    for i in range(len(Sy)):           # each strip point checks only the",
+        "        for j in range(i + 1, len(Sy)):  # few neighbours above it",
+        "            if Sy[j][1] - Sy[i][1] >= minS:",
+        "                break                  # too far above: can't improve",
+        "            minS = min(minS, distance(Sy[i], Sy[j]))",
+        "    return min(delta, minS)",
+        "",
+        "print(round(closest_pair(Px, Py), 2))",
+    ]
+
     # Returns eucledian disatnce between points p and q
     def distance(self, p, q):
         return sqrt(pow(p[0] - q[0],2) + pow(p[1] - q[1],2))
@@ -256,6 +345,7 @@ class ClosestPairPoint(Scene):
             dist_text = Text(f"Distance: {distance_val:.2f}", font_size=32, color=SORTCOL, font=FONT)
             dist_text.next_to(base_text, DOWN, buff=0.1)
             
+            self.code_step("base")
             self.play(FadeIn(dist_line), Write(base_text), Write(dist_text), run_time=0.5)
             self.wait(0.5)
             
@@ -298,6 +388,7 @@ class ClosestPairPoint(Scene):
             dist_text = Text(f"Min Distance: {min_dist:.2f}", font_size=32, color=SORTCOL, font=FONT)
             dist_text.next_to(base_text, DOWN, buff=0.1)
             
+            self.code_step("base")
             self.play(*[FadeIn(line) for line in dist_lines], Write(base_text), Write(dist_text), run_time=0.5)
             self.wait(0.5)
             
@@ -343,6 +434,7 @@ class ClosestPairPoint(Scene):
         # Add explanation for divide step
         divide_text = Text("Dividing points by median x-coordinate", font_size=35, color=EXPLANATORY_FONT_COLOR, font=FONT)
         divide_text.to_edge(UP, buff=0.5)
+        self.code_step("divide")
         self.play(Create(split_line), Write(divide_text), run_time=0.5)
         self.wait(0.8)
         self.play(FadeOut(divide_text), run_time=0.3)
@@ -356,6 +448,7 @@ class ClosestPairPoint(Scene):
         if points_to_dim:
             left_text = Text("Processing left half", font_size=35, color=EXPLANATORY_FONT_COLOR, font=FONT)
             left_text.to_edge(UP, buff=0.5)
+            self.code_step("left")
             self.play(*[dot.animate.set_opacity(max(0.05, dot.fill_opacity * opacity_factor)) for dot in points_to_dim], 
                      Write(left_text), run_time=0.5)
             self.wait(0.3)
@@ -373,6 +466,7 @@ class ClosestPairPoint(Scene):
             right_text = Text("Processing right half", font_size=35, color=EXPLANATORY_FONT_COLOR, font=FONT)
             right_text.to_edge(UP, buff=0.5)
 
+        self.code_step("right")
         self.play(fade_in, fade_out, *[Write(right_text)] if points_to_dim_right else [], run_time=0.5)
         if points_to_dim_right:
             self.wait(0.3)
@@ -391,6 +485,7 @@ class ClosestPairPoint(Scene):
             comparison_text = Text(f"Right half wins: {left:.2f} > {right:.2f}", font_size=30, color=EXPLANATORY_FONT_COLOR, font=FONT)
         
         comparison_text.to_edge(UP, buff=0.5)
+        self.code_step("combine")
         self.play(Write(comparison_text), run_time=0.5)
         self.wait(0.8)
         self.play(FadeOut(comparison_text), run_time=0.3)
@@ -414,6 +509,7 @@ class ClosestPairPoint(Scene):
         # Add explanation for strip checking
         strip_text = Text(f"Checking strip within δ = {delta:.2f} of dividing line", font_size=35, color=EXPLANATORY_FONT_COLOR, font=FONT)
         strip_text.to_edge(UP, buff=0.5)
+        self.code_step("strip")
         self.play(FadeIn(delta_rect), Write(strip_text), run_time=0.5)
         self.wait(0.8)
         self.play(FadeOut(strip_text), run_time=0.3)
@@ -448,6 +544,7 @@ class ClosestPairPoint(Scene):
                     comparison_text = Text(f"Distance: {dist_value:.2f}", font_size=32, color=EXPLANATORY_FONT_COLOR, font=FONT)
                     comparison_text.to_edge(UP, buff=0.5)
 
+                    self.code_step("stripcheck")
                     self.play(FadeIn(sy_dist_line), Write(comparison_text), run_time=0.3)
 
                     # Check if this is a new best
@@ -463,6 +560,7 @@ class ClosestPairPoint(Scene):
                                     run_time=0.3
                                 )
                             self.current_best = (Sy[i], Sy[j], dist_value)
+                            self.code_step("best")
                             # Highlight new best
                             self.play(
                                 self.dot_to_mob[Sy[i]].animate.set_fill(PINK),
@@ -494,6 +592,7 @@ class ClosestPairPoint(Scene):
         Px = sorted(Points)
         Py = Points
         Py.sort(key=lambda x: x[-1])
+        self.code_step("sort")
         return round(self.minDistanceRec(Px, Py), 2)
 
 
@@ -506,6 +605,7 @@ class ClosestPairPoint(Scene):
         pts = [(random.uniform(-7, 7), random.uniform(-3.2, 2)) for _ in range(35)]
         dots = [Dot(point=(x, y, 0), color=TEXTCOL, radius=0.1).set_z_index(2) for x, y in pts]
         self.dot_to_mob = {pt: dot for pt, dot in zip(pts, dots)}
+        self.code_step("build")
         self.add(*dots)
         
         result = self.minDistance(pts)
@@ -513,11 +613,42 @@ class ClosestPairPoint(Scene):
         # Final result text
         final_text = Text(f"Closest Distance: {result}", font_size=45, color=SORTCOL, font=FONT)
         final_text.to_edge(UP, buff=0.3)
+        self.code_step("done")
         self.play(Write(final_text), run_time=1)
         self.wait(2)
 
 
-class LongestCommonSubsequence(Scene):
+class LongestCommonSubsequence(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "u, v = \"bisect\", \"secret\"",
+        "m, n = len(u), len(v)",
+        "",
+        "# lcs[i][j] = length of the LCS of u[i:] and v[j:]",
+        "# (the table fills backwards, so the answer lands in lcs[0][0])",
+        "lcs = [[0] * (n + 1) for _ in range(m + 1)]",
+        "",
+        "for j in range(n - 1, -1, -1):          # columns right to left",
+        "    for i in range(m - 1, -1, -1):      # rows bottom to top",
+        "        if u[i] == v[j]:",
+        "            lcs[i][j] = lcs[i + 1][j + 1] + 1",
+        "        else:",
+        "            lcs[i][j] = max(lcs[i + 1][j], lcs[i][j + 1])",
+        "",
+        "answer = lcs[0][0]",
+        "",
+        "# walk the filled table backwards to recover the string",
+        "s, i, j = \"\", m, n",
+        "while i > 0 and j > 0:",
+        "    if u[i - 1] == v[j - 1]:",
+        "        s = u[i - 1] + s; i -= 1; j -= 1",
+        "    elif lcs[i - 1][j] > lcs[i][j - 1]:",
+        "        i -= 1",
+        "    else:",
+        "        j -= 1",
+        "",
+        "print(f\"LCS: \\\"{s}\\\" (Length: {answer})\")",
+    ]
+
     def construct(self):
         u, v = "bisect", "secret"
         if len(u) != len(v):
@@ -558,6 +689,7 @@ class LongestCommonSubsequence(Scene):
         for line in self.lcs_table.get_horizontal_lines() + self.lcs_table.get_vertical_lines():
             line.set_stroke(color=EDGE_COL, width=3.5)
 
+        self.code_step("build")
         self.add(self.lcs_table)
 
         lcs_ans, path_cells = self.LCS(u, v)
@@ -575,6 +707,7 @@ class LongestCommonSubsequence(Scene):
             )
 
         self.wait(1)
+        self.code_step("backtrack")
         self.play(
             Create(path),
             run_time=1,
@@ -604,6 +737,7 @@ class LongestCommonSubsequence(Scene):
         lcs_result_text = Text(f"LCS: \"{lcs_string}\" (Length: {lcs_ans})", font_size=28, color=TEXTCOL, font=FONT)
         lcs_result_text.next_to(result_heading, DOWN, buff=0.5)
         
+        self.code_step("result")
         self.play(Write(result_heading), run_time=0.5)
         self.play(Write(lcs_result_text), run_time=0.5)
 
@@ -619,6 +753,7 @@ class LongestCommonSubsequence(Scene):
                 # Show current cell info
                 cell_info = Text(f"Processing cell ({j+1}, {i+1})", font_size=28, color=EXPLANATORY_FONT_COLOR, font=FONT)
                 cell_info.to_edge(RIGHT, buff=1).shift(UP * 1)
+                self.code_step("compare")
                 self.play(Write(cell_info), run_time=0.3)
                 
                 char_highlight_h = self.lcs_table.get_highlighted_cell((1, i + 3), color=SELCOL, fill_opacity=0.3)
@@ -636,6 +771,7 @@ class LongestCommonSubsequence(Scene):
                     # Show comparison text for match
                     comparison_text = Text(f"'{X[j]}' == '{Y[i]}' ✓", font_size=32, color=GREEN_C, font=FONT)
                     comparison_text.next_to(cell_info, DOWN, buff=0.5)
+                    self.code_step("match")
                     self.play(Write(comparison_text), run_time=0.3)
                     
                     arrow = Arrow(
@@ -662,6 +798,7 @@ class LongestCommonSubsequence(Scene):
                     # Show comparison text for mismatch
                     comparison_text = Text(f"'{X[j]}' != '{Y[i]}' ✗", font_size=32, color=RED_C, font=FONT)
                     comparison_text.next_to(cell_info, DOWN, buff=0.5)
+                    self.code_step("mismatch")
                     self.play(Write(comparison_text), run_time=0.3)
                     
                     if self.lcs[j + 1][i] >= self.lcs[j][i + 1]:
@@ -791,10 +928,30 @@ class LongestCommonSubsequence(Scene):
             char_cells.extend([x_char_cell, y_char_cell])
             
             # Animate both highlights simultaneously
+            self.code_step("lcschar")
             self.play(FadeIn(x_char_cell), FadeIn(y_char_cell), run_time=0.5)
             self.wait(0.2)
         
-class MedianOfMedians(Scene):
+class MedianOfMedians(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "arr = [45, 23, 67, 12, 89, 34, 56, 78, 91, 25, 63, 18, 77, 39, 84,",
+        "       52, 96, 41, 15, 68, 33, 87, 29, 74, 16, 95, 42, 61, 38, 82,",
+        "       57, 94, 21, 76, 43, 85, 19, 66, 31, 79, 48, 92, 26, 73, 14,",
+        "       58, 37, 81, 55, 94]",
+        "",
+        "def median_of_medians(a):",
+        "    if len(a) <= 5:                    # small list: sort, take the middle",
+        "        a.sort()",
+        "        return a[len(a) // 2]",
+        "    groups = [a[i:i + 5] for i in range(0, len(a), 5)]",
+        "    for g in groups:                   # sort each group of 5",
+        "        g.sort()",
+        "    F = [g[len(g) // 2] for g in groups]  # the group medians",
+        "    return median_of_medians(F)        # pivot = median of the medians",
+        "",
+        "print(median_of_medians(arr))",
+    ]
+
     def construct(self):
         array = [45,23,67,12,89,34,56,78,91,25,63,18,77,39,84,52,96,41,15,68,
                  33,87,29,74,16,95,42,61,38,82,57,94,21,76,43,85,19,66,31,79,
@@ -826,14 +983,17 @@ class MedianOfMedians(Scene):
                 list_elements.arrange(RIGHT, buff=0.05)
                 list_elements.move_to(ORIGIN)
             
+            self.code_step("build")
             self.play(FadeIn(list_elements))
             arr_mob = list_elements
         else:
             for mob in arr_mob:
+                self.code_step("recurse")
                 self.play(*mob.Reset(), run_time=0.2)
 
         if len(arr) <= 5:
             arr.sort()
+            self.code_step("base")
             self.play(arr_mob.animate.arrange(DOWN, buff=0.1))
             sorted_arr_VGroup = VGroup(*sorted(arr_mob.submobjects, key=lambda el: int(el.value)))
             self.play(sorted_arr_VGroup.animate.arrange(DOWN, buff=0.1))
@@ -864,6 +1024,7 @@ class MedianOfMedians(Scene):
             M_VGroup.add(X_VGroup)
             M.append(X)
 
+        self.code_step("group")
         self.play(Create(surr_rects))
 
         for m, r in zip(M_VGroup, surr_rects):
@@ -878,6 +1039,7 @@ class MedianOfMedians(Scene):
             x.sort()
             sorted_x_VGroup = VGroup(*sorted(x_VGroup.submobjects, key=lambda el: int(el.value)))
             sorted_M_VGroup.add(sorted_x_VGroup)
+            self.code_step("sortgroup")
             self.play(sorted_x_VGroup.animate.arrange(DOWN, buff=0.1).move_to(x_VGroup.get_center()))
             
         M_VGroup = sorted_M_VGroup
@@ -888,6 +1050,7 @@ class MedianOfMedians(Scene):
         for x, x_VGroup in zip(M, M_VGroup):
             F_VGroup.add(x_VGroup.submobjects[len(x)//2])
             F.append(x[len(x)//2])
+            self.code_step("median")
             self.play(*x_VGroup.submobjects[len(x)//2].MarkSorted())
 
         # Collect all non-median elements to fade them out
@@ -898,6 +1061,7 @@ class MedianOfMedians(Scene):
                     non_median_elements.add(element)
 
         # Fade out non-median elements first
+        self.code_step("prune")
         self.play(FadeOut(non_median_elements), run_time=0.8)
 
         F_VGroup.arrange(RIGHT, buff=0.3)

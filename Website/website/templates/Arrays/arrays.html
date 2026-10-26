@@ -14,6 +14,53 @@
         means that if an array needs to expand beyond its initially allocated space, it often requires relocating all
         its elements to a new, larger contiguous block of memory, which can be a slow process.
     </p>
+    <p>
+        The animation below shows exactly this: the six elements <code>[5, 2, 4, 6, 3, 1]</code> are placed in one
+        contiguous block, each element at the address immediately after the previous one. Switch between Python, C,
+        C++ and Java to see the same idea in each language.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/memory-allocation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Arrays/MemoryAllocation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> one element of the array is first labeled
+        <em>List Element</em>. Then a base address (0x9832) is assigned to the first element, and each following
+        element receives the next address, 0x9833 through 0x9837; the first address is highlighted as the
+        <em>Memory Location</em> of the block. Because every element sits a fixed stride after the base, the address
+        of element <code>i</code> is computed directly from the base address and <code>i</code> — no scanning
+        required.
+    </p>
+    <p>
+        <strong>Complexity:</strong> computing the address of <code>arr[i]</code> is a constant amount of arithmetic
+        (base + i), so array access is <strong>$O(1)$</strong>. Reading every element once — a full traversal — is
+        <strong>$\Theta(n)$</strong>, because each of the $n$ elements must be visited exactly once.
+    </p>
 </div>
 
 <div class="subcontent">
@@ -30,6 +77,53 @@
         negative indices to count from the end. In specific hybrid data structures
         like a paired-array sequence, accessing elements might involve calculations that effectively index from the
         "right" of a conceptually reversed array segment.
+    </p>
+    <p>
+        Both conventions appear in the animation below: first the positions <code>0</code> to <code>5</code> are
+        written under the elements, then the same positions are re-labeled with the negative indices
+        <code>-6</code> to <code>-1</code>.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/array-indexing.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Arrays/Indexing.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> under <em>Forward Indexing</em> the elements of
+        <code>[5, 2, 4, 6, 3, 1]</code> receive the labels <code>0, 1, 2, 3, 4, 5</code> — so <code>arr[0]</code>
+        holds 5, and the value 6 sits at <code>arr[3]</code>. Under <em>Reverse Indexing</em> the same positions are
+        re-labeled <code>-6, -5, -4, -3, -2, -1</code>: <code>arr[-6]</code> refers to the first element again, and
+        <code>arr[-1]</code> to the last (the value 1). Python supports negative indices directly; C and Java do not,
+        which is why their tabs compute the same access with <code>N - k</code>.
+    </p>
+    <p>
+        <strong>Complexity:</strong> a forward index <code>arr[i]</code> and a backward index <code>arr[-k]</code>
+        both resolve through the same constant-time address computation, so each access is <strong>$O(1)$</strong>;
+        a full pass over all $n$ indices is <strong>$\Theta(n)$</strong>.
     </p>
 </div>
 
@@ -113,7 +207,7 @@
             copying all elements, which is inefficient.
         </li>
         <li>
-            <strong>Slow Insertions and Deletions</strong>: As discussed, inserting or deleting elements in the middle
+            <strong>Slow Insertions and Deletions</strong>: As discussed, inserting or deleting an element in the middle
             or at the beginning of an array is slow due to the necessity of shifting other elements.
         </li>
         <li>
@@ -125,6 +219,17 @@
             type.
         </li>
     </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Arrays extend naturally to grids and matrices — continue with
+        <a href="{{ url_for('views._2Darrays') }}">2D Arrays</a> to see row-major storage and the matrix
+        multiplication animation, or move on to
+        <a href="{{ url_for('views.linear_search') }}">Linear Search</a>, the simplest algorithm that walks an array
+        index by index.
+    </p>
 </div>
 
 {% endblock %}

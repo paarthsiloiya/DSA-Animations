@@ -1,0 +1,144 @@
+{% extends "content.html" %} {% block title %} Union-Find {% endblock %} {% block main_content %}
+<h1>Union-Find (Disjoint Set Union)</h1>
+<p>
+    Union-Find maintains a collection of <strong>disjoint sets</strong> under two operations: <code>find(x)</code>
+    — which set does <code>x</code> belong to? — and <code>union(x, y)</code> — merge the set containing
+    <code>x</code> with the set containing <code>y</code>. Each set is represented as a <strong>tree</strong> whose
+    root is the set's <strong>representative</strong>; every node points at its parent, and following parents
+    upward from any element reaches the representative. Kruskal's minimum spanning tree algorithm, connected
+    components, and cycle detection all reduce to these two operations.
+</p>
+
+<div class="subcontent">
+    <h3>Union Operation — Visualized</h3>
+    <p>
+        The animation starts with nine singleton sets — <code>26, 7, 2, 25, 19, 17, 1, 90, 3</code>, each element
+        its own representative — and merges them step by step. Watch the two <code>Find</code> steps inside every
+        union: they locate the two roots before anything is linked.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/union-find.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="3-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/UnionFind.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> one set is circled and labelled <em>Set</em> — a representative
+        with its members. Then the unions run in sequence:
+    </p>
+    <ul>
+        <li><strong>Union(26, 7)</strong>: <code>Find(26) => 26</code>, <code>Find(7) => 7</code> — 26's
+            set is attached under 7's representative (the members slide over and a link is drawn), leaving one
+            set labelled <em>Union Set</em> with 7 as its <em>Set Representative</em>.</li>
+        <li>
+            The following unions repeat the pattern: <strong>Union(2, 25)</strong>, <strong>Union(2, 19)</strong>
+            (2's set already has root 25, so 25's set attaches under 19), <strong>Union(2, 26)</strong> (2's root
+            is 19, 26's root is 7 — merged under 7), <strong>Union(1, 17)</strong>,
+            <strong>Union(90, 1)</strong>, <strong>Union(90, 3)</strong>, and finally
+            <strong>Union(2, 1)</strong>, which links the two big trees: <code>Find(2) => 7</code> and
+            <code>Find(1) => 3</code>, so 7's set is attached under 3.
+        </li>
+        <li>
+            All nine elements end in <strong>one set with representative 3</strong> — the final frame's single
+            group.
+        </li>
+    </ul>
+    <p>
+        The animation uses the <strong>plain form</strong> of the structure — <code>find</code> walks parents
+        without changing them, and <code>union</code> always attaches the first set's root under the second's.
+        The code shown (and the reference implementation) adds the two standard optimisations below, which keep
+        the trees from degenerating into long chains.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>The Two Optimisations</h3>
+    <ul>
+        <li>
+            <strong>Path compression</strong> (<code>find</code>): as the parents are walked, every node visited is
+            re-pointed <strong>directly at the root</strong>. The next <code>find</code> from any of those nodes is
+            one hop. In the animation's terms: after <code>Find(2)</code> walks 2 &rarr; 25 &rarr; 19 &rarr; 7,
+            compression would leave 2, 25 and 19 all pointing straight at 7.
+        </li>
+        <li>
+            <strong>Union by rank</strong> (<code>union</code>): attach the <strong>shallower tree under the
+            deeper one</strong> (rank approximates height; equal ranks merge and the root's rank grows by one).
+            The animation's plain attachment can build chains — the rank rule is what prevents that systematic
+            worst case.
+        </li>
+    </ul>
+    <p>
+        Together they make every operation run in <strong>$O(\alpha(n))$ amortized</strong> time, where $\alpha$ is
+        the <strong>inverse Ackermann</strong> function — for all practical input sizes $\alpha(n) \le 4$, so each
+        <code>find</code>/<code>union</code> behaves as a near-constant-time operation. Space is
+        <strong>$\Theta(n)$</strong>: one parent slot (and one rank slot) per element.
+    </p>
+    <p>
+        <strong>Without</strong> the optimisations — as animated — <code>find</code> is $O(n)$ worst case (a chain
+        of $n$ parents, e.g. the sequence Union(0,1), Union(1,2), Union(2,3) &hellip; builds one), giving $O(n^2)$
+        for $n$ unions. Best case remains $O(1)$ per find (every element points straight at its representative).
+        The rank rule alone or the compression alone already gives $O(\log n)$-ish behaviour; the pair together
+        gives the $\alpha(n)$ bound.
+    </p>
+    <p>
+        <strong>Must know:</strong> a <code>union</code> whose two <code>find</code> calls return the
+        <strong>same root</strong> is a no-op — the elements are already in one set (the code returns
+        <code>False</code>). Counting those no-ops is how algorithms like Kruskal's know when to stop adding
+        edges: <code>n - 1</code> successful unions mean every pair is connected.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li>
+            <strong>Kruskal's MST algorithm</strong>: sort the edges, accept an edge only if its endpoints lie in
+            different sets (<code>union</code> succeeds) — the union-find checks make the whole algorithm
+            $O(E \log E)$.
+        </li>
+        <li><strong>Connected components</strong>: union every edge's endpoints; the remaining roots are the
+            components.</li>
+        <li><strong>Cycle detection</strong> in an undirected graph: an edge whose endpoints already share a set
+            closes a cycle.</li>
+        <li>
+            <strong>Dynamic equivalence</strong> problems — percolation, network connectivity, "are these accounts
+            the same person" — anywhere the question is <em>are these two things in the same group yet?</em>
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Union-Find is the simplest way a <strong>forest</strong> (a set of trees) does real work — see
+        <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a> for the vocabulary, and watch for it
+        reappearing inside Kruskal's algorithm on the graph pages. The
+        <a href="{{ url_for('views.tree_traversals') }}">Tree Traversals</a> page covers how to walk the
+        node-based trees this page's sets are built from.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

@@ -1,0 +1,93 @@
+{
+    "python": {
+        "code": [
+            "# demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+            "",
+            "def preorder(node):",
+            "    if node is None:",
+            "        return",
+            "    visit(node)             # 1. the root first",
+            "    preorder(node.left)     # 2. then the left subtree",
+            "    preorder(node.right)    # 3. then the right subtree",
+            "",
+            "preorder(root)   # A B D H I E J C F G"
+        ],
+        "steps": {
+            "declare": "1",
+            "title": "6-8",
+            "call": "10",
+            "visit": "6",
+            "left": "7",
+            "right": "8"
+        }
+    },
+    "c": {
+        "code": [
+            "/* demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J) */",
+            "",
+            "void preorder(struct Node *node) {",
+            "    if (node == NULL)",
+            "        return;",
+            "    visit(node);              /* 1. the root first */",
+            "    preorder(node->left);     /* 2. then the left subtree */",
+            "    preorder(node->right);    /* 3. then the right subtree */",
+            "}",
+            "",
+            "/* preorder(root) visits: A B D H I E J C F G */"
+        ],
+        "steps": {
+            "declare": "1",
+            "title": "6-8",
+            "call": "11",
+            "visit": "6",
+            "left": "7",
+            "right": "8"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+            "",
+            "void preorder(Node *node) {",
+            "    if (node == nullptr)",
+            "        return;",
+            "    visit(node);              // 1. the root first",
+            "    preorder(node->left);     // 2. then the left subtree",
+            "    preorder(node->right);    // 3. then the right subtree",
+            "}",
+            "",
+            "// preorder(root) visits: A B D H I E J C F G"
+        ],
+        "steps": {
+            "declare": "1",
+            "title": "6-8",
+            "call": "11",
+            "visit": "6",
+            "left": "7",
+            "right": "8"
+        }
+    },
+    "java": {
+        "code": [
+            "// demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+            "",
+            "void preorder(Node node) {",
+            "    if (node == null)",
+            "        return;",
+            "    visit(node);              // 1. the root first",
+            "    preorder(node.left);      // 2. then the left subtree",
+            "    preorder(node.right);     // 3. then the right subtree",
+            "}",
+            "",
+            "// preorder(root) visits: A B D H I E J C F G"
+        ],
+        "steps": {
+            "declare": "1",
+            "title": "6-8",
+            "call": "11",
+            "visit": "6",
+            "left": "7",
+            "right": "8"
+        }
+    }
+}

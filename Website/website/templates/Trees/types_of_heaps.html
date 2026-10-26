@@ -1,0 +1,170 @@
+{% extends "content.html" %} {% block title %} Types of Heaps {% endblock %} {% block main_content %}
+<h1>Types of Heaps</h1>
+<p>
+    A <strong>heap</strong> is a complete binary tree with one ordering rule between neighbours: in a
+    <strong>max-heap</strong> every parent is <strong>&ge;</strong> its children (the maximum sits at the root);
+    in a <strong>min-heap</strong> every parent is <strong>&le;</strong> its children (the minimum sits at the
+    root). That makes a heap the canonical structure for priority queues — the extreme element is always one
+    glance away, at the root.
+</p>
+
+<div class="subcontent" id="properties">
+    <h3>The Two Defining Properties</h3>
+    <ul>
+        <li>
+            <strong>Shape property</strong>: a heap is a <strong>complete</strong> binary tree — every level full
+            except possibly the last, which fills strictly left to right. No gaps, ever.
+        </li>
+        <li>
+            <strong>Heap property</strong>: only <em>parents and children</em> are ordered — siblings and
+            cousins are not. (Contrast a <a href="{{ url_for('views.binary_search_tree') }}">BST</a>, where
+            <em>all</em> values are ordered across subtrees.)
+        </li>
+    </ul>
+    <p>
+        The shape property is why heaps live happily in a plain <strong>array</strong> (the
+        <a href="{{ url_for('views.tree_list_correlation') }}">list representation</a>): with no gaps, node
+        <code>i</code>'s children are at <strong>2i + 1</strong> and <strong>2i + 2</strong>, and its parent at
+        <strong>&lfloor;(i &minus; 1)/2&rfloor;</strong> — exactly the formulas the insertion code below uses.
+        Both animations below draw the tree form while maintaining the array underneath.
+    </p>
+</div>
+
+<div class="subcontent" id="max-heap">
+    <h3>Max-Heap — Insertion with Sift-Up</h3>
+    <p>
+        A new value <strong>joins at the next free slot</strong> (keeping the tree complete), then
+        <strong>sifts up</strong>: while it beats its parent, the two swap. The animation inserts
+        <code>2, 7, 26, 25, 19, 17, 1, 90, 3, 36</code> into an empty heap.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/max-heap.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/MaxHeap.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p><strong>Worked example — the swaps the animation performs:</strong></p>
+    <ul>
+        <li><code>2</code> becomes the root; <code>7 > 2</code> — one swap, 7 is the new root.</li>
+        <li><code>26 > 7</code> — one swap, 26 takes the root; <code>25</code> swaps past 2 and settles under
+            26 (<code>25 &le; 26</code>).</li>
+        <li><code>19</code> and <code>1</code> sit still (19 &le; 25, 1 &le; 2); <code>17 > 7</code> — one
+            swap up beside 26.</li>
+        <li>
+            The dramatic one: <code>90</code> — <strong>three swaps</strong> (past 2, past 25, past 26) bubble it
+            all the way to the root.
+        </li>
+        <li><code>3</code> sits still (3 &le; 26); <code>36 > 25</code> and then <code>36 > 26</code> — two
+            swaps, settling under 90.</li>
+    </ul>
+    <p>
+        The final array reads <strong><code>90 36 17 25 26 7 1 2 3 19</code></strong> — check it: every parent
+        dominates its children. Each insert's "swapping" and "correct position" captions in the video are
+        exactly the two branches of the sift-up loop.
+    </p>
+    <p>
+        <strong>Complexity:</strong> the sift-up path has at most one node per level —
+        <strong>$O(\log n)$</strong> worst case (the recurrence is $T(n) = T(n/2) + O(1)$; the height is
+        $\lfloor \log_2 n \rfloor$). <strong>Best case $O(1)$</strong>: the newcomer already obeys the heap
+        property (like 19, 1 and 3 above). Average over random inputs is $O(1)$ — a new value usually stops
+        after a couple of swaps — with $O(\log n)$ the tight worst-case bound. Space: $O(1)$ extra (the array
+        <em>is</em> the heap; no recursion needed).
+    </p>
+</div>
+
+<div class="subcontent" id="min-heap">
+    <h3>Min-Heap — the Mirror Image</h3>
+    <p>
+        A min-heap flips one comparison: the newcomer swaps up while it is <strong>smaller</strong> than its
+        parent, so the <strong>minimum</strong> ends at the root. The animation inserts
+        <code>26, 7, 2, 25, 19, 17, 1, 90, 36, 3</code>.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/min-heap.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/MinHeap.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> 26 starts as the root; 7 and 2 each take one swap to reach
+        the top (2 ends as the root — the smallest so far); 25, 19 and 17 slot in with at most one swap; then
+        <code>1</code> bubbles <strong>two levels</strong> (past 19, past 2) to become the root; and
+        <code>3</code> finishes with two swaps (past 36&rsquo;s slot value 25, then past 19). The final array is
+        <strong><code>1 3 2 26 19 17 7 90 36 25</code></strong> — the minimum, 1, sits at index 0, and every
+        parent is &le; its children. Same loop, same $O(\log n)$ worst case — only the comparison flipped.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Must-Know Points</h3>
+    <ul>
+        <li><strong>Only the extreme element is cheap</strong>: the root is the min/max in $O(1)$, but an
+            arbitrary search must scan — a heap does not order across subtrees the way a
+            <a href="{{ url_for('views.binary_search_tree') }}">BST</a> does.</li>
+        <li><strong>Insert at the end, sift up</strong> (shown here); the mirror operation —
+            <strong>remove the root, move the last element to the top, sift down</strong> — is what
+            <a href="{{ url_for('views.heap_sort') }}">Heap Sort</a> and priority queues use for extraction.
+            (Deletion is a natural future section for this page; these animations cover insertion.)</li>
+        <li><strong>Heaps are not sorted arrays</strong>: the array form satisfies the heap property level by
+            level — <code>90 36 17 25 26 &hellip;</code> is a valid heap and not sorted.</li>
+        <li><strong>Max or min is one comparison</strong>: negating the comparison converts one into the other —
+            the code tabs differ in exactly that operator.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Watch the array formulas come from the shape property on the
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a> page, and see heaps do
+        real work in <a href="{{ url_for('views.heap_sort') }}">Heap Sort</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

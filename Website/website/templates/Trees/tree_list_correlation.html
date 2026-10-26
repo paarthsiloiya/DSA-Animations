@@ -1,0 +1,128 @@
+{% extends "content.html" %} {% block title %} List-Tree Correlation {% endblock %} {% block main_content %}
+<h1>List-Tree Correlation</h1>
+<p>
+    A complete binary tree needs <strong>no pointers at all</strong>: stored level by level in a flat list, the
+    positions alone encode the family relations. Node <code>i</code> finds its left child at
+    <strong>2i + 1</strong>, its right child at <strong>2i + 2</strong>, and its parent at
+    <strong>&lfloor;(i &minus; 1) / 2&rfloor;</strong> — pure index arithmetic, valid in every language. This is
+    exactly how heaps and implicit binary trees are stored.
+</p>
+
+<div class="subcontent">
+    <h3>The Same Tree, Twice</h3>
+    <p>
+        The animation draws one tree twice: on the left as nodes and edges, on the right as a row of ten slots.
+        The tree is built <strong>level by level</strong> — root 0, then 1 and 2, then 3 and 4 under 1, then 5 and 6
+        under 2, then 7 and 8 under 3, and 9 under 4 — which is precisely the order the slots are filled, so
+        <strong>tree node <code>i</code> lives in list slot <code>i</code></strong>.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/tree-list-correlation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/TreeListCorrelation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> after both drawings are labelled (<em>Tree</em> and
+        <em>List Representation of Tree</em>), the walk goes node by node from <code>i = 0</code> to
+        <code>i = 8</code>: the tree node and its list slot light up together, the formulas
+        <code>2&times;i + 1</code>, <code>2&times;i + 2</code> and <code>&lfloor;(i&minus;1)/2&rfloor;</code> are
+        written out with their computed values, and the <em>Left Child</em>, <em>Right Child</em> and
+        <em>Parent</em> slots are highlighted in the list. For example node 3: left <code>7</code>, right
+        <code>8</code>, parent <code>1</code> — and node 4's right-child formula computes <code>10</code>, which
+        the animation deliberately leaves unhighlighted: <strong>the list only has 10 slots, so that child does not
+        exist</strong>.
+    </p>
+    <p>
+        <strong>Worked check for <code>i = 3</code></strong> (the sample in the code): left child
+        <code>2&middot;3 + 1 = 7</code>, right child <code>2&middot;3 + 2 = 8</code>, parent
+        <code>&lfloor;(3&minus;1)/2&rfloor; = 1</code> — all three match the tree, and every other node obeys the
+        same three formulas.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Why the Formulas Hold</h3>
+    <p>
+        Levels of a complete binary tree double in size: level $k$ starts at index $2^k - 1$ and holds $2^k$
+        nodes. A node at index <code>i</code> on level $k$ has its children at the next level's matching positions
+        — indices <code>2i + 1</code> and <code>2i + 2</code> — and inverting
+        <code>j = 2i + 1</code> or <code>j = 2i + 2</code> gives the parent <code>i = (j - 1) / 2</code> (integer
+        division). One multiplication and an addition replace a pointer chase.
+    </p>
+    <ul>
+        <li><strong>Child / parent access</strong>: $O(1)$ arithmetic — faster than any pointer dereference and
+            cache-friendlier, since neighbouring indices share memory lines.</li>
+        <li><strong>Traversal</strong>: an in-order or level-order pass costs the usual $\Theta(n)$; the formulas
+            just replace the pointer walk.</li>
+        <li><strong>Height from size</strong>: a complete tree with $n$ nodes has height
+            $\lfloor \log_2 n \rfloor$, and the list needs exactly $n$ slots for it.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>List vs. Node-Based Trees — the Trade-offs</h3>
+    <ul>
+        <li>
+            <strong>Space</strong>: a list of $n$ elements exactly stores the tree — <strong>no per-node
+            pointers</strong>. A node-based binary tree spends two extra pointers per node. But the list is
+            <strong>fixed-size</strong>: a sparse or unbalanced shape wastes slots, and node-based trees handle
+            arbitrary shapes gracefully.
+        </li>
+        <li>
+            <strong>Insertion / deletion</strong>: growing a list-backed tree may require reallocation and copying
+            ($\Theta(n)$ when capacity is exhausted, amortised $O(1)$ per append); node-based insertion is always
+            one pointer write.
+        </li>
+        <li>
+            <strong>Shape freedom</strong>: the formulas only represent a tree that is
+            <strong>complete</strong> — complete or near-complete shapes (heaps) are the sweet spot. This is why
+            the heap pages use the list form, while the binary search tree pages use nodes.
+        </li>
+        <li>
+            <strong>Persistence</strong>: a flat list serialises trivially (write the slots in order); a node-based
+            tree needs a pre-order walk plus child markers to be rebuilt exactly.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the parent formula uses <em>integer</em> division — in Python that is
+        <code>//</code>, in C/C++/Java plain <code>/</code> on ints — and both children of index <code>i</code>
+        must be <strong>bounds-checked</strong> against the list length before use, exactly as the animation
+        shows when node 4's missing right child computes index 10.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        This array form is the backbone of <a href="{{ url_for('views.heap_sort') }}">Heap Sort</a> and the heap
+        pages. For pointer-based trees and the traversal machinery they share, see
+        <a href="{{ url_for('views.tree_traversals') }}">Tree Traversals</a> or start from
+        <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

@@ -1,0 +1,137 @@
+{% extends "content.html" %} {% block title %} Count Inversions {% endblock %} {% block main_content %}
+<h1>Count Inversions</h1>
+<p>
+    An <strong>inversion</strong> in an array is a pair of positions out of order: indices
+    $i < j$ where $a[i] > a[j]$. A sorted array has none; a reversed array has all
+    $\binom{n}{2}$ of them — so the inversion count measures <em>how far</em> an array is
+    from sorted. Counting by checking every pair is $O(n^2)$; the divide & conquer
+    trick below counts them in $O(n \log n)$, almost as a side effect of merge sort.
+</p>
+
+<div class="subcontent">
+    <h3>Merge Sort That Counts</h3>
+    <p>
+        Split the array in half and count each half's inversions recursively. The only
+        uncounted inversions left are <strong>split inversions</strong> — pairs with one
+        element in each half. Sorting both halves reveals them for free during the merge:
+        whenever the merge takes a right element while left elements remain, that right
+        element is smaller than <em>every remaining left element</em> — each one an
+        inversion, counted in a single line.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/count-inversions.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/DivideAndConquer/CountInversions.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> two scrambled rows of the letters
+        <code>A&ndash;F</code>. The top row fixes the mapping (<code>E=1, B=2, D=3, F=4,
+        C=5, A=6</code>), and the bottom row <code>F B E A D C</code> converts to the
+        number array <code>[4, 2, 1, 6, 3, 5]</code>. A recursive merge sort then plays
+        out with a running <em>"Inversions"</em> counter: subarrays get framed, halves
+        get compared element by element, and every time a right element beats the
+        current left element the counter jumps by however many left elements remain
+        (<em>"2 > 1 (+1 inversions)"</em>).
+    </p>
+    <p>
+        <strong>Verified count:</strong> the demo array has exactly <strong>6
+        inversions</strong> — the merge-sort counter and an independent $O(n^2)$
+        brute-force check agree on the six pairs
+        <code>(4, 2), (4, 1), (4, 3), (2, 1), (6, 3), (6, 5)</code> — and the sort
+        ends with the array fully ordered as <code>[1, 2, 3, 4, 5, 6]</code>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $\Theta(n \log n)$</strong> — the same
+            recurrence as merge sort: $T(n) = 2T(n/2) + \Theta(n)$. The recursion tree
+            has $\log_2 n$ levels and every level does $\Theta(n)$ merge work
+            (each element is compared and moved a constant number of times per level),
+            so $\Theta(n) \cdot \log_2 n = \Theta(n \log n)$ — equivalently, the master
+            theorem with $a = 2$, $b = 2$, $f(n) = \Theta(n) = \Theta(n^{\log_b a})$
+            (case 2). The counting itself is $O(1)$ inside the merge, so it changes
+            nothing. No case is better or worse: the merge happens unconditionally.
+        </li>
+        <li>
+            <strong>Space: $\Theta(n)$</strong> for the merged temporary copy, plus
+            $\Theta(\log n)$ recursion stack. Same profile as
+            <a href="{{ url_for('views.merge_sort') }}">merge sort</a> itself.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the <em>stable</em> comparison
+        (<code>&le;</code>, not <code><</code>) keeps equal elements from being
+        miscounted; the maximum inversion count is $n(n-1)/2$ (fully reversed);
+        an array with $k$ inversions is exactly $k$ adjacent swaps away from sorted;
+        the same merge-counting skeleton gives the standard $O(n \log n)$ algorithm
+        behind the Kendall tau rank correlation.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Ranking similarity:</strong> Kendall's tau between two rankings is built from their inversion count.</li>
+        <li><strong>Recommendation systems:</strong> measuring how much one user's ordering disagrees with another's.</li>
+        <li><strong>Estimating sort effort:</strong> how far a nearly-sorted input is from ordered.</li>
+        <li><strong>Genomics:</strong> counting reversed gene segments between chromosomes.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Brute Force vs. Merge-Counting</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;"></th>
+                <th style="text-align: left; padding: 0.4em;">Check all pairs</th>
+                <th style="text-align: left; padding: 0.4em;">Merge sort + count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Time</td>
+                <td style="padding: 0.4em;">$\Theta(n^2)$</td>
+                <td style="padding: 0.4em;">$\Theta(n \log n)$</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Extra space</td>
+                <td style="padding: 0.4em;">$O(1)$</td>
+                <td style="padding: 0.4em;">$\Theta(n)$</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Also gives you</td>
+                <td style="padding: 0.4em;">the pair list (if you store it)</td>
+                <td style="padding: 0.4em;">a sorted array for free</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Continue the divide & conquer tour with
+        <a href="{{ url_for('views.closest_pair') }}">Closest Pair of Points</a> —
+        the same "two halves plus a linear combine" shape — or revisit
+        <a href="{{ url_for('views.merge_sort') }}">Merge Sort</a>, the skeleton this
+        algorithm rides on.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

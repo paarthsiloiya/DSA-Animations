@@ -1,9 +1,11 @@
 import random
+from typing import ClassVar
 
 import networkx as nx
 from common import Node, animate_traversal, play_surrounding_node_animation, remove_edge_visual
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(32)
 
@@ -12,7 +14,30 @@ EXPLANATORY_FONT_SIZE = 30  # For step-by-step explanations
 POINTER_FONT_SIZE = 20      # For pointer labels (if any)
 
 
-class TreeExplanation(Scene):
+class TreeExplanation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.data = data",
+        "        self.children = []     # one node, many children",
+        "",
+        "root = Node(\"A\")             # the root: the node with no parent",
+        "",
+        "def add_child(parent, data):",
+        "    child = Node(data)",
+        "    parent.children.append(child)   # the parent -> child edge",
+        "    return child",
+        "",
+        "b = add_child(root, \"B\")     # B and C are the root's children",
+        "c = add_child(root, \"C\")",
+        "add_child(b, \"D\")            # D is a child of B",
+        "add_child(c, \"F\")            # F, G, H are C's children: siblings",
+        "add_child(c, \"L\")            # insert: grow the tree anywhere",
+        "",
+        "# delete: removing a node detaches its whole subtree",
+        "root.children.remove(b)      # ...and one tree becomes a forest",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -37,18 +62,24 @@ class TreeExplanation(Scene):
                     root_vertex="A"
                 )
 
+        self.code_step("declare")
         self.play(Create(tree),run_time=6)
 
         self.wait(2)
 
+        self.code_step("node")
         play_surrounding_node_animation(self, tree, "B", "Node", UP)
         self.wait(0.5)
+        self.code_step("root")
         play_surrounding_node_animation(self, tree, "A", "Root Node", UP)
         self.wait(0.5)
+        self.code_step("parent")
         play_surrounding_node_animation(self, tree, "D", "Parent\nNode", RIGHT)
+        self.code_step("child")
         play_surrounding_node_animation(self, tree, "I", "Child\nNode", RIGHT)
         self.wait(0.5)
-        
+
+        self.code_step("siblings")
         self.play(
             tree.vertices["F"].Select(), 
             tree.vertices["G"].Select(), 
@@ -73,6 +104,7 @@ class TreeExplanation(Scene):
 
         self.wait(0.5)
         
+        self.code_step("subtree")
         self.play(
             tree.vertices["D"].Select(), 
             tree.vertices["I"].Select(), 
@@ -95,7 +127,8 @@ class TreeExplanation(Scene):
         )
 
         self.wait(0.5)
-        
+
+        self.code_step("leaf")
         self.play(
             tree.vertices["K"].Select(), 
             tree.vertices["I"].Select(), 
@@ -144,6 +177,7 @@ class TreeExplanation(Scene):
         new_vertex = Node(new_node)
         
         tree._add_vertex(new_node, vertex_mobject=new_vertex, position=new_pos)
+        self.code_step("insert")
         self.play(Create(tree.vertices[new_node]))
         self.wait(0.5)
         tree._add_edge(("G", new_node))
@@ -157,6 +191,7 @@ class TreeExplanation(Scene):
         self.play(Write(operation_text), run_time=0.5)
 
         del_node = "K"
+        self.code_step("delete")
         self.play(FadeOut(tree.edges[("E", del_node)]))
         tree._remove_edge(("E", del_node))
         G.remove_edge("E", del_node)
@@ -173,6 +208,7 @@ class TreeExplanation(Scene):
         operation_text = Text("FOREST", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.2)
         self.play(Write(operation_text), run_time=0.5)
 
+        self.code_step("forest")
         self.play(FadeOut(tree.edges[("A", "B")]))
         tree._remove_edge(("A", "B"))
         G.remove_edge("A", "B")
@@ -198,7 +234,26 @@ class TreeExplanation(Scene):
         self.wait(2)
 
 
-class TreeBFS(Scene):
+class TreeBFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "from collections import deque",
+        "",
+        "# demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+        "root = build_tree()",
+        "",
+        "def bfs(root):",
+        "    order = []",
+        "    queue = deque([root])       # FIFO: the oldest node leaves first",
+        "    while queue:",
+        "        current = queue.popleft()",
+        "        order.append(current.data)   # visit",
+        "        for child in current.children:",
+        "            queue.append(child)      # discoveries join at the rear",
+        "    return order",
+        "",
+        "bfs(root)   # A B C D E F G H I J K",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -224,6 +279,7 @@ class TreeBFS(Scene):
                 )
 
         tree.to_edge(LEFT, buff=1.2)
+        self.code_step("declare")
         self.play(Create(tree), run_time=2)
         self.wait(1)
 
@@ -239,13 +295,38 @@ class TreeBFS(Scene):
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        def bfs_neighbors(v):
+            self.code_step("visit")
+            return sorted(adjacencyList[v])
+
+        def bfs_on_visit(current, neighbor):
+            self.code_step("discover")
 
         animate_traversal(self, tree, adjacencyList, s, start_text,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
-                          neighbors_of=lambda v: sorted(adjacencyList[v]))
+                          neighbors_of=bfs_neighbors,
+                          on_visit=bfs_on_visit)
 
 
-class TreeDFS(Scene):
+class TreeDFS(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# demo tree: A-(B, C), B-(D, E), C-(F, G, H), D-(I, J), E-(K)",
+        "root = build_tree()",
+        "",
+        "def dfs(root):",
+        "    order = []",
+        "    stack = [root]             # LIFO: the newest node leaves first",
+        "    while stack:",
+        "        current = stack.pop()",
+        "        order.append(current.data)   # visit",
+        "        for child in reversed(current.children):",
+        "            stack.append(child)",
+        "    return order",
+        "",
+        "dfs(root)   # A B D I J E K C F G H",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -271,6 +352,7 @@ class TreeDFS(Scene):
                 )
 
         tree.to_edge(LEFT, buff=1.2)
+        self.code_step("declare")
         self.play(Create(tree), run_time=2)
         self.wait(1)
 
@@ -286,14 +368,35 @@ class TreeDFS(Scene):
         start_text = Text(f"Starting from node {s}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).to_edge(RIGHT, buff=1.2)
         self.play(Write(start_text), run_time=1)
         self.wait(1)
+
+        def dfs_neighbors(v):
+            self.code_step("visit")
+            return sorted(adjacencyList[v], reverse=True)
+
+        def dfs_on_visit(current, neighbor):
+            self.code_step("discover")
 
         animate_traversal(self, tree, adjacencyList, s, start_text,
                           use_stack=True,
                           explanatory_font_size=EXPLANATORY_FONT_SIZE,
-                          neighbors_of=lambda v: sorted(adjacencyList[v], reverse=True))
+                          neighbors_of=dfs_neighbors,
+                          on_visit=dfs_on_visit)
 
 
-class InOrderTraversal(Scene):
+class InOrderTraversal(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+        "",
+        "def inorder(node):",
+        "    if node is None:",
+        "        return",
+        "    inorder(node.left)      # 1. the left subtree",
+        "    visit(node)             # 2. the root",
+        "    inorder(node.right)     # 3. the right subtree",
+        "",
+        "inorder(root)   # H D I B J E A F C G",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -319,6 +422,7 @@ class InOrderTraversal(Scene):
                 )
 
         tree.to_edge(LEFT, buff=1.2)
+        self.code_step("declare")
         self.play(Create(tree), run_time=2)
         self.wait(1)
 
@@ -330,12 +434,14 @@ class InOrderTraversal(Scene):
 
         # Show starting explanation
         start_text = Text("In-Order Traversal: Left → Root → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("title")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
         # Initialize empty order display
         visited_order = []
         order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("call")
         self.play(Unwrite(start_text), Write(order_text), run_time=1)
         self.wait(1)
 
@@ -347,31 +453,33 @@ class InOrderTraversal(Scene):
             # Go to left subtree first
             if len(children) > 0:
                 left_child = children[0]
-                
+
                 # Show movement to left child
-                move_text = Text(f"Going to left subtree: {left_child}", 
+                move_text = Text(f"Going to left subtree: {left_child}",
                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("left")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse left subtree
                 inorder_recursive(left_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
-            
+
             # Process current node (Root)
-            processing_text = Text(f"Processing node {node}", 
+            processing_text = Text(f"Processing node {node}",
                                  font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.code_step("visit")
             self.play(Write(processing_text), run_time=0.5)
             
             # Highlight current node
@@ -395,25 +503,26 @@ class InOrderTraversal(Scene):
             # Go to right subtree
             if len(children) > 1:
                 right_child = children[1]
-                
+
                 # Show movement to right child
-                move_text = Text(f"Going to right subtree: {right_child}", 
-                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                move_text = Text(f"Going to right subtree: {right_child}",
+                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("right")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse right subtree
                 inorder_recursive(right_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
 
@@ -423,7 +532,20 @@ class InOrderTraversal(Scene):
         self.wait(2)
 
 
-class PreOrderTraversal(Scene):
+class PreOrderTraversal(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+        "",
+        "def preorder(node):",
+        "    if node is None:",
+        "        return",
+        "    visit(node)             # 1. the root first",
+        "    preorder(node.left)     # 2. then the left subtree",
+        "    preorder(node.right)    # 3. then the right subtree",
+        "",
+        "preorder(root)   # A B D H I E J C F G",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -449,6 +571,7 @@ class PreOrderTraversal(Scene):
                 )
 
         tree.to_edge(LEFT, buff=1.2)
+        self.code_step("declare")
         self.play(Create(tree), run_time=2)
         self.wait(1)
 
@@ -460,23 +583,26 @@ class PreOrderTraversal(Scene):
 
         # Show starting explanation
         start_text = Text("Pre-Order Traversal: Root → Left → Right", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("title")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
         # Initialize empty order display
         visited_order = []
         order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("call")
         self.play(Unwrite(start_text), Write(order_text), run_time=1)
         self.wait(1)
 
         def preorder_recursive(node, parent, visited_order):
             nonlocal order_text
-            
+
             children = [child for child in sorted(adjacencyList[node]) if child != parent]
-            
+
             # Process current node first (Root)
-            processing_text = Text(f"Processing node {node}", 
+            processing_text = Text(f"Processing node {node}",
                                  font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.code_step("visit")
             self.play(Write(processing_text), run_time=0.5)
             
             # Highlight current node
@@ -500,50 +626,52 @@ class PreOrderTraversal(Scene):
             # Go to left subtree
             if len(children) > 0:
                 left_child = children[0]
-                
+
                 # Show movement to left child
-                move_text = Text(f"Going to left subtree: {left_child}", 
+                move_text = Text(f"Going to left subtree: {left_child}",
                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("left")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse left subtree
                 preorder_recursive(left_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
-            
+
             # Go to right subtree
             if len(children) > 1:
                 right_child = children[1]
-                
+
                 # Show movement to right child
-                move_text = Text(f"Going to right subtree: {right_child}", 
-                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                move_text = Text(f"Going to right subtree: {right_child}",
+                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("right")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse right subtree
                 preorder_recursive(right_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
 
@@ -553,7 +681,20 @@ class PreOrderTraversal(Scene):
         self.wait(2)
 
 
-class PostOrderTraversal(Scene):
+class PostOrderTraversal(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# demo tree: A-(B, C), B-(D, E), D-(H, I), C-(F, G), E-(J)",
+        "",
+        "def postorder(node):",
+        "    if node is None:",
+        "        return",
+        "    postorder(node.left)     # 1. the left subtree",
+        "    postorder(node.right)    # 2. the right subtree",
+        "    visit(node)              # 3. the root last",
+        "",
+        "postorder(root)   # H I D J E B F G C A",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -579,6 +720,7 @@ class PostOrderTraversal(Scene):
                 )
 
         tree.to_edge(LEFT, buff=1.2)
+        self.code_step("declare")
         self.play(Create(tree), run_time=2)
         self.wait(1)
 
@@ -590,73 +732,78 @@ class PostOrderTraversal(Scene):
 
         # Show starting explanation
         start_text = Text("Post-Order Traversal: Left → Right → Root", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("title")
         self.play(Write(start_text), run_time=1)
         self.wait(1)
 
         # Initialize empty order display
         visited_order = []
         order_text = Text("Order: ", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.3)
+        self.code_step("call")
         self.play(Unwrite(start_text), Write(order_text), run_time=1)
         self.wait(1)
 
         def postorder_recursive(node, parent, visited_order):
             nonlocal order_text
-            
+
             children = [child for child in sorted(adjacencyList[node]) if child != parent]
-            
+
             # Go to left subtree first
             if len(children) > 0:
                 left_child = children[0]
-                
+
                 # Show movement to left child
-                move_text = Text(f"Going to left subtree: {left_child}", 
+                move_text = Text(f"Going to left subtree: {left_child}",
                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("left")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, left_child)].animate.set_stroke(color=BLUE, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse left subtree
                 postorder_recursive(left_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, left_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
-            
+
             # Go to right subtree
             if len(children) > 1:
                 right_child = children[1]
-                
+
                 # Show movement to right child
-                move_text = Text(f"Going to right subtree: {right_child}", 
-                               font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                move_text = Text(f"Going to right subtree: {right_child}",
+                                font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0).shift(LEFT)
+                self.code_step("right")
                 self.play(Write(move_text), run_time=0.5)
-                
+
                 # Highlight the path
                 self.play(
                     tree.vertices[node].Select(),
                     tree.edges[(node, right_child)].animate.set_stroke(color=GREEN, width=8),
                     run_time=0.5
                 )
-                
+
                 self.play(Unwrite(move_text), run_time=0.3)
                 self.wait(0.3)
-                
+
                 # Recursively traverse right subtree
                 postorder_recursive(right_child, node, visited_order)
-                
+
                 # Reset edge color after traversal
                 self.play(tree.edges[(node, right_child)].animate.set_stroke(color=EDGE_COL, width=6), run_time=0.3)
-            
+
             # Process current node last (Root)
-            processing_text = Text(f"Processing node {node}", 
+            processing_text = Text(f"Processing node {node}",
                                  font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(tree, RIGHT, buff=0.3)
+            self.code_step("visit")
             self.play(Write(processing_text), run_time=0.5)
             
             # Highlight current node
@@ -765,7 +912,28 @@ class BinaryTreeExplanation(Scene):
         self.wait(2)
 
 
-class TernaryTreeExplanation(Scene):
+class TernaryTreeExplanation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# a ternary tree: every node holds at most three children",
+        "",
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.data = data",
+        "        self.children = []     # up to three children",
+        "",
+        "# complete ternary tree on 11 nodes, stored as a flat list",
+        "tree = [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\", \"H\", \"I\", \"J\", \"K\"]",
+        "",
+        "# node i's children sit at index 3*i + 1, 3*i + 2 and 3*i + 3",
+        "def child(i, k):",
+        "    return 3 * i + k            # k = 1, 2 or 3",
+        "",
+        "root = tree[0]                 # the root: index 0",
+        "",
+        "# every node roots its own subtree - e.g. B's subtree:",
+        "subtree_of_B = [\"B\", \"E\", \"F\", \"G\"]",
+    ]
+
     def construct(self):
         def build_ternary_tree(labels):
             G = nx.Graph()
@@ -826,22 +994,45 @@ class TernaryTreeExplanation(Scene):
             root_vertex="A"
         )
 
+        self.code_step("declare")
         self.play(Create(tree), run_time=6)
         self.wait(2)
 
+        self.code_step("node")
         play_surrounding_node_animation(self, tree, "B", "Node", UR)
         self.wait(0.5)
+        self.code_step("root")
         play_surrounding_node_animation(self, tree, "A", "Root Node", UP)
         self.wait(0.7)
 
         for root in ["B", "E", "F", "G", "C", "D"]:
+            self.code_step("subtree")
             highlight_subtree(tree, root, text="Subtree", color=TEXTCOL, font=FONT, fsize=FSIZE)
             self.wait(0.2)
 
         self.wait(2)
 
 
-class TreeListCorrelation(Scene):
+class TreeListCorrelation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# the same tree, stored as a flat list",
+        "tree = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # index = position in the list",
+        "",
+        "def left_child(i):",
+        "    return 2 * i + 1          # the left child's index",
+        "",
+        "def right_child(i):",
+        "    return 2 * i + 2          # the right child's index",
+        "",
+        "def parent(i):",
+        "    return (i - 1) // 2       # the parent's index",
+        "",
+        "i = 3",
+        "print(tree[left_child(i)])   # tree[7]",
+        "print(tree[right_child(i)])  # tree[8]",
+        "print(tree[parent(i)])       # tree[1]",
+    ]
+
     def construct(self):
         G = nx.Graph()
 
@@ -870,11 +1061,14 @@ class TreeListCorrelation(Scene):
         list_rep = VGroup(*[Node(i) for i in range(10)])
         list_rep.arrange(RIGHT, buff=0.2).to_corner(UL, buff=0.7)
 
+        self.code_step("declare-tree")
         self.play(Create(tree),run_time=4)
+        self.code_step("declare-list")
         self.play(Create(list_rep), run_time=4)
 
         nodeSurr = DashedVMobject(SurroundingRectangle(tree, color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=40)
         nodeText = Text("Tree", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, RIGHT, buff=0.2)
+        self.code_step("tree-label")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -885,6 +1079,7 @@ class TreeListCorrelation(Scene):
 
         nodeSurr = DashedVMobject(SurroundingRectangle(list_rep, color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=40)
         nodeText = Text("List Representation of Tree", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, DOWN, buff=0.2)
+        self.code_step("list-label")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -901,6 +1096,7 @@ class TreeListCorrelation(Scene):
         ))
 
         for i in range(9):
+            self.code_step("node-i")
             self.play(
                 tree.vertices[i].Select(),
                 list_rep[i].Select(),
@@ -938,6 +1134,7 @@ class TreeListCorrelation(Scene):
                 )
 
 
+            self.code_step("formulas")
             self.play(
                 Write(NodeTex),
                 Write(LCTextTex),
@@ -947,10 +1144,13 @@ class TreeListCorrelation(Scene):
             )
 
             if nodeSurrLC:
+                self.code_step("left")
                 self.play(Create(nodeSurrLC), run_time=0.5)
             if nodeSurrRC:
+                self.code_step("right")
                 self.play(Create(nodeSurrRC), run_time=0.5)
             if nodeSurrP:
+                self.code_step("parent")
                 self.play(Create(nodeSurrP), run_time=0.5)
             
             self.wait(1.5)
@@ -976,18 +1176,39 @@ class TreeListCorrelation(Scene):
         self.wait(2)
 
 
-class MaxHeap(Scene):
+class MaxHeap(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# a max-heap: every parent >= its children (array form)",
+        "heap = []",
+        "",
+        "def insert(heap, value):",
+        "    heap.append(value)              # join at the next free slot (level order)",
+        "    i = len(heap) - 1",
+        "    while i > 0:",
+        "        parent = (i - 1) // 2",
+        "        if heap[i] > heap[parent]:  # child larger than the parent?",
+        "            heap[i], heap[parent] = heap[parent], heap[i]   # swap up",
+        "            i = parent",
+        "        else:",
+        "            break                   # parent >= child: heap property holds",
+        "",
+        "for value in [2, 7, 26, 25, 19, 17, 1, 90, 3, 36]:",
+        "    insert(heap, value)",
+        "",
+        "print(heap)   # [90, 36, 17, 25, 26, 7, 1, 2, 3, 19]",
+    ]
+
     def construct(self):
         def insert(value):
             new_node = Node(value)
             new_node.set_z_index(2)
             tree_node.append(new_node)
             max_heap.append(value)
-            
+
             i = len(tree_node) - 1
             parent_index = (i - 1) // 2
 
-            is_left_child = i % 2 == 1 
+            is_left_child = i % 2 == 1
 
             level_of_parent = np.floor(np.log2(parent_index + 1))
 
@@ -999,9 +1220,11 @@ class MaxHeap(Scene):
                 new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (RIGHT * (len(list_of_vertices) - level_of_parent - 7)))
 
             explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.code_step("call")
             self.play(Write(explanatory_text), run_time=0.5)
             self.wait(0.3)
 
+            self.code_step("append")
             self.play(Create(new_node), run_time=0.5)
             if parent_index >= 0:
                 self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
@@ -1010,7 +1233,8 @@ class MaxHeap(Scene):
                 while i > 0 and max_heap[i] > max_heap[parent_index]:
                     sub_explanatory_text1 = Text(f"{max_heap[i]} > {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                     sub_explanatory_text2 = Text(f"Swapping {max_heap[i]} with {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
-                    
+
+                    self.code_step("swap")
                     self.play(
                         tree_node[i].Select(),
                         tree_node[parent_index].Select(),
@@ -1049,6 +1273,7 @@ class MaxHeap(Scene):
                 if parent_index >= 0:
                     sub_explanatory_text1 = Text(f"{max_heap[i]} <= {max_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                     sub_explanatory_text2 = Text(f"{max_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    self.code_step("settle")
                     self.play(
                         Write(sub_explanatory_text1),
                         Write(sub_explanatory_text2),
@@ -1076,18 +1301,39 @@ class MaxHeap(Scene):
         self.wait(2)
 
 
-class MinHeap(Scene):
+class MinHeap(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# a min-heap: every parent <= its children (array form)",
+        "heap = []",
+        "",
+        "def insert(heap, value):",
+        "    heap.append(value)              # join at the next free slot (level order)",
+        "    i = len(heap) - 1",
+        "    while i > 0:",
+        "        parent = (i - 1) // 2",
+        "        if heap[i] < heap[parent]:  # child smaller than the parent?",
+        "            heap[i], heap[parent] = heap[parent], heap[i]   # swap up",
+        "            i = parent",
+        "        else:",
+        "            break                   # parent <= child: heap property holds",
+        "",
+        "for value in [26, 7, 2, 25, 19, 17, 1, 90, 36, 3]:",
+        "    insert(heap, value)",
+        "",
+        "print(heap)   # [1, 3, 2, 26, 19, 17, 7, 90, 36, 25]",
+    ]
+
     def construct(self):
         def insert(value):
             new_node = Node(value)
             new_node.set_z_index(2)
             tree_node.append(new_node)
             min_heap.append(value)
-            
+
             i = len(tree_node) - 1
             parent_index = (i - 1) // 2
 
-            is_left_child = i % 2 == 1 
+            is_left_child = i % 2 == 1
 
             level_of_parent = np.floor(np.log2(parent_index + 1))
 
@@ -1099,9 +1345,11 @@ class MinHeap(Scene):
                 new_node.move_to(tree_node[parent_index].get_center() + (DOWN * 1.5) + (RIGHT * (len(list_of_vertices) - level_of_parent - 7)))
 
             explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.code_step("call")
             self.play(Write(explanatory_text), run_time=0.5)
             self.wait(0.3)
 
+            self.code_step("append")
             self.play(Create(new_node), run_time=0.5)
             if parent_index >= 0:
                 self.play(Create(Line(tree_node[parent_index].get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
@@ -1110,7 +1358,8 @@ class MinHeap(Scene):
                 while i > 0 and min_heap[i] < min_heap[parent_index]:
                     sub_explanatory_text1 = Text(f"{min_heap[i]} < {min_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                     sub_explanatory_text2 = Text(f"Swapping {min_heap[i]} with {min_heap[parent_index]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
-                    
+
+                    self.code_step("swap")
                     self.play(
                         tree_node[i].Select(),
                         tree_node[parent_index].Select(),
@@ -1149,6 +1398,7 @@ class MinHeap(Scene):
                 if parent_index >= 0:
                     sub_explanatory_text1 = Text(f"{min_heap[parent_index]} <= {min_heap[i]}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                     sub_explanatory_text2 = Text(f"{min_heap[i]} is now in the correct position", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                    self.code_step("settle")
                     self.play(
                         Write(sub_explanatory_text1),
                         Write(sub_explanatory_text2),
@@ -1177,12 +1427,30 @@ class MinHeap(Scene):
 
 
 
-class BinarySearchTreeInsertion(Scene):
+class BinarySearchTreeInsertion(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# insert into a binary search tree: < goes left, >= goes right",
+        "",
+        "def insert(node, value):",
+        "    if node is None:",
+        "        return Node(value)        # empty slot found - place the node",
+        "    if value < node.data:",
+        "        node.left = insert(node.left, value)",
+        "    else:",
+        "        node.right = insert(node.right, value)",
+        "    return node",
+        "",
+        "root = None",
+        "for value in [26, 7, 2, 25, 19, 47, 1, 90, 36, 3]:",
+        "    root = insert(root, value)",
+    ]
+
     def construct(self):
         def insert_bst(value):
             new_node = Node(value)
             new_node.set_z_index(2)
             explanatory_text = Text(f"Inserting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.code_step("call")
             self.play(Write(explanatory_text), run_time=0.5)
             self.wait(0.3)
 
@@ -1192,6 +1460,7 @@ class BinarySearchTreeInsertion(Scene):
                 bst_root.append((value, new_node))
                 tree_node_map[value] = new_node
                 G.add_node(value)
+                self.code_step("root")
                 self.play(Create(new_node), run_time=0.5)
             else:
                 current_value, current_node = bst_root[0]
@@ -1201,6 +1470,7 @@ class BinarySearchTreeInsertion(Scene):
 
                 nodeSurr = DashedVMobject(SurroundingRectangle(current_node, color=TEXTCOL, buff=0, corner_radius=0.52))
                 nodeSurr.set_z_index(3)
+                self.code_step("cursor")
                 self.play(Create(nodeSurr), run_time=0.5)
                 self.wait(0.2)
 
@@ -1208,12 +1478,14 @@ class BinarySearchTreeInsertion(Scene):
                     parent_value = current_value
                     parent_node = current_node
 
+                    self.code_step("cursor")
                     self.play(nodeSurr.animate.move_to(current_node.get_center()), run_time=0.5)
 
                     if value < current_value:
                         next_index = 2 * index + 1
                         sub_explanatory_text1 = Text(f"{value} < {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                         sub_explanatory_text2 = Text(f"Going to the Left Child of {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                        self.code_step("left")
                         self.play(
                             Write(sub_explanatory_text1),
                             Write(sub_explanatory_text2),
@@ -1221,7 +1493,7 @@ class BinarySearchTreeInsertion(Scene):
                         )
                         self.wait(0.6)
                         self.play(
-                            Unwrite(sub_explanatory_text1), 
+                            Unwrite(sub_explanatory_text1),
                             Unwrite(sub_explanatory_text2),
                             run_time=0.5
                         )
@@ -1230,6 +1502,7 @@ class BinarySearchTreeInsertion(Scene):
                         next_index = 2 * index + 2
                         sub_explanatory_text1 = Text(f"{value} >= {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                         sub_explanatory_text2 = Text(f"Going to the Right Child of {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
+                        self.code_step("right")
                         self.play(
                             Write(sub_explanatory_text1),
                             Write(sub_explanatory_text2),
@@ -1237,7 +1510,7 @@ class BinarySearchTreeInsertion(Scene):
                         )
                         self.wait(0.6)
                         self.play(
-                            Unwrite(sub_explanatory_text1), 
+                            Unwrite(sub_explanatory_text1),
                             Unwrite(sub_explanatory_text2),
                             run_time=0.5
                         )
@@ -1263,6 +1536,7 @@ class BinarySearchTreeInsertion(Scene):
                 G.add_node(value)
                 G.add_edge(parent_value, value)
 
+                self.code_step("place")
                 self.play(Create(new_node), run_time=0.5)
                 self.play(Create(Line(parent_node.get_center(), new_node.get_center(), color=EDGE_COL, stroke_width=6)))
 
@@ -1289,7 +1563,27 @@ class BinarySearchTreeInsertion(Scene):
         self.wait(2)
 
 
-class BinarySearchTreeDeletion(Scene):
+class BinarySearchTreeDeletion(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "def delete(node, value):",
+        "    if node is None:",
+        "        return None                    # value not in the tree",
+        "    if value < node.data:",
+        "        node.left = delete(node.left, value)",
+        "    elif value > node.data:",
+        "        node.right = delete(node.right, value)",
+        "    else:                               # found the node",
+        "        if node.left is None:           # case: no left child",
+        "            return node.right",
+        "        if node.right is None:         # case: no right child",
+        "            return node.left",
+        "        # two children: replace with the in-order successor",
+        "        successor = leftmost(node.right)   # go right, then leftmost",
+        "        node.data = successor.data",
+        "        node.right = delete(node.right, successor.data)",
+        "    return node",
+    ]
+
     def construct(self):
         def insert_bst(value):
             new_node = Node(value)
@@ -1357,27 +1651,29 @@ class BinarySearchTreeDeletion(Scene):
             # Create a successor search indicator
             current_value = bst_tree[right_index]
             current_node = tree_node_map[current_value]
-            
+
             successor_search_surr = DashedVMobject(SurroundingRectangle(current_node, color=BLUE, buff=0, corner_radius=0.52))
             successor_search_surr.set_z_index(3)
-            
+
             sub_explanatory_text = Text(f"Finding successor: go right to {current_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-5).to_edge(DOWN, buff=2.7)
+            self.code_step("successor")
             self.play(Create(successor_search_surr), Write(sub_explanatory_text), run_time=0.5)
             self.wait(0.3)
-                
+
             # Go to right subtree and find leftmost node
             current_index = right_index
             while True:
                 left_index = 2 * current_index + 1
                 if left_index not in bst_tree:
                     break
-                    
+
                 # Move to left child
                 left_value = bst_tree[left_index]
                 left_node = tree_node_map[left_value]
-                
+
                 self.play(Unwrite(sub_explanatory_text), run_time=0.3)
                 sub_explanatory_text = Text(f"Go left to {left_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE-5).to_edge(DOWN, buff=2.7)
+                self.code_step("successor")
                 self.play(
                     successor_search_surr.animate.move_to(left_node.get_center()),
                     Write(sub_explanatory_text),
@@ -1400,6 +1696,7 @@ class BinarySearchTreeDeletion(Scene):
 
         def delete_bst(value):
             explanatory_text = Text(f"Deleting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+            self.code_step("call")
             self.play(Write(explanatory_text), run_time=0.5)
             self.wait(0.3)
 
@@ -1418,19 +1715,22 @@ class BinarySearchTreeDeletion(Scene):
                 # Create search indicator
                 search_surr = DashedVMobject(SurroundingRectangle(current_node, color=ORANGE, buff=0, corner_radius=0.52))
                 search_surr.set_z_index(3)
-                
+
                 search_explanatory_text = Text(f"Searching for {value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.code_step("search")
                 self.play(Create(search_surr), Write(search_explanatory_text), run_time=0.5)
                 self.wait(0.3)
-                
+
                 # Perform the search animation
                 while current_value != value:
                     if value < current_value:
                         next_index = 2 * current_index + 1
                         direction_text = f"{value} < {current_value}, go left"
+                        self.code_step("go-left")
                     else:
                         next_index = 2 * current_index + 2
                         direction_text = f"{value} >= {current_value}, go right"
+                        self.code_step("go-right")
                     
                     if next_index not in bst_tree:
                         break
@@ -1455,6 +1755,7 @@ class BinarySearchTreeDeletion(Scene):
                 # Found the node
                 self.play(Unwrite(search_explanatory_text), run_time=0.3)
                 search_explanatory_text = Text(f"Found {value}!", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.code_step("found")
                 self.play(Write(search_explanatory_text), run_time=0.5)
                 self.wait(0.5)
                 
@@ -1478,6 +1779,7 @@ class BinarySearchTreeDeletion(Scene):
             if not has_left and not has_right:
                 # Case 1: Leaf node
                 sub_explanatory_text = Text(f"{value} is a leaf node - simply remove it", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.code_step("case-leaf")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1506,8 +1808,9 @@ class BinarySearchTreeDeletion(Scene):
                 # Case 2: Only left child
                 left_value = bst_tree[left_index]
                 left_node = tree_node_map[left_value]
-                
+
                 sub_explanatory_text = Text(f"{value} has only left child - replace with {left_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.code_step("case-left")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1550,8 +1853,9 @@ class BinarySearchTreeDeletion(Scene):
                 # Case 3: Only right child
                 right_value = bst_tree[right_index]
                 right_node = tree_node_map[right_value]
-                
+
                 sub_explanatory_text = Text(f"{value} has only right child - replace with {right_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+                self.code_step("case-right")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1606,7 +1910,8 @@ class BinarySearchTreeDeletion(Scene):
                 
                 sub_explanatory_text1 = Text(f"{value} has two children", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
                 sub_explanatory_text2 = Text(f"Replace with successor {successor_value}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
-                
+
+                self.code_step("replace")
                 self.play(Write(sub_explanatory_text1), Write(sub_explanatory_text2), run_time=0.5)
                 
                 # Highlight successor
@@ -1649,6 +1954,7 @@ class BinarySearchTreeDeletion(Scene):
                 successor_right_index = 2 * original_successor_index + 2
                 
                 # Remove the edge to the original successor's parent
+                self.code_step("remove-successor")
                 if original_successor_index != 0:
                     successor_parent_index = (original_successor_index - 1) // 2
                     successor_parent_value = bst_tree[successor_parent_index]
@@ -1714,16 +2020,43 @@ class BinarySearchTreeDeletion(Scene):
         delete_bst(26)
 
 
-class UnionFind(Scene):
+class UnionFind(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class UnionFind:",
+        "    def __init__(self, size):",
+        "        self.parent = [i for i in range(size)]  # each element starts alone",
+        "        self.rank = [0] * size",
+        "",
+        "    def find(self, x):",
+        "        if self.parent[x] != x:",
+        "            self.parent[x] = self.find(self.parent[x])  # path compression",
+        "        return self.parent[x]",
+        "",
+        "    def union(self, x, y):",
+        "        root_x = self.find(x)",
+        "        root_y = self.find(y)",
+        "        if root_x == root_y:",
+        "            return False                # already the same set",
+        "        if self.rank[root_x] < self.rank[root_y]:",
+        "            self.parent[root_x] = root_y",
+        "        elif self.rank[root_x] > self.rank[root_y]:",
+        "            self.parent[root_y] = root_x",
+        "        else:",
+        "            self.parent[root_y] = root_x",
+        "            self.rank[root_x] += 1       # union by rank",
+        "        return True",
+    ]
+
     def construct(self):
         def findParent(v):
             if parent[v] != v:
                 return findParent(parent[v])
             else:
                 return v
-                
+
         def union(u, v):
             sub_operation_text = Text(f"Union({u}, {v})", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(operation_text, DOWN, buff=0.5)
+            self.code_step("call")
             self.play(Write(sub_operation_text), run_time=0.5)
             self.wait(0.5)
             self.play(
@@ -1735,6 +2068,7 @@ class UnionFind(Scene):
             c_old = findParent(u)
             c_old_node = index_to_node[c_old]
             sub_operation_text1 = Text(f"Find({u}) => {c_old}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_operation_text, DOWN, buff=0.2)
+            self.code_step("find-u")
             self.play(Write(sub_operation_text1), run_time=0.5)
             self.wait(0.5)
             self.play(c_old_node.Highlight())
@@ -1745,6 +2079,7 @@ class UnionFind(Scene):
             c_new = findParent(v)
             c_new_node = index_to_node[c_new]
             sub_operation_text1 = Text(f"Find({v}) => {c_new}", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(sub_operation_text, DOWN, buff=0.2)
+            self.code_step("find-v")
             self.play(Write(sub_operation_text1), run_time=0.5)
             self.wait(0.5)
             self.play(c_new_node.Highlight())
@@ -1769,12 +2104,13 @@ class UnionFind(Scene):
 
             parent[c_old] = c_new
 
+            self.code_step("merge")
             for x in members[c_old]:
                 self.play(
                     index_to_node[x].animate.shift(displacement),
                     run_time=0.5
                 )
-            
+
             edge = Line(
                 c_old_node.get_center(),
                 c_new_node.get_center(),
@@ -1784,7 +2120,7 @@ class UnionFind(Scene):
 
             edge.add_updater(
                 lambda m: m.put_start_and_end_on(
-                    c_old_node.get_center(), 
+                    c_old_node.get_center(),
                     c_new_node.get_center()
                 )
             )
@@ -1801,6 +2137,7 @@ class UnionFind(Scene):
             )
 
             sets = calculate_arrangement()
+            self.code_step("representative")
             self.play(
                 sets.animate.arrange(RIGHT, buff=0.7).next_to(operation_text, DOWN, buff=2.3),
                 
@@ -1830,12 +2167,14 @@ class UnionFind(Scene):
 
         sets = calculate_arrangement()
         sets.arrange(RIGHT, buff=0.7)
+        self.code_step("init")
         self.play(Create(sets), run_time=2)
         self.play(*[index_to_node[v].Select() for v in list_of_vertices], run_time=0.5)
         self.wait(0.5)
 
         nodeSurr = DashedVMobject(SurroundingRectangle(member_vgroup[7], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("Set", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.code_step("set")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -1843,13 +2182,15 @@ class UnionFind(Scene):
         self.play(Uncreate(nodeSurr), Unwrite(nodeText), run_time=0.5, lag_ratio=0.1)
 
         operation_text = Text("Union Operation", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(UP, buff=0.6)
+        self.code_step("union-start")
         self.play(Write(operation_text), run_time=0.5)
         self.wait(0.5)
 
         union(26, 7)
-        
+
         nodeSurr = DashedVMobject(SurroundingRectangle(member_vgroup[7], color=TEXTCOL, buff=0.15, corner_radius=0.6), num_dashes=25)
         nodeText = Text("Union Set", font=FONT, color=TEXTCOL, font_size=FSIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.code_step("union-set")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)
@@ -1860,6 +2201,7 @@ class UnionFind(Scene):
 
         nodeSurr = DashedVMobject(SurroundingRectangle(index_to_node[7], color=TEXTCOL, buff=0.15, corner_radius=0.6))
         nodeText = Text("     Set\nRepresentative", font=FONT, color=TEXTCOL, font_size=EXPLANATORY_FONT_SIZE).next_to(nodeSurr, UP, buff=0.1)
+        self.code_step("representative")
         self.play(Create(nodeSurr), run_time=0.5)
         self.wait(0.2)
         self.play(Write(nodeText), run_time=0.5)

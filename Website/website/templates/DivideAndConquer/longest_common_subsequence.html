@@ -1,0 +1,161 @@
+{% extends "content.html" %} {% block title %} Longest Common Subsequence {% endblock %} {% block main_content %}
+<h1>Longest Common Subsequence</h1>
+<p>
+    A <strong>subsequence</strong> keeps the order of a sequence but may skip items;
+    the <strong>Longest Common Subsequence (LCS)</strong> of two strings is the
+    longest subsequence appearing in both. Comparing two files, two DNA strands, or
+    two versions of anything comes down to this problem — and it is solved with
+    <strong>dynamic programming</strong>: a table whose cells only depend on their
+    neighbours, filled once and read back for the answer.
+</p>
+<p>
+    <em>A note on placement:</em> the LCS is a dynamic-programming algorithm, not
+    divide & conquer — it lives in this section because it rounds out the classic
+    divide-and-conquer comparisons covered here (and its linear-space variant,
+    Hirschberg's algorithm, actually <em>is</em> divide & conquer).
+</p>
+
+<div class="subcontent">
+    <h3>The Table and the Traceback</h3>
+    <p>
+        The animation fills an $(m{+}1) \times (n{+}1)$ table of suffix LCS lengths —
+        <code>lcs[i][j]</code> = length of the LCS of <code>u[i:]</code> and
+        <code>v[j:]</code>:
+    </p>
+    <ul>
+        <li>
+            <strong>Match:</strong> if <code>u[i] == v[j]</code>, that character
+            extends the best suffix pair: <code>lcs[i][j] = lcs[i+1][j+1] + 1</code>.
+        </li>
+        <li>
+            <strong>Mismatch:</strong> otherwise drop one character from either side
+            and keep the better:
+            <code>lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])</code>.
+        </li>
+    </ul>
+    <p>
+        The video fills this table <em>backwards</em> — from the bottom-right corner
+        toward the top-left, so the final answer lands in <code>lcs[0][0]</code>; the
+        forward orientation (prefixes, answer bottom-right) is the same algorithm
+        with the axes flipped. Once the table is full, a walk from the corner back
+        through the arrows recovers the string itself.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/longest-common-subsequence.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/DivideAndConquer/LongestCommonSubsequence.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo strings
+        <code>u = "bisect"</code> and <code>v = "secret"</code> — chosen
+        <em>equal length</em> purely so the table lays out square on screen; the
+        algorithm itself works on any pair of lengths. Every cell announces itself
+        (<em>"Processing cell"</em>), compares the row and column characters
+        (<em>'s' == 's' &check;</em> / <em>'b' != 's' &cross;</em>) and writes its
+        value via the diagonal or max rule. The drawn path then traces the traceback,
+        the matched characters light up in both header rows, and the result appears:
+        <strong>LCS "sect" (Length 4)</strong>.
+    </p>
+    <p>
+        <strong>Verified:</strong> the backward table and traceback shown in the video
+        and an independent forward-prefixes DP both give length <strong>4</strong>
+        with the string <strong>"sect"</strong> —
+        <code>s e c t</code> appear in order inside both
+        <code>bi<u>s</u>e<u>c</u><u>t</u></code> and
+        <code><u>s</u>e<u>c</u>r<u>e</u><u>t</u></code>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $\Theta(mn)$</strong> — the table has
+            $(m{+}1)(n{+}1)$ cells and each one costs $O(1)$ (one comparison plus
+            one or two table reads). Nothing about the input skips cells: matches and
+            mismatches alike fill the whole table, so every case is quadratic in the
+            product.
+        </li>
+        <li>
+            <strong>Space: $\Theta(mn)$</strong> for the full table — needed here
+            because the traceback reads it. If only the <em>length</em> is wanted, a
+            rolling pair of rows suffices: $\Theta(\min(m, n))$. Recovering the
+            string with that little memory is still possible — Hirschberg's
+            divide & conquer refinement recomputes halves around the split row in
+            $\Theta(mn)$ time and $\Theta(\min(m, n))$ space.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> a subsequence is <em>not</em> a substring — it
+        need not be contiguous ("sect" skips letters in both demo strings); the LCS
+        is not necessarily unique (ties in the max rule lead to different valid
+        strings); <code>lcs</code> length relates to edit distance under
+        insert/delete-only editing: $\text{dist} = m + n - 2 \cdot \text{LCS}$;
+        and the two fill directions (prefixes vs suffixes) are mirror images, so
+        don't let the video's backward fill suggest a different algorithm.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>File diffing:</strong> <code>diff</code>-style tools align two versions via their LCS.</li>
+        <li><strong>Bioinformatics:</strong> DNA/protein sequence similarity; with weighted matches it becomes global alignment (Needleman&ndash;Wunsch).</li>
+        <li><strong>Version control & sync:</strong> merging changes by longest common ancestry of text.</li>
+        <li><strong>Plagiarism / similarity detection:</strong> longest shared passage of token sequences.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>LCS vs. Edit Distance</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;"></th>
+                <th style="text-align: left; padding: 0.4em;">LCS</th>
+                <th style="text-align: left; padding: 0.4em;">Edit distance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Measures</td>
+                <td style="padding: 0.4em;">longest shared <em>subsequence</em></td>
+                <td style="padding: 0.4em;">fewest insert/delete/substitute edits</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Table rule</td>
+                <td style="padding: 0.4em;">+1 on match; max otherwise</td>
+                <td style="padding: 0.4em;">+1 on edit; min otherwise</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Time</td>
+                <td style="padding: 0.4em;">$\Theta(mn)$</td>
+                <td style="padding: 0.4em;">$\Theta(mn)$</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Continue the section with
+        <a href="{{ url_for('views.median_of_medians') }}">Median of Medians</a>,
+        or see dynamic programming in its purest divide-and-conquer neighbour with
+        <a href="{{ url_for('views.count_inversions') }}">Count Inversions</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

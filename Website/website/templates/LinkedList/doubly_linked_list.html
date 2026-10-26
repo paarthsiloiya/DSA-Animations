@@ -12,6 +12,59 @@
 </div>
 
 <div class="subcontent">
+    <h3>Anatomy of a Doubly Linked List Node</h3>
+    <p>
+        A doubly linked list node carries <strong>one more pointer</strong> than its singly linked counterpart: in
+        addition to its own address, its value, and the <em>next</em> address, it stores the address of the
+        <em>previous</em> node. The animation below labels all four boxes of a single node, then links a second node in
+        both directions.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/double-node-explanation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="10">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/LinkedList/DoubleNodeExplanation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the node with value <code>4</code> (at its own address 0x2268) is
+        drawn as four stacked boxes, labeled from top to bottom: <em>Address of previous node</em> (<code>NULL</code>
+        — it has no predecessor yet), <em>Address of this node</em>, <em>Value of this node</em>, and
+        <em>Address of next node</em> (initially <code>NULL</code>). A second node (value 1, at 0x4499) is created;
+        the first node's next-box updates to <code>0x4499</code> (the forward link), and the second node's prev-box
+        updates to <code>0x2268</code> (the backward link). Two pointer writes — not one — connect a pair of doubly
+        linked nodes.
+    </p>
+    <p>
+        <strong>Complexity:</strong> both pointer writes are <strong>$O(1)$</strong>, the same as in a singly linked
+        list; the extra <code>prev</code> pointer is the price paid for $O(1)$ backward traversal and deletions given
+        a node reference.
+    </p>
+</div>
+
+<div class="subcontent">
     <h3>Node Structure</h3>
     <p>Each <strong>node</strong> in a doubly linked list typically consists of three parts:</p>
     <ul>

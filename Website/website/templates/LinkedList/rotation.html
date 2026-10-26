@@ -1,0 +1,135 @@
+{% extends "content.html" %} {% block title %} List Rotation {% endblock %} {% block main_content %}
+<h1>List Rotation</h1>
+<p>
+    <strong>Rotating</strong> a linked list means moving its starting point: after rotating a list left by
+    <code>k</code> positions, the node that was <code>k</code> steps after the head becomes the new head, and the
+    first <code>k</code> nodes reappear at the end, in order. The list keeps all of its nodes — only the
+    <strong>head pointer</strong> (and the tail's link) changes.
+</p>
+
+<div class="subcontent">
+    <h3>How It Works</h3>
+    <p>
+        The most direct way to rotate left by one is to <strong>detach the current head and reattach it at the
+        tail</strong>: remember the old head, let the second node become the new head, walk to the last node, set the
+        old head's <code>next</code> to <code>None</code>, and make the tail point to the old head. Repeating that
+        <code>k</code> times rotates the list by <code>k</code> — exactly what the animation below does.
+    </p>
+    <p>
+        The standard optimization walks to the tail only <strong>once</strong>: close the list into a ring by pointing
+        the tail at the head, advance the head pointer <code>k</code> times (reducing <code>k</code> modulo
+        <code>n</code> first), then cut the ring open just before the new head.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/list-rotation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="6-7">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/LinkedList/ListRotation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<div class="subcontent">
+    <h3>Worked Example — Rotating <code>5 -> 2 -> 6 -> 3 -> 1</code> by k = 2</h3>
+    <p>
+        The animation arranges the five nodes on an arc and performs <code>k = 2</code> single-step rotations:
+    </p>
+    <ul>
+        <li>
+            <strong>Rotation 1</strong>: the node <code>5</code> is marked as the <em>Head</em> and <code>2</code> as
+            the <em>New Head</em>. A cursor then walks from the head to the tail — that walk is the
+            <code>while tail.next is not None</code> loop. The head node <code>5</code> is detached (its outgoing
+            arrow is removed, its <code>next</code> resets to <code>NULL</code>), and it is reattached after the tail
+            with a fresh arrow. The list is now <code>2 &rarr; 6 &rarr; 3 &rarr; 1 &rarr; 5</code>.
+        </li>
+        <li>
+            <strong>Rotation 2</strong>: the same procedure detaches <code>2</code> and reattaches it at the end,
+            producing <strong><code>6 &rarr; 3 &rarr; 1 &rarr; 5 &rarr; 2</code></strong> — the original list rotated
+            left by two positions, which the final row arrangement shows.
+        </li>
+    </ul>
+    <p>
+        Note what the animation repeats on every rotation: the <strong>walk to the tail</strong>. That walk is what
+        makes the repeated-single-step method cost <code>&Theta;(n)</code> per rotation.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>As animated (k single-step rotations)</strong>: each rotation walks the list to find the tail, so
+            the total is <strong>$\Theta(k \cdot n)$</strong> time — Best case $O(k)$ when the list is so short the
+            walk is trivial, Worst and Average case <strong>$\Theta(k \cdot n)$</strong> since every rotation
+            traverses up to all $n$ nodes.
+        </li>
+        <li>
+            <strong>Standard efficient method</strong>: one $\Theta(n)$ pass to find the tail and close the ring, then
+            <code>k mod n</code> pointer hops — <strong>$\Theta(n)$</strong> time overall, which is
+            <strong>$O(n + k)$</strong> reduced by the modulo; every node is reached at most once.
+        </li>
+        <li><strong>Space</strong>: <strong>$O(1)$</strong> — only a constant number of pointers is needed.</li>
+    </ul>
+    <p><strong>Pitfall — <code>k > n</code></strong>:</p>
+    <ul>
+        <li>
+            Rotating by <code>k = n</code> returns the original list, so any <code>k</code> must first be reduced with
+            <code>k = k mod n</code>. Without the modulo, the repeated-step method wastes full cycles of work, and
+            the ring-advance method hops past the tail and breaks the list.
+        </li>
+        <li>
+            Edge cases: an empty list or a single-node list is its own rotation — always check <code>head</code> is
+            not <code>None</code> before touching pointers.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Must-Know Points</h3>
+    <ul>
+        <li>Rotation reorders nothing inside memory — only <code>next</code> pointers (and the head) are rewritten.</li>
+        <li>
+            A singly linked list can rotate <strong>left</strong> cheaply (detach head, append to tail) but rotating
+            <strong>right</strong> requires walking to the tail anyway — a doubly linked list avoids that walk.
+        </li>
+        <li>
+            Rotation is the engine behind <strong>circular buffers</strong>, round-robin scheduling, and the
+            "rotate array" interview problem — on arrays it is done with three reversals instead of pointer moves.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Review the structure this page manipulates on the
+        <a href="{{ url_for('views.singly_linked_list') }}">Singly Linked List</a> page (including the
+        <a href="{{ url_for('views.singly_linked_list') }}#traverse">traversal</a> the rotation walk is built on), or
+        see the two-pointer variant on the
+        <a href="{{ url_for('views.doubly_linked_list') }}">Doubly Linked List</a> page.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

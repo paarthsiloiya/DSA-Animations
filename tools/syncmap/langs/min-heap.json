@@ -1,0 +1,120 @@
+{
+    "python": {
+        "code": [
+            "# a min-heap: every parent <= its children (array form)",
+            "heap = []",
+            "",
+            "def insert(heap, value):",
+            "    heap.append(value)              # join at the next free slot (level order)",
+            "    i = len(heap) - 1",
+            "    while i > 0:",
+            "        parent = (i - 1) // 2",
+            "        if heap[i] < heap[parent]:  # child smaller than the parent?",
+            "            heap[i], heap[parent] = heap[parent], heap[i]   # swap up",
+            "            i = parent",
+            "        else:",
+            "            break                   # parent <= child: heap property holds",
+            "",
+            "for value in [26, 7, 2, 25, 19, 17, 1, 90, 36, 3]:",
+            "    insert(heap, value)",
+            "",
+            "print(heap)   # [1, 3, 2, 26, 19, 17, 7, 90, 36, 25]"
+        ],
+        "steps": {
+            "call": "15",
+            "append": "5",
+            "swap": "9-10",
+            "settle": "13"
+        }
+    },
+    "c": {
+        "code": [
+            "/* a min-heap: every parent <= its children (array form) */",
+            "int heap[64];",
+            "int size = 0;",
+            "",
+            "/* join at the next free slot, then swap up while the child is the outlier */",
+            "void insert(int value) {",
+            "    heap[size] = value;                 /* join at the next free slot */",
+            "    size++;",
+            "    int i = size - 1;",
+            "    while (i > 0) {",
+            "        int parent = (i - 1) / 2;",
+            "        if (heap[i] < heap[parent]) {   /* child vs parent? */",
+            "            int tmp = heap[i]; heap[i] = heap[parent]; heap[parent] = tmp;",
+            "            i = parent;",
+            "        } else {",
+            "            break;                       /* heap property holds again */",
+            "        }",
+            "    }",
+            "}",
+            "/* insert 26, 7, 2, 25, 19, 17, 1, 90, 36, 3:",
+            "   the array becomes 1 3 2 26 19 17 7 90 36 25 */"
+        ],
+        "steps": {
+            "call": "6",
+            "append": "7-8",
+            "swap": "12-13",
+            "settle": "16"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// a min-heap: every parent <= its children (array form)",
+            "std::vector<int> heap;",
+            "",
+            "// join at the next free slot, then swap up while the child is the outlier",
+            "void insert(int value) {",
+            "    heap.push_back(value);             // join at the next free slot",
+            "    int i = heap.size() - 1;",
+            "    while (i > 0) {",
+            "        int parent = (i - 1) / 2;",
+            "        if (heap[i] < heap[parent]) {   // child vs parent?",
+            "            std::swap(heap[i], heap[parent]);",
+            "            i = parent;",
+            "        } else {",
+            "            break;                      // heap property holds again",
+            "        }",
+            "    }",
+            "}",
+            "// insert 26, 7, 2, 25, 19, 17, 1, 90, 36, 3 -> the array becomes 1 3 2 26 19 17 7 90 36 25"
+        ],
+        "steps": {
+            "call": "5",
+            "append": "6",
+            "swap": "10-11",
+            "settle": "14"
+        }
+    },
+    "java": {
+        "code": [
+            "// a min-heap: every parent <= its children (array form)",
+            "int[] heap = new int[64];",
+            "int size = 0;",
+            "",
+            "// join at the next free slot, then swap up while the child is the outlier",
+            "void insert(int value) {",
+            "    heap[size] = value;                 // join at the next free slot",
+            "    size++;",
+            "    int i = size - 1;",
+            "    while (i > 0) {",
+            "        int parent = (i - 1) / 2;",
+            "        if (heap[i] < heap[parent]) {   // child vs parent?",
+            "            int tmp = heap[i]; heap[i] = heap[parent]; heap[parent] = tmp;",
+            "            i = parent;",
+            "        } else {",
+            "            break;                      // heap property holds again",
+            "        }",
+            "    }",
+            "}",
+            "// insert 26, 7, 2, 25, 19, 17, 1, 90, 36, 3",
+            "// -> the array becomes 1 3 2 26 19 17 7 90 36 25"
+        ],
+        "steps": {
+            "call": "6",
+            "append": "7-8",
+            "swap": "12-13",
+            "settle": "16"
+        }
+    }
+}

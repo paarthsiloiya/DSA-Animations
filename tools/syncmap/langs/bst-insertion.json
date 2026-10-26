@@ -1,0 +1,103 @@
+{
+    "python": {
+        "code": [
+            "# insert into a binary search tree: < goes left, >= goes right",
+            "",
+            "def insert(node, value):",
+            "    if node is None:",
+            "        return Node(value)        # empty slot found - place the node",
+            "    if value < node.data:",
+            "        node.left = insert(node.left, value)",
+            "    else:",
+            "        node.right = insert(node.right, value)",
+            "    return node",
+            "",
+            "root = None",
+            "for value in [26, 7, 2, 25, 19, 47, 1, 90, 36, 3]:",
+            "    root = insert(root, value)"
+        ],
+        "steps": {
+            "call": "3",
+            "root": "5",
+            "cursor": "6",
+            "left": "7",
+            "right": "9",
+            "place": "5"
+        }
+    },
+    "c": {
+        "code": [
+            "/* insert into a binary search tree: < goes left, >= goes right */",
+            "",
+            "struct Node *insert(struct Node *node, int value) {",
+            "    if (node == NULL)",
+            "        return new_node(value);        /* empty slot found - place it */",
+            "    if (value < node->data)",
+            "        node->left = insert(node->left, value);",
+            "    else",
+            "        node->right = insert(node->right, value);",
+            "    return node;",
+            "}",
+            "/* insert 26, 7, 2, 25, 19, 47, 1, 90, 36, 3 one by one;",
+            "   the in-order walk visits 1 2 3 7 19 25 26 36 47 90 (sorted!) */"
+        ],
+        "steps": {
+            "call": "3",
+            "root": "5",
+            "cursor": "6",
+            "left": "7",
+            "right": "9",
+            "place": "5"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// insert into a binary search tree: < goes left, >= goes right",
+            "",
+            "Node *insert(Node *node, int value) {",
+            "    if (node == nullptr)",
+            "        return new Node(value);        // empty slot found - place it",
+            "    if (value < node->data)",
+            "        node->left = insert(node->left, value);",
+            "    else",
+            "        node->right = insert(node->right, value);",
+            "    return node;",
+            "}",
+            "// insert 26, 7, 2, 25, 19, 47, 1, 90, 36, 3 one by one;",
+            "// the in-order walk visits 1 2 3 7 19 25 26 36 47 90 (sorted!)"
+        ],
+        "steps": {
+            "call": "3",
+            "root": "5",
+            "cursor": "6",
+            "left": "7",
+            "right": "9",
+            "place": "5"
+        }
+    },
+    "java": {
+        "code": [
+            "// insert into a binary search tree: < goes left, >= goes right",
+            "",
+            "Node insert(Node node, int value) {",
+            "    if (node == null)",
+            "        return new Node(value);        // empty slot found - place it",
+            "    if (value < node.data)",
+            "        node.left = insert(node.left, value);",
+            "    else",
+            "        node.right = insert(node.right, value);",
+            "    return node;",
+            "}",
+            "// insert 26, 7, 2, 25, 19, 47, 1, 90, 36, 3 one by one;",
+            "// the in-order walk visits 1 2 3 7 19 25 26 36 47 90 (sorted!)"
+        ],
+        "steps": {
+            "call": "3",
+            "root": "5",
+            "cursor": "6",
+            "left": "7",
+            "right": "9",
+            "place": "5"
+        }
+    }
+}

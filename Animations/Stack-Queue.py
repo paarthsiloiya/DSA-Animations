@@ -1,7 +1,9 @@
 import random
+from typing import ClassVar
 
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(32)
 
@@ -211,7 +213,25 @@ class Stack(Scene):
         self.wait(3)
 
 
-class Queue(Scene):
+class Queue(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "from collections import deque",
+        "",
+        "queue = deque()         # capacity 5 in the animation",
+        "",
+        "# Enqueue: insert at the rear",
+        "for value in [2, 4, 3, 5, 4]:",
+        "    queue.append(value)",
+        "",
+        "# The queue is now full - a 6th insert overflows",
+        "# queue.append(8)   ->  Overflow!",
+        "",
+        "# Dequeue: remove from the front (FIFO)",
+        "while queue:",
+        "    front = queue.popleft()",
+        "    print(front)",
+    ]
+
     def construct(self):
         from collections import deque
 
@@ -244,18 +264,21 @@ class Queue(Scene):
         queueElements = deque()
 
         operation_text = Text("Enqueue", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(queueContainer, UP, buff=1)
+        self.code_step("enqueue")
         self.play(Write(operation_text), run_time=0.5)
         self.wait(0.5)
         
         for i in range(5):
             element = QueueElement(random.randint(1, 10)).get_element().next_to(queueContainer, LEFT, buff=0.1)
             queueElements.append(element)
+            self.code_step("insert")
             self.play(Create(element))
             self.wait(0.5)
             self.play(element.animate.move_to(RIGHT_QUEUE_POS + LEFT * (i * 1.1)))
             self.wait(0.2)
 
         element = QueueElement(random.randint(1, 10)).get_element().next_to(queueContainer, LEFT, buff=0.1)
+        self.code_step("insert")
         self.play(Create(element))
         self.wait(0.5)
         self.play(element.animate.move_to(RIGHT_QUEUE_POS + LEFT * (5 * 1.1)))
@@ -269,12 +292,15 @@ class Queue(Scene):
             corner_radius=0.2
         ), num_dashes=80)
         explanatory_text = Text("Overflow->", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(surrRect, LEFT, buff=0.1)
+        self.code_step("overflow")
         self.play(Create(surrRect), run_time=0.5)
         self.wait(0.2)
+        self.code_step("overflow")
         self.play(Write(explanatory_text), run_time=0.5)
         self.wait(0.6)
         self.play(FadeOut(surrRect), FadeOut(explanatory_text), run_time=0.5)
         self.wait(0.4)
+        self.code_step("overflow")
         self.play(Create(cross), run_time=0.5)
         self.wait(0.1)
         self.play(FadeOut(cross, element), run_time=0.5)
@@ -284,6 +310,7 @@ class Queue(Scene):
         self.wait(0.3)
 
         operation_text = Text("Dequeue", font_size=FSIZE, font=FONT, color=TEXTCOL).next_to(queueContainer, UP, buff=1)
+        self.code_step("dequeue")
         self.play(Write(operation_text), run_time=0.5)
 
         self.wait(0.5)
@@ -291,11 +318,13 @@ class Queue(Scene):
         for i in range(5):
             element = queueElements.popleft()
 
+            self.code_step("remove")
             self.play(element.animate.move_to(queueContainer.get_right() + RIGHT * 0.7))
             self.play(FadeOut(element), run_time=0.5)
             self.wait(0.1)
 
             for j in range(len(queueElements)):
+                self.code_step("shift")
                 self.play(queueElements[j].animate.shift(RIGHT * 1.15), run_time=0.5)
 
             self.wait(0.2)

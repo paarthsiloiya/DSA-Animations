@@ -1,0 +1,379 @@
+{% extends "content.html" %} {% block title %} Graph Representation {% endblock %} {% block main_content %}
+<h1>Graph Representation</h1>
+<p>
+    Whatever kind of graph you have — undirected, directed, weighted — a program must store it
+    in memory. The two classic structures are the <strong>adjacency matrix</strong>
+    (a $V \times V$ grid) and the <strong>adjacency list</strong> (one neighbour list per
+    vertex). The eight animations below build all $2 \times 2 \times 2$ combinations —
+    matrix/list &times; undirected/directed &times; unweighted/weighted — on a shared 5-vertex
+    demo graph, so the trade-offs are directly comparable.
+</p>
+
+<div class="subcontent">
+    <h3>Matrix vs. List at a Glance</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;">Operation</th>
+                <th style="text-align: left; padding: 0.4em;">Adjacency matrix</th>
+                <th style="text-align: left; padding: 0.4em;">Adjacency list</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Space</td>
+                <td style="padding: 0.4em;">$\Theta(V^2)$ — always</td>
+                <td style="padding: 0.4em;">$\Theta(V + E)$</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Has edge (u, v)?</td>
+                <td style="padding: 0.4em;">$O(1)$ — one array read</td>
+                <td style="padding: 0.4em;">$O(\deg(u))$ — scan the list</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">List all neighbours of u</td>
+                <td style="padding: 0.4em;">$\Theta(V)$ — whole row</td>
+                <td style="padding: 0.4em;">$\Theta(\deg(u))$ — read the list</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Add/remove edge</td>
+                <td style="padding: 0.4em;">$O(1)$</td>
+                <td style="padding: 0.4em;">$O(1)$ add / $O(\deg(u))$ remove</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        The rule of thumb: a matrix wins on <em>dense</em> graphs (many of the $V^2$ cells used)
+        and on constant-time edge queries; a list wins on <em>sparse</em> graphs — which most
+        real graphs are — because $V + E$ is far below $V^2$.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Band 1 — Unweighted</h3>
+    <p>
+        The four unweighted videos share one demo graph on vertices
+        <code>0&ndash;4</code> with edges <code>(0,1), (0,2), (1,3), (1,4), (2,3), (2,4),
+        (4,3)</code> — the exact edge list from the reference implementation. Watch each
+        structure fill in edge by edge.
+    </p>
+</div>
+
+<div class="subcontent" id="matrix-ud">
+    <h3>Adjacency Matrix — Undirected</h3>
+    <p>
+        A $V \times V$ grid of zeros; edge (u, v) sets <strong>both</strong> <code>M[u][v]</code>
+        and <code>M[v][u]</code> — the matrix of an undirected graph is always
+        <strong>symmetric</strong> about its diagonal.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/adjacency-matrix-ud.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/AdjacencyMatrixUD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the graph appears, then an empty
+        5&times;5 matrix. Each edge lights up on the graph while <strong>two mirrored
+        cells</strong> flip to 1 — e.g. edge (1, 3) writes both M[1][3] and M[3][1]. Row 1
+        ends up <code>1 0 0 1 1</code>: vertex 1's neighbours at a glance. Seven edges
+        &rarr; fourteen cells set.
+    </p>
+</div>
+
+<div class="subcontent" id="list-ud">
+    <h3>Adjacency List — Undirected</h3>
+    <p>
+        One list per vertex. Edge (u, v) appends <strong>v to u's list and u to v's
+        list</strong>; the list length of a vertex is exactly its degree.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/adjacency-list-ud.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/AdjacencyListUD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same graph beside five empty rows
+        <code>0: &nbsp;1: &nbsp;2: ...</code>. Each edge highlights both endpoints' rows and
+        grows both lists — edge (1, 3) pushes 3 into row 1 and 1 into row 3. Final lists:
+        <code>0: [1, 2] &middot; 1: [0, 3, 4] &middot; 2: [0, 3, 4] &middot; 3: [1, 2, 4] &middot;
+        4: [1, 2, 3]</code> — 14 total entries, two per edge.
+    </p>
+</div>
+
+<div class="subcontent" id="matrix-d">
+    <h3>Adjacency Matrix — Directed</h3>
+    <p>
+        Direction changes one thing: edge (u, v) sets <strong>only M[u][v]</strong>. The
+        matrix is generally no longer symmetric — a 1 at M[u][v] with 0 at M[v][u] is exactly a
+        one-way street.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/adjacency-matrix-d.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/AdjacencyMatrixD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the same seven edges, but each writes a
+        <strong>single cell</strong> — 7 cells instead of 14. Row u is u's out-neighbours,
+        column v is v's in-neighbours; M[3][4] = 1 while M[4][3] = 0 encodes the one-way edge
+        4&ndash;3... drawn as 4&rarr;3? Check the video: the edge written is (4, 3), so
+        M[4][3] = 1 and M[3][4] stays 0 — the asymmetry is the direction.
+    </p>
+</div>
+
+<div class="subcontent" id="list-d">
+    <h3>Adjacency List — Directed</h3>
+    <p>
+        Only the <strong>tail's</strong> list grows: edge (u, v) appends v to u's list and
+        nothing else. Each row is that vertex's out-neighbours; its length is its out-degree.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/adjacency-list-d.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/AdjacencyListD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> each edge highlights only its tail's row —
+        edge (1, 3) grows row 1 only. Final lists: <code>0: [1, 2] &middot; 1: [3, 4] &middot;
+        2: [3, 4] &middot; 3: [4] &middot; 4: [3]</code> — exactly 7 entries, one per edge,
+        against the undirected version's 14.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Band 2 — Weighted</h3>
+    <p>
+        The four weighted videos share the demo weights
+        <code>(0,1,10), (0,3,18), (1,2,20), (1,3,6), (2,4,8), (3,4,70)</code> on vertices
+        <code>0&ndash;4</code> — the same weights the shortest-path and MST pages use. A cell
+        (or list entry) now stores the <em>weight</em> instead of a 1; "no edge" is a 0 in the
+        matrix and an absent entry in the list.
+    </p>
+</div>
+
+<div class="subcontent" id="w-matrix-ud">
+    <h3>Weighted Adjacency Matrix — Undirected</h3>
+    <p>
+        Edge (u, v, w) writes <strong>w into both M[u][v] and M[v][u]</strong>. The matrix is
+        symmetric again, and reading M[u][v] answers "what does the edge cost?" in one step.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/weighted-adjacency-matrix-ud.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/WeightedAdjacencyMatrixUD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> each weighted edge writes its
+        <strong>weight</strong> into two mirrored cells — edge (1, 3, 6) writes 6 into both
+        M[1][3] and M[3][1]. Final matrix rows: <code>0: [0, 10, 0, 18, 0] &middot;
+        1: [10, 0, 20, 6, 0] &middot; 2: [0, 20, 0, 0, 8] &middot; 3: [18, 6, 0, 0, 70]
+        &middot; 4: [0, 0, 8, 70, 0]</code>.
+    </p>
+</div>
+
+<div class="subcontent" id="w-list-ud">
+    <h3>Weighted Adjacency List — Undirected</h3>
+    <p>
+        List entries become <strong>(neighbour, weight) ordered pairs</strong> — exactly the
+        tuples the video displays. Edge (u, v, w) appends <code>(v, w)</code> to u's list and
+        <code>(u, w)</code> to v's list.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/weighted-adjacency-list-ud.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/WeightedAdjacencyListUD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> each edge highlights both rows and appends a
+        <strong>(neighbour, weight) pair</strong> to each — e.g. edge (0, 3, 18) writes
+        <code>(3, 18)</code> into row 0 and <code>(0, 18)</code> into row 3, displayed as the
+        tuples you see growing on the right. Final rows: <code>0: [(1,10), (3,18)] &middot;
+        1: [(0,10), (2,20), (3,6)] &middot; 2: [(1,20), (4,8)] &middot; 3: [(0,18), (1,6),
+        (4,70)] &middot; 4: [(2,8), (3,70)]</code>.
+    </p>
+</div>
+
+<div class="subcontent" id="w-matrix-d">
+    <h3>Weighted Adjacency Matrix — Directed</h3>
+    <p>
+        One direction, one weight: edge (u, v, w) writes <strong>only M[u][v] = w</strong>.
+        Asymmetry now means "the reverse edge doesn't exist or costs something else".
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/weighted-adjacency-matrix-d.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/WeightedAdjacencyMatrixD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the weights write single cells — note the
+        demo's directed edge is <code>(4, 3, 70)</code>, so 70 lands in M[4][3] only and
+        M[3][4] stays 0. Row 4 reads <code>0 0 0 70 0</code>: one out-edge, cost 70.
+    </p>
+</div>
+
+<div class="subcontent" id="w-list-d">
+    <h3>Weighted Adjacency List — Directed</h3>
+    <p>
+        The tail's list gains an <strong>(out-neighbour, weight) ordered pair</strong> —
+        one append per edge, exactly as the tuples appear in the video.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/weighted-adjacency-list-d.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-2">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/WeightedAdjacencyListD.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> one row grows per edge — (1, 3, 6) appends
+        <code>(3, 6)</code> to row 1 only, and the directed edge (4, 3, 70) appends
+        <code>(3, 70)</code> to row 4. Final rows: <code>0: [(1,10), (3,18)] &middot;
+        1: [(2,20), (3,6)] &middot; 2: [(4,8)] &middot; 3: [] &middot; 4: [(3,70)]</code> —
+        six pairs total, one per edge; row 3 is empty because no edge leaves vertex 3.
+    </p>
+    <p>
+        <strong>Must know:</strong> the (neighbour, weight) <em>tuple</em> form is the
+        standard for algorithm code — Dijkstra's priority queue literally pushes
+        <code>(weight, vertex)</code> pairs read from these lists; a matrix instead reads
+        <code>M[u][v]</code> in one step but pays $\Theta(V^2)$ memory for the privilege.
+        Pick by density: $E$ near $V^2$ &rarr; matrix; $E$ near $V$ &rarr; list.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        See the graph vocabulary on <a href="{{ url_for('views.types_of_graphs') }}">Types of
+        Graphs</a>, and watch algorithms walk these structures — starting with
+        <a href="{{ url_for('views.tree_traversals') }}">BFS and DFS</a> — or jump ahead to
+        Dijkstra's shortest paths on exactly these weighted structures.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

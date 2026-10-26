@@ -1,0 +1,186 @@
+{% extends "content.html" %} {% block title %} Binary Search Tree {% endblock %} {% block main_content %}
+<h1>Binary Search Tree</h1>
+<p>
+    A <strong>binary search tree (BST)</strong> is a binary tree with one ordering rule: for every node,
+    <strong>everything in its left subtree is smaller</strong> and <strong>everything in its right subtree is
+    greater or equal</strong>. That single rule turns the tree into a sorted structure — searching walks one
+    path from the root, and an in-order traversal lists all values in sorted order.
+</p>
+
+<div class="subcontent" id="insertion">
+    <h3>Insertion</h3>
+    <p>
+        Inserting a value repeats one step: <strong>compare with the current node and go left or right</strong> —
+        smaller values left, larger (or equal) values right — until an empty slot is found. The new node takes that
+        slot. No other node changes: an insertion touches exactly one path from the root.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/bst-insertion.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/BinarySearchTreeInsertion.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p><strong>Worked example — the animation's insertions one by one:</strong></p>
+    <ul>
+        <li><code>26</code> arrives first — it becomes the <strong>root</strong>.</li>
+        <li><code>7</code>: <code>7 < 26</code> &rarr; left child of 26.</li>
+        <li><code>2</code>: <code>2 < 26</code> &rarr; left to 7; <code>2 < 7</code> &rarr; left child of 7.</li>
+        <li><code>25</code>: <code>25 < 26</code> &rarr; left to 7; <code>25 &ge; 7</code> &rarr; right child of 7.</li>
+        <li><code>19</code>: <code>19 < 26</code> &rarr; left to 7; <code>19 &ge; 7</code> &rarr; right to 25;
+            <code>19 < 25</code> &rarr; left child of 25.</li>
+        <li><code>47</code>: <code>47 &ge; 26</code> &rarr; right child of 26.</li>
+        <li><code>1</code>: <code>1 < 26</code> &rarr; left to 7; <code>1 < 7</code> &rarr; left to 2;
+            <code>1 < 2</code> &rarr; left child of 2.</li>
+        <li><code>90</code>: <code>90 &ge; 26</code> &rarr; right to 47; <code>90 &ge; 47</code> &rarr; right child
+            of 47.</li>
+        <li><code>36</code>: <code>36 &ge; 26</code> &rarr; right to 47; <code>36 < 47</code> &rarr; left child
+            of 47.</li>
+        <li><code>3</code>: <code>3 < 26</code> &rarr; left to 7; <code>3 < 7</code> &rarr; left to 2;
+            <code>3 &ge; 2</code> &rarr; right child of 2.</li>
+    </ul>
+    <p>
+        The final tree places <code>26</code> at the root over <code>7</code> and <code>47</code>, with
+        <code>7</code> over <code>2</code> and <code>25</code>, <code>2</code> over <code>1</code> and
+        <code>3</code>, <code>25</code> over <code>19</code>, and <code>47</code> over <code>36</code> and
+        <code>90</code>. Walking it in-order reads <code>1 2 3 7 19 25 26 36 47 90</code> — sorted, as the BST
+        property promises.
+    </p>
+    <p>
+        <strong>Complexity:</strong> each comparison descends one level, so insertion costs
+        <strong>$O(h)$</strong> where $h$ is the tree height: <strong>best case $O(\log n)$</strong> on a balanced
+        tree (the comparisons halve the remaining candidates at each step — the same recurrence
+        $T(n) = T(n/2) + O(1)$ as binary search), <strong>worst case $O(n)$</strong> when the tree has degenerated
+        into a chain (sorted insertion order — each arrival walks the entire existing spine), and
+        <strong>average $O(\log n)$</strong> over random insertion orders. Space is $O(h)$ for the recursion
+        stack.
+    </p>
+</div>
+
+<div class="subcontent" id="deletion">
+    <h3>Deletion — Four Cases</h3>
+    <p>
+        Deletion first <strong>searches</strong> for the node (the same left/right walk as insertion), then handles
+        what kind of node it found. The animation builds the same tree plus one extra value <code>34</code>
+        (34 &rarr; right of 26, left of 47, left of 36), then deletes three nodes covering three of the cases:
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/bst-deletion.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/BinarySearchTreeDeletion.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p><strong>The four cases (the scene implements all four; the video animates 1, 2 and 4):</strong></p>
+    <ul>
+        <li>
+            <strong>Case 1 — leaf</strong> (animated: deleting <code>1</code>): the node has no children; simply
+            remove it and its edge to the parent.
+        </li>
+        <li>
+            <strong>Case 2 — one child, a left subtree</strong> (animated: deleting <code>25</code>, whose only
+            child is <code>19</code>): the child <strong>moves up into the deleted node's position</strong> —
+            25's slot now holds 19.
+        </li>
+        <li>
+            <strong>Case 3 — one child, a right subtree</strong>: symmetric — the right child moves up. Present in
+            the code, not shown in this particular animation.
+        </li>
+        <li>
+            <strong>Case 4 — two children</strong> (animated: deleting the <strong>root 26</strong>): the node is
+            replaced by its <strong>in-order successor</strong> — the smallest value in its right subtree. The
+            animation shows the exact procedure: <em>go right</em> (to 47), then keep <em>going left</em> (to 36,
+            then to <code>34</code> — the leftmost node). 34's value replaces 26 at the root, and 34 is then
+            removed from its original slot — where it had at most a right child, so that removal is itself a
+            simple case. This is exactly the notebook's <code>leftmost(node.right)</code> rule: the successor is
+            guaranteed to have no left child, so deleting it never recurses into case 4 again.
+        </li>
+    </ul>
+    <p>
+        <strong>Why the in-order successor?</strong> Every value between the deleted node's left subtree and its
+        right subtree qualifies as its replacement; the successor is the smallest such value — the leftmost node
+        of the right subtree — so both subtrees remain valid after the swap.
+    </p>
+    <p>
+        <strong>Complexity:</strong> the search phase costs $O(h)$; each case then rewires at most a constant
+        number of pointers (case 4 additionally walks to the successor, still bounded by the height), so deletion
+        is <strong>$O(h)$</strong> overall — $O(\log n)$ balanced, $O(n)$ degenerate. Space $O(h)$ recursion
+        depth.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Properties, Pitfalls and Comparisons</h3>
+    <ul>
+        <li><strong>In-order = sorted</strong>: the BST rule makes an in-order traversal list values in ascending
+            order — the fastest way to sanity-check a BST.</li>
+        <li><strong>Search = one-path insert</strong>: searching reuses the insert walk with an equality check;
+            same $O(h)$ bound.</li>
+        <li>
+            <strong>Pitfall — sorted insertions</strong>: inserting already-sorted data builds a chain (every
+            value goes right), degrading every operation to $O(n)$ — the BST becomes a linked list. This is the
+            motivation for self-balancing trees such as AVL trees, which rotate to keep $h = O(\log n)$.
+        </li>
+        <li>
+            <strong>vs. heaps</strong>: a heap only orders parents against children — finding an arbitrary value
+            still needs a full scan; a BST orders <em>all</em> values against each other, enabling $O(h)$ search.
+            <a href="{{ url_for('views.types_of_heaps') }}">Heaps</a> win on find-min/max and array storage.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        See the ordering rule in action on <a href="{{ url_for('views.tree_traversals') }}">Tree Traversals</a>,
+        the array-backed cousin on the
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a> page, or the
+        self-balancing extension on the AVL Tree pages.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

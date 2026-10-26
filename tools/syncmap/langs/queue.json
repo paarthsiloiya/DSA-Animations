@@ -1,0 +1,128 @@
+{
+    "python": {
+        "code": [
+            "from collections import deque",
+            "",
+            "queue = deque()         # capacity 5 in the animation",
+            "",
+            "# Enqueue: insert at the rear",
+            "for value in [2, 4, 3, 5, 4]:",
+            "    queue.append(value)",
+            "",
+            "# The queue is now full - a 6th insert overflows",
+            "# queue.append(8)   ->  Overflow!",
+            "",
+            "# Dequeue: remove from the front (FIFO)",
+            "while queue:",
+            "    front = queue.popleft()",
+            "    print(front)"
+        ],
+        "steps": {
+            "enqueue": "5-6",
+            "insert": "7",
+            "overflow": "9-10",
+            "dequeue": "12-13",
+            "remove": "14",
+            "shift": "14"
+        }
+    },
+    "c": {
+        "code": [
+            "int queue[5];           /* capacity 5 in the animation */",
+            "int count = 0;          /* elements currently stored */",
+            "",
+            "/* Enqueue: insert at the rear */",
+            "int values[5] = {2, 4, 3, 5, 4};",
+            "for (int i = 0; i < 5; i++)",
+            "    queue[count++] = values[i];",
+            "",
+            "/* The queue is now full - a 6th insert overflows */",
+            "if (count == 5) {",
+            "    /* enqueue(8) -> Overflow! */",
+            "}",
+            "",
+            "/* Dequeue: remove from the front (FIFO) */",
+            "while (count > 0) {",
+            "    int front = queue[0];        /* leave from the front */",
+            "    printf(\"%d\\n\", front);",
+            "    for (int i = 1; i < count; i++)",
+            "        queue[i - 1] = queue[i]; /* slide the rest forward */",
+            "    count--;",
+            "}"
+        ],
+        "steps": {
+            "enqueue": "4-5",
+            "insert": "7",
+            "overflow": "9-11",
+            "dequeue": "14-15",
+            "remove": "16",
+            "shift": "18-19"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int queue[5];           // capacity 5 in the animation",
+            "int count = 0;          // elements currently stored",
+            "",
+            "// Enqueue: insert at the rear",
+            "int values[5] = {2, 4, 3, 5, 4};",
+            "for (int i = 0; i < 5; i++)",
+            "    queue[count++] = values[i];",
+            "",
+            "// The queue is now full - a 6th insert overflows",
+            "if (count == 5) {",
+            "    // enqueue(8) -> Overflow!",
+            "}",
+            "",
+            "// Dequeue: remove from the front (FIFO)",
+            "while (count > 0) {",
+            "    int front = queue[0];        // leave from the front",
+            "    std::cout << front << \"\\n\";",
+            "    for (int i = 1; i < count; i++)",
+            "        queue[i - 1] = queue[i]; // slide the rest forward",
+            "    count--;",
+            "}"
+        ],
+        "steps": {
+            "enqueue": "4-5",
+            "insert": "7",
+            "overflow": "9-11",
+            "dequeue": "14-15",
+            "remove": "16",
+            "shift": "18-19"
+        }
+    },
+    "java": {
+        "code": [
+            "int[] queue = new int[5];   // capacity 5 in the animation",
+            "int count = 0;              // elements currently stored",
+            "",
+            "// Enqueue: insert at the rear",
+            "int[] values = {2, 4, 3, 5, 4};",
+            "for (int i = 0; i < 5; i++)",
+            "    queue[count++] = values[i];",
+            "",
+            "// The queue is now full - a 6th insert overflows",
+            "if (count == 5) {",
+            "    // enqueue(8) -> Overflow!",
+            "}",
+            "",
+            "// Dequeue: remove from the front (FIFO)",
+            "while (count > 0) {",
+            "    int front = queue[0];        // leave from the front",
+            "    System.out.println(front);",
+            "    for (int i = 1; i < count; i++)",
+            "        queue[i - 1] = queue[i]; // slide the rest forward",
+            "    count--;",
+            "}"
+        ],
+        "steps": {
+            "enqueue": "4-5",
+            "insert": "7",
+            "overflow": "9-11",
+            "dequeue": "14-15",
+            "remove": "16",
+            "shift": "18-19"
+        }
+    }
+}

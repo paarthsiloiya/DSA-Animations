@@ -1,0 +1,354 @@
+{% extends "content.html" %} {% block title %} AVL Trees {% endblock %} {% block main_content %}
+<h1>AVL Trees</h1>
+<p>
+    An <strong>AVL tree</strong> (Adelson-Velsky and Landis, 1962) is a <strong>self-balancing binary search
+    tree</strong>. A plain BST can degenerate into a chain — insert sorted data and every operation collapses from
+    $O(\log n)$ to $O(n)$. The AVL tree prevents that by keeping one invariant on every node: the
+    <strong>balance factor</strong>
+</p>
+<p style="text-align: center;">
+    $\text{balance}(v) = \text{height}(v.\text{left}) - \text{height}(v.\text{right})$
+</p>
+<p>
+    must satisfy <strong>$|\text{balance}(v)| \le 1$</strong>. Whenever an insertion or deletion pushes some
+    node's balance factor to $\pm 2$, a <strong>rotation</strong> — a constant-number-of-pointer change that
+    re-roots a small subtree — restores the invariant. The pages below animate all six moments: two full
+    operations and the four imbalance shapes.
+</p>
+
+<div class="subcontent" id="insertion">
+    <h3>Insertion</h3>
+    <p>
+        Insertion first walks the plain BST path (smaller &rarr; left, larger &rarr; right) and places the new
+        node. On the way back up, every node on the path <strong>recomputes its height and balance factor</strong>
+        (each node's display shows its live balance factor in the animation). The first node whose factor reaches
+        $\pm 2$ is fixed with the matching rotation, and — the AVL theorem — <strong>one rebalance is always
+        enough</strong>: fixing the lowest imbalanced node restores the whole tree.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-insertion.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/AVLTreeInsertion.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p><strong>Worked example — the animation inserts <code>3, 4, 5, 6, 7, 2, 1, 9, 8, 10, 11</code>:</strong></p>
+    <ul>
+        <li>Inserting <code>3, 4</code> is plain BST work; <code>5</code> pushes node 3's balance to
+            <strong>&minus;2</strong> (right-heavy) — a single <strong>left rotation</strong> makes 4 the root.</li>
+        <li><code>6</code> settles; <code>7</code> pushes node 5 to &minus;2 — another <strong>left
+            rotation</strong> lifts 6.</li>
+        <li><code>2</code> settles; <code>1</code> pushes node 3 to <strong>+2</strong> (left-heavy) — a single
+            <strong>right rotation</strong> lifts 2 above 3.</li>
+        <li>
+            The double case: <code>8</code> slides under 9's <em>left</em> (9 is the right child of the root 7),
+            making 7's factor &minus;2 <em>and</em> the offending grandchild on the inner side — the
+            <strong>Right-Left shape</strong>: first a <strong>right rotation</strong> on child 9, then a
+            <strong>left rotation</strong> on 7.
+        </li>
+        <li><code>10</code> triggers one left rotation on 6; <code>11</code> one more on 9. The final tree reads
+            level by level as <code>4 2 8 1 3 6 10 5 7 9 11</code> with height 4 — an 11-node tree kept at
+            $\lfloor \log_2 11 \rfloor + 1$ levels.</li>
+    </ul>
+    <p>
+        <strong>Complexity:</strong> the descent is one $O(\log n)$ BST walk; the upward pass does $O(1)$ work per
+        level (height + balance update) and stops at the <em>first</em> rotation. Worst case
+        <strong>$O(\log n)$</strong> — provable because the AVL invariant bounds the height at
+        <strong>$h \le 1.44 \cdot \log_2(n+2)$</strong> (the standard AVL bound: the worst AVL shape is a
+        Fibonacci-tree, whose size grows by $\varphi \approx 1.618$ per level, giving $\log_\varphi 2 \approx
+        1.44$). Space $O(\log n)$ recursion depth.
+    </p>
+</div>
+
+<div class="subcontent" id="deletion">
+    <h3>Deletion — Rebalance on the Way Up</h3>
+    <p>
+        Deletion is the standard <a href="{{ url_for('views.binary_search_tree') }}#deletion">BST four-case
+        procedure</a>. The AVL difference comes afterwards: as the recursion returns, every node recomputes its
+        balance, and <em>any</em> node that hits $\pm 2$ is rotated — using the <strong>child's</strong> balance
+        factor to pick the case. Unlike insertion, one deletion can trigger
+        <strong>$O(\log n)$ rotations</strong> (the rebalance can propagate all the way to the root), but each is
+        $O(1)$ and the total stays $O(\log n)$.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-deletion.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/AVLTreeDeletion.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the AVL tree built from
+        <code>26, 7, 2, 25, 19, 47, 1, 90, 36, 3, 34</code> fades in (its root is 25), then four deletions:
+        <code>1</code> (a leaf — removed, no rotation needed), <code>25</code> (root, two children — replaced by
+        its in-order successor 26), <code>26</code> (again the root, two children — replaced by successor 34),
+        and finally <code>19</code> — whose removal leaves node 7 at <strong>+2</strong> with an inner (right)
+        heavy left child: the <strong>Left-Right case</strong>, announced in the animation as
+        <em>"Left Rotation Required"</em> then <em>"Right Rotation Required"</em>. The child rule at work: node 7's
+        left child had balance < 0, so the left child rotates first.
+    </p>
+</div>
+
+<div class="subcontent" id="ll">
+    <h3>Left-Left Case — Single Right Rotation</h3>
+    <p>
+        <strong>Shape:</strong> a node goes <strong>+2</strong> and the deep growth is on the outer left path —
+        the new arrival descended <em>left, then left</em> again from the imbalanced node (in the animation: 5
+        &rarr; 4 &rarr; 3). <strong>Fix:</strong> one <strong>right rotation</strong> — exactly what the video's
+        red <em>"Right Rotation"</em> label says: the left child (4) lifts to the top, the old node (5) drops to
+        its right, and the middle subtree (Y) is handed over. All three balance factors end at 0.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-left-left-case.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/LeftLeftCase.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>Animation trace:</strong> insert 5, hang X off its right, insert 4 (5's balance = +1), then
+        insert 3 under 4's left — node 5 hits <strong>+2, "IMBALANCED!"</strong>. Placeholder subtrees (Z, W
+        under 3, Y under 4's right) make the shape general. The rotation lifts 4 to the root: 3 keeps Z and W
+        beneath it, Y hops across to become 5's left, and 5 settles as 4's right child — every balance factor
+        back to 0, <em>"Tree is now balanced!"</em>
+    </p>
+</div>
+
+<div class="subcontent" id="rr">
+    <h3>Right-Right Case — Single Left Rotation</h3>
+    <p>
+        <strong>Shape:</strong> the mirror — a node goes <strong>&minus;2</strong> and the growth is on the outer
+        right path (3 &rarr; 4 &rarr; 5). <strong>Fix:</strong> one <strong>left rotation</strong>, as the
+        video's <em>"Left Rotation"</em> label says: the right child (4) lifts, the old node (3) drops to its
+        left, and the Y subtree crosses over.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-right-right-case.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/RightRightCase.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>Animation trace:</strong> insert 3, hang X off its left, insert 4 (3's balance = &minus;1),
+        insert 5 under 4 — node 3 hits <strong>&minus;2, "IMBALANCED!"</strong>. The left rotation lifts 4: 3
+        drops to 4's left, Y becomes 3's right, 5 keeps Z and W — all balances 0,
+        <em>"Tree is now balanced!"</em>
+    </p>
+</div>
+
+<div class="subcontent" id="lr">
+    <h3>Left-Right Case — Left Rotation, Then Right</h3>
+    <p>
+        <strong>Shape:</strong> the node goes <strong>+2</strong> but the growth is on the <em>inner</em> path —
+        left child, then <em>right</em> (5 &rarr; 3 &rarr; 4). A single rotation cannot fix a zig-zag, so it is
+        straightened first: <strong>step 1</strong> left-rotates the left child (turning the zig-zag into a
+        Left-Left shape), <strong>step 2</strong> right-rotates the node. The video labels the steps exactly:
+        <em>"Step 1: Left rotation (3-4)"</em> then <em>"Step 2: Right rotation (5-4)"</em>.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-left-right-case.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/LeftRightCase.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>Animation trace:</strong> insert 5, X on its right, 3 on its left (+1), Y under 3's left, then
+        insert 4 under 3's <em>right</em> — node 5 hits <strong>+2, "IMBALANCED!"</strong>. Step 1 rotates 3-4:
+        4 lifts above 3, Z moves to 3's right. Now 5&ndash;4&ndash;3 is a clean Left-Left chain, and step 2's
+        right rotation lifts 4 to the root: 3 (with Y, Z) on its left, 5 (with W, X) on its right — balanced,
+        all factors 0.
+    </p>
+</div>
+
+<div class="subcontent" id="rl">
+    <h3>Right-Left Case — Right Rotation, Then Left</h3>
+    <p>
+        <strong>Shape:</strong> the mirror zig-zag — node at <strong>&minus;2</strong>, growth on the inner right
+        path: right child, then <em>left</em> (3 &rarr; 5 &rarr; 4). <strong>Step 1</strong> right-rotates the
+        right child (5-4) to straighten the kink into a Right-Right chain, <strong>step 2</strong> left-rotates
+        the node (3-4). The video's labels: <em>"Step 1: Right rotation (5-4)"</em>,
+        <em>"Step 2: Left rotation (3-4)"</em>.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/avl-right-left-case.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-6">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/AVLTree/RightLeftCase.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>Animation trace:</strong> insert 3, X on its left, 5 on its right (&minus;1), Y under 5's right,
+        then insert 4 under 5's <em>left</em> — node 3 hits <strong>&minus;2, "IMBALANCED!"</strong>. Step 1
+        rotates 5-4 (4 lifts, W crosses to 5); step 2's left rotation lifts 4 to the root: 3 (with X, Z) on
+        its left, 5 (with W, Y) on its right — every factor 0, <em>"Tree is now balanced!"</em>
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity Summary</h3>
+    <ul>
+        <li><strong>Search / Insert / Delete</strong>: <strong>$O(\log n)$ worst case</strong> — the height bound
+            $h \le 1.44 \log_2 n$ caps every root-to-leaf path; the BST-style descent is $O(h)$, and insert adds
+            one rotation, delete at most $O(h)$ rotations of $O(1)$ each.</li>
+        <li><strong>Rotations</strong>: always <strong>$O(1)$</strong> — a fixed number of pointer rewrites plus
+            two height recomputations, as the code tabs show.</li>
+        <li><strong>Best case</strong> for insert with no rebalance: the plain $O(\log n)$ walk with zero
+            rotations (most insertions rotate nothing).</li>
+        <li><strong>Space</strong>: $\Theta(n)$ nodes, each storing key, two pointers and one height — plus
+            $O(\log n)$ recursion depth per operation.</li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the four cases are named by <em>where the growth happened</em>
+        (LL/LR/RL/RR), and each is fixed by the rotation(s) named after the shape it <em>produces</em>: LL needs
+        a right rotation, RR a left, LR is left-then-right, RL is right-then-left — precisely the four videos
+        above. Compared with a <a href="{{ url_for('views.binary_search_tree') }}">plain BST</a>, AVL keeps the
+        $O(\log n)$ guarantee that sorted input destroys; compared with <a href="{{ url_for('views.types_of_heaps') }}">heaps</a>,
+        it retains full ordered search rather than only find-min/max.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        See the structure AVL extends on the <a href="{{ url_for('views.binary_search_tree') }}">Binary Search
+        Tree</a> page, the balance-free array world on
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a>, and the traversal
+        machinery on <a href="{{ url_for('views.tree_traversals') }}">Tree Traversals</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

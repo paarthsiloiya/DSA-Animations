@@ -1,0 +1,102 @@
+{% extends "content.html" %} {% block title %} Dijkstra's Algorithm {% endblock %} {% block main_content %}
+<h1>Dijkstra's Algorithm</h1>
+<p>
+    <strong>Dijkstra's algorithm</strong> finds the shortest path from a start vertex to every
+    other vertex in a graph with <strong>non-negative edge weights</strong>. It is greedy: it
+    repeatedly commits to the unvisited vertex with the smallest tentative distance, safe in the
+    knowledge that no shorter route to it can exist — an invariant that holds only while every
+    edge weight is &ge; 0 (a negative edge could open a shorter route through an
+    already-committed vertex, and the greedy choice would have been wrong).
+</p>
+
+<div class="subcontent">
+    <h3>The Greedy Invariant</h3>
+    <p>
+        Maintain for every vertex a <strong>tentative distance</strong> — the length of the best
+        path found so far. Each round:
+    </p>
+    <ol>
+        <li><strong>Select</strong> the unvisited vertex with the minimum tentative distance.</li>
+        <li><strong>Commit</strong> it — its distance is now final (all other unvisited
+            vertices are reachable only through distances at least as large, so no shorter path
+            can appear later — this is exactly where non-negative weights are required).</li>
+        <li><strong>Relax</strong> its out-edges: a neighbour's tentative distance improves
+            whenever <code>dist[u] + weight < dist[v]</code>.</li>
+    </ol>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/dijkstra.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/Dijkstra.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo graph on seven vertices with
+        directed edges <code>0&rarr;1 (10), 0&rarr;2 (80), 1&rarr;2 (6), 1&rarr;4 (20),
+        2&rarr;3 (70), 4&rarr;5 (50), 4&rarr;6 (5), 5&rarr;6 (10)</code>, start vertex
+        <strong>0</strong>. Distances start at <code>&infin;</code>; vertex 0 is set to 0.
+        Each round announces <em>"Selecting the unvisited node with the minimum tentative
+        distance"</em>, selects, then <em>"Updating distances to the neighbouring nodes"</em>
+        with per-edge relaxations (<em>"New Distance = 10 + 6"</em>), and finally marks the
+        vertex visited. Watch vertex 2: its direct edge gives 80, but the route through
+        vertex 1 improves it to <strong>16</strong> — and vertex 6 ends at 35 via
+        0&rarr;1&rarr;4&rarr;6 rather than the direct-looking 0&rarr;2&rarr;&hellip; chain.
+    </p>
+    <p>
+        <strong>Final distances (verified against the reference implementation on this exact
+        graph):</strong>
+        <code>0: 0, 1: 10, 2: 16, 3: 86, 4: 30, 5: 80, 6: 35</code>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>This linear-scan variant: $O(V^2)$</strong> — exactly what the animation
+            and the code show: $V$ rounds, each scanning all $V$ vertices for the minimum
+            (plus edge relaxations bounded by $E$; the scan dominates at $O(V^2)$).
+        </li>
+        <li>
+            <strong>With a binary heap: $O((V + E) \log V)$</strong> — the standard
+            optimization: a priority queue replaces the scan, each of the $V$ extractions and
+            $E$ relaxations costing $O(\log V)$.
+        </li>
+        <li><strong>Space: $O(V)$</strong> for the distance and visited arrays (plus the graph
+            itself). Best case is still $O(V^2)$ for the linear variant — the scan is
+            unconditional.</li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> Dijkstra gives wrong answers with negative weights — use
+        <a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman-Ford</a> there. For
+        <em>all</em> pairs at once, <a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd-Warshall</a>
+        solves every start vertex in one pass.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        Continue with <a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman-Ford</a>
+        (negative weights handled) and
+        <a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd-Warshall</a> (all
+        pairs), or revisit the
+        <a href="{{ url_for('views.graph_traversals') }}">unweighted traversals</a> BFS/DFS.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

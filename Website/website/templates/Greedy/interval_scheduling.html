@@ -1,0 +1,147 @@
+{% extends "content.html" %} {% block title %} Interval Scheduling {% endblock %} {% block main_content %}
+<h1>Interval Scheduling</h1>
+<p>
+    <strong>Interval scheduling</strong> asks for the <em>largest possible set of
+    non-overlapping intervals</em> — the most meetings one room can host, the most
+    jobs one machine can run. It is the canonical <strong>greedy</strong> problem:
+    one sorted pass, one rule, provably optimal. The rule: always take the interval
+    that <strong>finishes earliest</strong>.
+</p>
+
+<div class="subcontent">
+    <h3>Why Earliest Finish Wins (the Exchange Argument)</h3>
+    <p>
+        Intuitively: an interval that ends early blocks the least amount of the
+        future. Formally, suppose some optimal schedule <em>OPT</em> does not start
+        with the earliest-finishing interval $g$ that the greedy choice takes.
+        Let $x$ be the interval of OPT that ends first. Since $g$ has the
+        <em>minimum</em> finish time, $g$ ends no later than $x$ — so swapping
+        $x$ out for $g$ breaks nothing after it ($g$'s successors in OPT start
+        when $x$ ended, and $g$ is gone by then). The swap keeps the schedule
+        the same size, and now it <em>contains</em> the greedy choice. Repeat the
+        argument on the remaining intervals: the greedy schedule is never behind
+        OPT — so it is optimal. This "greedy stays ahead" / exchange pattern is
+        the template for proving greedy algorithms correct.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/interval-scheduling.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Greedy/IntervalScheduling.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> nine demo intervals
+        <code>(id, start, finish)</code>:
+        <code>0:[1,2], 1:[3,6], 2:[1,5], 3:[4,7], 4:[2,5], 5:[5,8], 6:[7,10],
+        7:[10,13], 8:[9,12]</code> laid on a time ruler. The rows re-order into
+        <em>finish-time order</em>, then the scan begins: the first interval is
+        always accepted; each subsequent one is announced
+        (<em>"Processing interval i"</em>) and either fits —
+        <em>"No overlap with last accepted"</em> — or collides —
+        <em>"Overlaps with last accepted"</em> with the last one flashing as the
+        witness. The rejected intervals fade away and the winners line up on a
+        single track.
+    </p>
+    <p>
+        <strong>Verified result:</strong> the greedy selects ids
+        <strong>0, 4, 5, 8</strong> — <code>[1,2], [2,5], [5,8], [9,12]</code> —
+        four intervals. An exhaustive check of all $2^9$ subsets confirms 4 is the
+        maximum possible (note the touching rule: interval 4 starts exactly at
+        interval 0's finish, <code>s &ge; f</code> counts as compatible — the
+        scene's rule). Other optimal sets of size 4 exist (e.g.
+        <code>0, 1, 6, 7</code>); the greedy one is among them, guaranteed.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $O(n \log n)$</strong> — the sort by
+            finish time costs $O(n \log n)$ and dominates the scan, which is
+            strictly $O(n)$: each interval is compared against the running
+            <code>last_finish</code> exactly once. No input escapes the sort, so
+            every case carries the same bound. With intervals pre-sorted, the
+            scan alone is $O(n)$.
+        </li>
+        <li>
+            <strong>Space: $O(n)$</strong> for the sorted order (or $O(1)$ extra
+            if sorting in place), plus $O(n)$ to report the accepted set.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> sorting by <em>finish</em> is the only rule
+        that works — sorting by <em>start</em> fails (a long early interval
+        blocks everything), and sorting by <em>duration</em> fails too (a short
+        middle interval can sit across two neighbours); the proof is the
+        exchange argument above; if intervals carry <em>weights</em>, greedy
+        fails and the problem needs dynamic programming (weighted interval
+        scheduling); with $k$ rooms instead of one, the greedy switches to
+        <em>earliest start</em> plus a min-heap of room release times (interval
+        partitioning).
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Meeting-room booking:</strong> maximizing the meetings one room can host.</li>
+        <li><strong>Job scheduling:</strong> single-machine tasks with fixed start/end windows.</li>
+        <li><strong>Bandwidth allocation:</strong> packing non-overlapping transmission requests.</li>
+        <li><strong>Event timetabling:</strong> maximizing attendance across fixed sessions.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Which Greedy Rule Works?</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;">Sort by</th>
+                <th style="text-align: left; padding: 0.4em;">Optimal?</th>
+                <th style="text-align: left; padding: 0.4em;">Why</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Earliest finish</td>
+                <td style="padding: 0.4em;">yes</td>
+                <td style="padding: 0.4em;">leaves the most room after it (exchange argument)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Earliest start</td>
+                <td style="padding: 0.4em;">no</td>
+                <td style="padding: 0.4em;">a long interval can start first and block everything</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Shortest duration</td>
+                <td style="padding: 0.4em;">no</td>
+                <td style="padding: 0.4em;">a short interval can straddle two compatible ones</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        More greedy on this site: <a href="{{ url_for('views.huffman_encoding') }}">Huffman Encoding</a>,
+        <a href="{{ url_for('views.prims_algorithm') }}">Prim's</a> and
+        <a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's</a> minimum
+        spanning trees — or see divide & conquer's take on ordering problems at
+        <a href="{{ url_for('views.count_inversions') }}">Count Inversions</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

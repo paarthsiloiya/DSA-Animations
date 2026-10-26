@@ -35,16 +35,16 @@ class MixedTimings(SyncedScene):
     def construct(self):
         square = Square()
         self.play(Create(square), run_time=0.5)
-        self.code_step("3-5", key="loop")
+        self.code_step("loop")
         self.wait(1)
-        self.code_step("6")
+        self.code_step("done")
 
 
 class CodeStepFirst(SyncedScene):
     def construct(self):
-        self.code_step("1")
+        self.code_step("first")
         self.play(Create(Square()))
-        self.code_step("2")
+        self.code_step("second")
 
 
 class CompositionTotals(SyncedScene):
@@ -109,9 +109,9 @@ def test_explicit_run_time_and_code_step_ordering():
     result = record("MixedTimings")
     assert result["events"] == [
         {"t": 0.0, "type": "play", "run_time": 0.5},
-        {"t": 0.5, "type": "code_step", "lines": "3-5", "key": "loop"},
+        {"t": 0.5, "type": "code_step", "key": "loop"},
         {"t": 0.5, "type": "wait", "run_time": 1.0, "frozen": True},
-        {"t": 1.5, "type": "code_step", "lines": "6", "key": ""},
+        {"t": 1.5, "type": "code_step", "key": "done"},
     ]
     assert result["duration"] == 1.5
 
@@ -119,9 +119,9 @@ def test_explicit_run_time_and_code_step_ordering():
 def test_code_step_before_any_play_records_at_zero():
     result = record("CodeStepFirst")
     assert result["events"] == [
-        {"t": 0.0, "type": "code_step", "lines": "1", "key": ""},
+        {"t": 0.0, "type": "code_step", "key": "first"},
         {"t": 0.0, "type": "play", "run_time": 1.0},
-        {"t": 1.0, "type": "code_step", "lines": "2", "key": ""},
+        {"t": 1.0, "type": "code_step", "key": "second"},
     ]
     assert result["duration"] == 1.0
 

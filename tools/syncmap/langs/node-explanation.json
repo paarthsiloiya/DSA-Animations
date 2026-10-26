@@ -1,0 +1,100 @@
+{
+    "python": {
+        "code": [
+            "class Node:",
+            "    def __init__(self, data):",
+            "        self.data = data    # value of this node",
+            "        self.next = None    # address of the next node",
+            "",
+            "# a node also lives at its own memory address",
+            "# (the \"Address of this node\" box, e.g. 0x2268)",
+            "",
+            "node1 = Node(4)",
+            "node2 = Node(1)",
+            "",
+            "node1.next = node2   # link node1 -> node2"
+        ],
+        "steps": {
+            "create": "9",
+            "node": "1-2",
+            "address": "6-7",
+            "value": "3",
+            "next": "4",
+            "create2": "10",
+            "link": "12"
+        }
+    },
+    "c": {
+        "code": [
+            "struct Node {",
+            "    int data;            /* value of this node */",
+            "    struct Node *next;   /* address of the next node */",
+            "};",
+            "",
+            "/* a node also lives at its own memory address */",
+            "/* (the \"Address of this node\" box, e.g. 0x2268) */",
+            "",
+            "struct Node n1 = {4, NULL}, n2 = {1, NULL};",
+            "n1.next = &n2;   /* link n1 -> n2 */"
+        ],
+        "steps": {
+            "create": "9",
+            "node": "1-2",
+            "address": "6-7",
+            "value": "2",
+            "next": "3",
+            "create2": "9",
+            "link": "10"
+        }
+    },
+    "cpp": {
+        "code": [
+            "struct Node {",
+            "    int data;            // value of this node",
+            "    Node *next;          // address of the next node",
+            "};",
+            "",
+            "// a node also lives at its own memory address",
+            "// (the \"Address of this node\" box, e.g. 0x2268)",
+            "",
+            "Node n1 = {4, nullptr}, n2 = {1, nullptr};",
+            "n1.next = &n2;   // link n1 -> n2"
+        ],
+        "steps": {
+            "create": "9",
+            "node": "1-2",
+            "address": "6-7",
+            "value": "2",
+            "next": "3",
+            "create2": "9",
+            "link": "10"
+        }
+    },
+    "java": {
+        "code": [
+            "class Node {",
+            "    int data;          // value of this node",
+            "    Node next;         // address of the next node",
+            "",
+            "    Node(int data) { this.data = data; }",
+            "}",
+            "",
+            "// a node also lives at its own memory address",
+            "// (the \"Address of this node\" box, e.g. 0x2268)",
+            "",
+            "Node node1 = new Node(4);",
+            "Node node2 = new Node(1);",
+            "",
+            "node1.next = node2;   // link node1 -> node2"
+        ],
+        "steps": {
+            "create": "11",
+            "node": "1-2",
+            "address": "8-9",
+            "value": "2",
+            "next": "3",
+            "create2": "12",
+            "link": "14"
+        }
+    }
+}

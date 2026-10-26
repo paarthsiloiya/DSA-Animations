@@ -20,11 +20,18 @@ from pathlib import Path
 import manim
 from manim import Scene
 
-from .emit import MapEmissionError, build_payload, quantized_code_steps
+from .emit import (
+    LANGS,
+    LANGS_SCHEMA_HINT,
+    MapEmissionError,
+    build_combined_payload,
+    quantized_code_steps,
+)
 from .recorder import ANIMATIONS_DIR, import_scene_module, record_scene
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TIMELINES_DIR = Path(__file__).resolve().parent / "timelines"
+LANGS_DIR = Path(__file__).resolve().parent / "langs"
 STATIC_SYNC_DIR = REPO_ROOT / "Website" / "website" / "static" / "sync"
 EXCLUDED_ANIMATION_MODULES = {"env_config.py", "synced.py", "__init__.py"}
 
@@ -180,10 +187,32 @@ def snapshot_all(modules: list[str], out_dir: Path, batch: int) -> dict:
     return manifest
 
 
+def _load_langs(langs_dir: Path, slug: str, scene: str) -> dict:
+    """Load ``langs_dir/<slug>.json``; the error names the file and shows the schema."""
+    path = langs_dir / f"{slug}.json"
+    if not path.is_file():
+        raise MapEmissionError(
+            f"{scene} (slug {slug!r}): langs file missing: {path.as_posix()}; "
+            f"expected schema: {LANGS_SCHEMA_HINT}"
+        )
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise MapEmissionError(
+            f"{scene} (slug {slug!r}): langs file {path.as_posix()} is not valid JSON: {e}"
+        ) from e
+
+
 def map_scene(
-    module_dotted: str, scene_name: str, slug: str, category: str, fps: int, out_dir: Path
+    module_dotted: str,
+    scene_name: str,
+    slug: str,
+    category: str,
+    fps: int,
+    out_dir: Path,
+    langs_dir: Path,
 ) -> int:
-    """Emit the website sync JSON for a SyncedScene. Returns exit code."""
+    """Emit the combined four-language website sync JSON for a SyncedScene. Returns exit code."""
     synced_base = _synced_scene_base()
     module = import_scene_module(module_dotted)
     scene_cls = getattr(module, scene_name, None)
@@ -191,7 +220,7 @@ def map_scene(
         print(
             f"error: {module_dotted}.{scene_name} is not a SyncedScene; add "
             f"'from synced import SyncedScene', subclass it, declare DISPLAY_CODE, and call "
-            f"code_step(...) where the demonstrated code line changes",
+            f"code_step(key) where the demonstrated step changes",
             file=sys.stderr,
         )
         return 1
@@ -199,10 +228,19 @@ def map_scene(
     if result["error"] is not None:
         print(f"error recording {scene_name}: {result['error']}", file=sys.stderr)
         return 1
-    payload = build_payload(result, scene_cls, category, fps)
+    try:
+        langs = _load_langs(langs_dir, slug, scene_name)
+        payload = build_combined_payload(result, scene_cls, category, langs, slug, fps)
+    except MapEmissionError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
     path = out_dir / f"{slug}.json"
     _write_json(path, payload)
-    print(f"wrote {path} ({len(payload['map'])} map entries)")
+    print(
+        f"wrote {path} ("
+        + ", ".join(f"{lang} {len(payload['langs'][lang]['map'])}" for lang in LANGS)
+        + " map entries)"
+    )
     return 0
 
 
@@ -254,9 +292,17 @@ def check_timelines(
 
 
 def check_maps(
-    sync_dir: Path, lookup: dict, record_cache: dict, scope: set[str] | None
+    sync_dir: Path,
+    langs_dir: Path,
+    lookup: dict,
+    record_cache: dict,
+    scope: set[str] | None,
 ) -> tuple[list, list]:
-    """Re-derive every committed map (in memory only) and byte-compare it."""
+    """Re-derive every committed combined map (in memory only) and byte-compare it.
+
+    Drift messages name the offending language(s) so a stale single translation
+    is immediately visible.
+    """
     clean, drifted = [], []
     for path in sorted(sync_dir.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -271,6 +317,13 @@ def check_maps(
                 drifted.append(path.stem)
                 print(f"DRIFT map {path.stem}: scene {scene!r} not found in enumerated modules")
             continue
+        if not isinstance(data.get("langs"), dict) or set(data["langs"]) != set(LANGS):
+            drifted.append(path.stem)
+            print(
+                f"DRIFT map {path.stem}: malformed combined map "
+                f"(expected langs with exactly {', '.join(LANGS)})"
+            )
+            continue
         module, scene_cls = lookup[scene]
         result = _record_cached(record_cache, module, scene)
         if result["error"] is not None:
@@ -278,23 +331,27 @@ def check_maps(
             print(f"DRIFT map {path.stem}: live recording of {scene} failed: {result['error']}")
             continue
         try:
-            live = _serialize_json(build_payload(result, scene_cls, category))
+            langs = _load_langs(langs_dir, path.stem, scene)
+            live_payload = build_combined_payload(result, scene_cls, category, langs, path.stem)
         except MapEmissionError as e:
             drifted.append(path.stem)
             print(f"DRIFT map {path.stem}: cannot re-derive ({e})")
             continue
+        live = _serialize_json(live_payload)
         if live == path.read_text(encoding="utf-8"):
             clean.append(path.stem)
             continue
         drifted.append(path.stem)
-        if data.get("map") == json.loads(live)["map"]:
-            print(f"DRIFT map {path.stem}: code/video changed but map identical — regenerate")
-        else:
-            print(
-                f"DRIFT map {path.stem}: map entries differ "
-                f"({len(data.get('map', []))} committed vs "
-                f"{len(json.loads(live)['map'])} live)"
-            )
+        for lang in LANGS:
+            committed_map = data["langs"][lang].get("map")
+            live_map = live_payload["langs"][lang]["map"]
+            if committed_map != live_map:
+                print(
+                    f"DRIFT map {path.stem}: language {lang!r} differs "
+                    f"({len(committed_map or [])} committed vs {len(live_map)} live)"
+                )
+        if all(data["langs"][lang].get("map") == live_payload["langs"][lang]["map"] for lang in LANGS):
+            print(f"DRIFT map {path.stem}: code/video changed but maps identical — regenerate")
     return clean, drifted
 
 
@@ -357,8 +414,8 @@ def check_legacy(templates_dir: Path, lookup: dict, record_cache: dict) -> dict:
                 continue
             stats["comparable"] += 1
             machine = {}
-            for lines, t in steps:
-                machine.setdefault(lines, []).append(t)
+            for key, t in steps:
+                machine.setdefault(key, []).append(t)
             for inline_time, lines in maps[map_var]:
                 live_times = machine.get(lines)
                 if not live_times:
@@ -396,13 +453,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=f"output directory (default: {TIMELINES_DIR})",
     )
-    mp = sub.add_parser("map", help="emit the website sync JSON for a SyncedScene")
+    mp = sub.add_parser("map", help="emit the combined four-language website sync JSON")
     mp.add_argument("module", help="dotted module path, e.g. Animations.SearchingAlgorithms")
     mp.add_argument("scene", help="scene class name")
     mp.add_argument("--slug", required=True, help="map filename slug, e.g. linear-search")
     mp.add_argument("--category", required=True, help="video category, e.g. SearchingAlgorithms")
     mp.add_argument("--fps", type=int, default=15, help="render fps the webm was produced at")
     mp.add_argument("--out", default=None, help=f"output directory (default: {STATIC_SYNC_DIR})")
+    mp.add_argument(
+        "--langs",
+        default=None,
+        help=f"language library directory (default: {LANGS_DIR})",
+    )
     chk = sub.add_parser("check", help="detect drift between live scenes and committed artifacts")
     chk.add_argument(
         "--legacy",
@@ -418,6 +480,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--sync", default=None, help=f"committed maps directory (default: {STATIC_SYNC_DIR})"
     )
     chk.add_argument(
+        "--langs",
+        default=None,
+        help=f"language library directory (default: {LANGS_DIR})",
+    )
+    chk.add_argument(
         "--modules",
         help="comma-separated dotted modules to scope the check to (default: all of Animations/)",
     )
@@ -428,6 +495,7 @@ def run_check(
     modules: list[str],
     timelines_dir: Path,
     sync_dir: Path,
+    langs_dir: Path,
     templates_dir: Path,
     legacy: bool,
     scope: set[str] | None = None,
@@ -459,7 +527,9 @@ def run_check(
             print(f"  - {name}")
 
     clean_m, drifted_m = (
-        check_maps(sync_dir, lookup, record_cache, scope) if sync_dir.is_dir() else ([], [])
+        check_maps(sync_dir, langs_dir, lookup, record_cache, scope)
+        if sync_dir.is_dir()
+        else ([], [])
     )
 
     if legacy:
@@ -490,6 +560,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "check":
         timelines_dir = Path(args.timelines) if args.timelines else TIMELINES_DIR
         sync_dir = Path(args.sync) if args.sync else STATIC_SYNC_DIR
+        langs_dir = Path(args.langs) if args.langs else LANGS_DIR
         templates_dir = REPO_ROOT / "Website" / "website" / "templates"
         if args.modules:
             modules = [m.strip() for m in args.modules.split(",") if m.strip()]
@@ -497,11 +568,16 @@ def main(argv: list[str] | None = None) -> int:
         else:
             modules = default_scene_modules()
             scope = None
-        return run_check(modules, timelines_dir, sync_dir, templates_dir, args.legacy, scope)
+        return run_check(
+            modules, timelines_dir, sync_dir, langs_dir, templates_dir, args.legacy, scope
+        )
     if args.command == "map":
         out_dir = Path(args.out) if args.out else STATIC_SYNC_DIR
+        langs_dir = Path(args.langs) if args.langs else LANGS_DIR
         try:
-            return map_scene(args.module, args.scene, args.slug, args.category, args.fps, out_dir)
+            return map_scene(
+                args.module, args.scene, args.slug, args.category, args.fps, out_dir, langs_dir
+            )
         except MapEmissionError as e:
             print(f"error: {e}", file=sys.stderr)
             return 1

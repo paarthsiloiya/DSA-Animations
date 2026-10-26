@@ -1,0 +1,148 @@
+{% extends "content.html" %} {% block title %} Closest Pair of Points {% endblock %} {% block main_content %}
+<h1>Closest Pair of Points</h1>
+<p>
+    Given $n$ points in the plane, find the pair with the smallest distance between
+    them. Checking every pair is $O(n^2)$; the divide & conquer solution does it in
+    $O(n \log n)$ — sweep the plane with a recursive split, then settle the only thing
+    the halves can't see: pairs that <em>straddle</em> the dividing line.
+</p>
+
+<div class="subcontent">
+    <h3>Divide, Conquer, and the &delta;-Strip</h3>
+    <ol>
+        <li>
+            <strong>Sort once, two ways:</strong> by $x$ (for the split) and by $y$
+            (for the strip scan). Both orders are maintained through the recursion.
+        </li>
+        <li>
+            <strong>Divide</strong> at the median $x$; <strong>conquer</strong> each
+            half recursively. The better of the two results is
+            $\delta = \min(d_Q, d_R)$ — but a closer pair might still cross the line.
+        </li>
+        <li>
+            <strong>Strip check:</strong> only points within $\delta$ of the dividing
+            line can matter, and within that strip (scanned bottom-up in $y$ order) a
+            point only needs to look at neighbours less than $\delta$ above it.
+            Geometry does the rest: points on one side are pairwise $\ge \delta$ apart,
+            so a $\delta \times 2\delta$ window around any strip point holds at most a
+            <em>constant</em> number of candidates — the classic bound is 7 neighbours
+            — making the whole strip pass linear time.
+        </li>
+    </ol>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/closest-pair.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/DivideAndConquer/ClosestPairPoint.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> 35 scattered points (a fixed random
+        seed, so your run matches the video). Each recursion dims everything outside
+        the half being processed (<em>"Processing left half"</em> &hellip;), tiny
+        subproblems hit the <em>"Base case: 2 points"</em> / <em>"Base case: 3
+        points"</em> brute force, and after both halves report in
+        (<em>"Left half wins"</em> or <em>"Right half wins"</em>) a green
+        <em>&delta;-strip</em> appears around the dividing line. Strip points turn
+        blue and every candidate pair inside gets a distance line; the running best
+        pair is kept <em>pink</em> throughout, and the verdict lands as
+        <em>"Closest Distance: 0.28"</em>.
+    </p>
+    <p>
+        <strong>Verified result:</strong> on this exact point set the closest pair is
+        the two points near <code>(-3.75, 0.74)</code> and <code>(-3.94, 0.94)</code>
+        at distance <strong>0.28</strong> (0.2767 before rounding) — the scene's
+        divide & conquer run and an independent $O(n^2)$ all-pairs check agree.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Best / Worst / Average: $\Theta(n \log n)$</strong> — the combine
+            step is $O(n)$ (building the strip is a filtered pass over the $y$-sorted
+            list, and the packed-window argument caps each point's strip comparisons
+            at a constant), so $T(n) = 2T(n/2) + O(n)$ — master theorem case 2 with
+            $a = 2$, $b = 2$, $f(n) = O(n) = O(n^{\log_b a})$ gives
+            $\Theta(n \log n)$, matching the $\Theta(n \log n)$ up-front sorts. The
+            recursion shape is fixed, so no case behaves differently.
+        </li>
+        <li>
+            <strong>Space: $\Theta(n)$</strong> — the two sorted copies flow through
+            the recursion (each level re-partitions them in $O(n)$ scratch), plus a
+            $\Theta(\log n)$ recursion stack.
+        </li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> the strip scan <em>must</em> run in $y$ order —
+        that's what makes the "look upward until the gap exceeds &delta;" break valid;
+        both sorted orders are load-bearing (an $x$-sorted strip scan would be
+        $O(n^2)$ again); base cases of 2 or 3 points are brute-forced; and if the two
+        closest points lie in different halves, the strip is the <em>only</em> place
+        they can be found — that's the whole correctness argument.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Collision detection:</strong> a proximity pre-pass before fine-grained checks.</li>
+        <li><strong>Robotics & path planning:</strong> nearest obstacle pairs define the tightest corridors.</li>
+        <li><strong>Air-traffic monitoring:</strong> proximity alerts between tracked aircraft.</li>
+        <li><strong>Computational geometry:</strong> the engine inside mesh simplification and nearest-neighbour preprocessing.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Three Ways to Solve It</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;">Approach</th>
+                <th style="text-align: left; padding: 0.4em;">Time</th>
+                <th style="text-align: left; padding: 0.4em;">Guarantee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">All pairs</td>
+                <td style="padding: 0.4em;">$\Theta(n^2)$</td>
+                <td style="padding: 0.4em;">simple, exact</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Divide & conquer (this page)</td>
+                <td style="padding: 0.4em;">$\Theta(n \log n)$</td>
+                <td style="padding: 0.4em;">worst-case</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Randomized grid hashing (Rabin)</td>
+                <td style="padding: 0.4em;">$O(n)$ expected</td>
+                <td style="padding: 0.4em;">probabilistic</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        More divide & conquer:
+        <a href="{{ url_for('views.count_inversions') }}">Count Inversions</a> (the
+        same two-halves-plus-linear-combine shape) and
+        <a href="{{ url_for('views.median_of_medians') }}">Median of Medians</a>
+        (uneven halves that still work).
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

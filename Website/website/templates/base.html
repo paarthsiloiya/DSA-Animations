@@ -29,8 +29,11 @@
         <!-- Prism Core -->
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-        <!-- Language support (example: Python, JavaScript, etc.) -->
+        <!-- Language support (Python, C, C++, Java, JavaScript) -->
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
         <!-- Prism Line Numbers Plugin -->
         <link
@@ -114,76 +117,77 @@
     </body>
 
     <footer class="footer">
-        <div class="footer-section-container" hidden="hidden">
+        <div class="footer-section-container">
             <div class="footer-section">
                 <h3>AlgoViz</h3>
-                <a>Our Team</a>
-                <a>Contact Us</a>
-                <a>Privacy Policy</a>
-                <a>Terms of Service</a>
+                <span class="nav-item-pending">Our Team</span>
+                <a href="https://github.com/paarthsiloiya/DSA-Animations/issues" target="_blank" rel="noopener">Contact Us</a>
+                <span class="nav-item-pending">Privacy Policy</span>
+                <span class="nav-item-pending">Terms of Service</span>
+                <p class="nav-pending-note">Team, privacy & terms pages arrive soon.</p>
             </div>
 
             <div class="footer-section">
                 <h3>Searching Algorithms</h3>
-                <a>Linear Search</a>
-                <a>Binary Search</a>
+                <a href="{{ url_for('views.linear_search') }}">Linear Search</a>
+                <a href="{{ url_for('views.binary_search') }}">Binary Search</a>
             </div>
 
             <div class="footer-section">
                 <h3>Sorting Algorithms</h3>
-                <a>Bubble Sort</a>
-                <a>Insertion Sort</a>
-                <a>Selection Sort</a>
-                <a>Quick Sort</a>
-                <a>Merge Sort</a>
-                <a>Heap Sort</a>
+                <a href="{{ url_for('views.bubble_sort') }}">Bubble Sort</a>
+                <a href="{{ url_for('views.insertion_sort') }}">Insertion Sort</a>
+                <a href="{{ url_for('views.selection_sort') }}">Selection Sort</a>
+                <a href="{{ url_for('views.quick_sort') }}">Quick Sort</a>
+                <a href="{{ url_for('views.merge_sort') }}">Merge Sort</a>
+                <a href="{{ url_for('views.heap_sort') }}">Heap Sort</a>
             </div>
 
             <div class="footer-section">
                 <h3>Linked List Algorithms</h3>
-                <a>Node Explanation</a>
-                <a>Linked List Creation</a>
-                <a>Traversal</a>
-                <a>Insertion</a>
-                <a>Deletion</a>
-                <a>Rotation</a>
+                <a href="{{ url_for('views.singly_linked_list') }}#node">Node Explanation</a>
+                <a href="{{ url_for('views.singly_linked_list') }}#node">Linked List Creation</a>
+                <a href="{{ url_for('views.singly_linked_list') }}#traverse">Traversal</a>
+                <a href="{{ url_for('views.singly_linked_list') }}#insertion">Insertion</a>
+                <a href="{{ url_for('views.singly_linked_list') }}#deletion">Deletion</a>
+                <a href="{{ url_for('views.rotation') }}">Rotation</a>
             </div>
 
             <div class="footer-section">
                 <h3>Trees Algorithms</h3>
-                <a>Types of Trees</a>
-                <a>Properties of Trees</a>
-                <a>Traversal</a>
-                <a>Breadth First Search</a>
-                <a>Depth First Search</a>
-                <a>List-Tree Correlation</a>
-                <a>Binary Search Tree</a>
-                <a>Ternary Tree</a>
-                <a>AVL Tree</a>
+                <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a>
+                <a href="{{ url_for('views.types_of_trees') }}#properties">Properties of Trees</a>
+                <a href="{{ url_for('views.tree_traversals') }}">Traversal</a>
+                <a href="{{ url_for('views.tree_traversals') }}#bfs">Breadth First Search</a>
+                <a href="{{ url_for('views.tree_traversals') }}#dfs">Depth First Search</a>
+                <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a>
+                <a href="{{ url_for('views.binary_search_tree') }}">Binary Search Tree</a>
+                <a href="{{ url_for('views.ternary_tree') }}">Ternary Tree</a>
+                <a href="{{ url_for('views.avl_tree') }}">AVL Tree</a>
             </div>
 
             <div class="footer-section">
                 <h3>Heap Algorithms</h3>
-                <a>Types of Heaps</a>
-                <a>Properties of Heap</a>
-                <a>Min Heap</a>
-                <a>Max Heap</a>
+                <a href="{{ url_for('views.types_of_heaps') }}">Types of Heaps</a>
+                <a href="{{ url_for('views.types_of_heaps') }}#properties">Properties of Heap</a>
+                <a href="{{ url_for('views.types_of_heaps') }}#min-heap">Min Heap</a>
+                <a href="{{ url_for('views.types_of_heaps') }}#max-heap">Max Heap</a>
             </div>
 
             <div class="footer-section">
                 <h3>Graph Algorithms</h3>
-                <a>Types of Graphs</a>
-                <a>Graph Representation</a>
-                <a>Traversal</a>
-                <a>Breadth First Search</a>
-                <a>Depth First Search</a>
-                <a>Dijkstra's Algorithm</a>
-                <a>Floyd Warshall Algorithm</a>
-                <a>Bellman Ford Algorithm</a>
-                <a>Kruskal's Algorithm</a>
-                <a>Prim's Algorithm</a>
-                <a>DAG</a>
-                <a>Topological Sort</a>
+                <a href="{{ url_for('views.types_of_graphs') }}">Types of Graphs</a>
+                <a href="{{ url_for('views.graph_representation') }}">Graph Representation</a>
+                <a href="{{ url_for('views.graph_traversals') }}">Traversal</a>
+                <a href="{{ url_for('views.graph_traversals') }}#bfs-undirected">Breadth First Search</a>
+                <a href="{{ url_for('views.graph_traversals') }}#dfs-undirected">Depth First Search</a>
+                <a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra's Algorithm</a>
+                <a href="{{ url_for('views.floyd_warshall_algorithm') }}">Floyd Warshall Algorithm</a>
+                <a href="{{ url_for('views.bellman_ford_algorithm') }}">Bellman Ford Algorithm</a>
+                <a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's Algorithm</a>
+                <a href="{{ url_for('views.prims_algorithm') }}">Prim's Algorithm</a>
+                <span class="nav-item-pending">DAG</span>
+                <a href="{{ url_for('views.topological_sort') }}">Topological Sort</a>
             </div>
         </div>
         <div class="footer-socials">

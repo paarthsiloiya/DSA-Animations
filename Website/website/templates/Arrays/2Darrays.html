@@ -79,6 +79,115 @@
             </ul>
         </li>
     </ul>
+    <p>
+        The two animations below walk a concrete <code>3 x 3</code> example: first a row-major traversal with the
+        <code>i</code> (row) and <code>j</code> (column) pointers, then the full product of two matrices.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Row-Major Traversal — Visualized</h3>
+    <p>
+        The matrix <code>[[5, 2, 8], [6, 3, 1], [4, 7, 9]]</code> is drawn twice: compactly on the left, and as a grid
+        of elements on the right. The <code>i -></code> pointer tracks the current row and the <code>j</code> pointer
+        tracks the current column as the nested loops visit every cell.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/2d-arrays-as-matrix.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-5">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Arrays/TwoDArraysAsMatrix.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the pointers sweep the matrix in <strong>row-major</strong> order —
+        the inner <code>j</code> loop completes each row before the outer <code>i</code> loop advances:
+        <code>i=0</code> visits 5, 2, 8; <code>i=1</code> visits 6, 3, 1; <code>i=2</code> visits 4, 7, 9. Row-major
+        order is exactly how C, C++ and Java lay a 2D array out in linear memory, which is why this traversal pattern
+        is cache-friendly in those languages.
+    </p>
+    <p>
+        <strong>Complexity:</strong> the nested loops execute the body exactly <code>m * n</code> times for an
+        <code>m x n</code> matrix, so a full traversal is <strong>$\Theta(m \cdot n)$</strong> (for the square case,
+        $\Theta(n^2)$). Each individual access <code>matrix[i][j]</code> remains <strong>$O(1)$</strong>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Matrix Multiplication in Action</h3>
+    <p>
+        Multiplying <code>A</code> by <code>B</code>: for every result cell <code>C[i][j]</code>, the animation
+        frames row <code>i</code> of <code>A</code> together with column <code>j</code> of <code>B</code>, and
+        accumulates the three products of the <code>k</code> loop into the growing term displayed in the result
+        matrix.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/2d-arrays-multiplication.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-3">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Arrays/TwoDArraysMultiplication.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> with
+        <code>A = [[5, 2, 8], [6, 3, 1], [4, 7, 9]]</code> and
+        <code>B = [[1, 9, 2], [3, 4, 5], [6, 7, 8]]</code>, the first result cell is built as
+        <code>C[0][0] = 5&times;1 + 2&times;3 + 8&times;6 = 59</code> — each product appears in the result cell as
+        the <code>k</code> loop highlights the paired row/column entries. The same three-step accumulation fills
+        every cell until the completed product
+        <code>[[59, 109, 84], [21, 73, 35], [79, 127, 115]]</code> is shown at the end.
+    </p>
+    <p>
+        <strong>Complexity:</strong> for an <code>m x n</code> matrix times an <code>n x p</code> matrix, the three
+        nested loops perform <code>m * n * p</code> multiply-add steps, so the standard algorithm is
+        <strong>$\Theta(m \cdot n \cdot p)$</strong> — for square <code>n x n</code> matrices,
+        <strong>$\Theta(n^3)$</strong>. Storing the result needs an additional <code>m x p</code> matrix, so the
+        auxiliary space complexity is <strong>$\Theta(m \cdot p)$</strong>.
+    </p>
 </div>
 
 <div class="subcontent">
@@ -103,7 +212,7 @@
                 <li>
                     <strong>Standard Method</strong>: For two <code>n x n</code> matrices, the standard multiplication
                     <code>SQUARE-MATRIX-MULTIPLY</code> involves <strong>triply-nested loops</strong> and takes
-                    <strong>$O(n)$ time</strong>.
+                    <strong>$\Theta(n^3)$ time</strong>.
                 </li>
                 <li>
                     <strong>Divide-and-Conquer</strong>: A recursive approach divides <code>n x n</code> matrices into
@@ -111,16 +220,16 @@
                     additions.
                 </li>
                 <li>
-                    <strong>Strassen's Algorithm</strong>: This advanced divide-and-conquer algorithm significantly
-                    improves the asymptotic running time to <strong>$O(n.81)$</strong> by recursively computing seven
+                    <strong>Strassen's Algorithm</strong>: This advanced divide-and-conquer algorithm improves the
+                    asymptotic running time to <strong>$O(n^{2.81})$</strong> by recursively computing seven
                     <code>n/2 x n/2</code> matrix products instead of eight.
                 </li>
             </ul>
         </li>
         <li>
-            <strong>Transpose</strong>: The transpose of a matrix <code>A</code> (denoted <code>A</code>) is obtained by
+            <strong>Transpose</strong>: The transpose of a matrix <code>A</code> (denoted $A^T$) is obtained by
             swapping its row and column indices. For a directed graph's adjacency matrix, its transpose
-            <code>G</code> involves reversing all edges. Multithreaded algorithms like <code>P-TRANSPOSE</code> can
+            $G^T$ involves reversing all edges. Multithreaded algorithms like <code>P-TRANSPOSE</code> can
             transpose an <code>n x n</code> matrix in place.
         </li>
         <li>
@@ -198,6 +307,16 @@
             type.
         </li>
     </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        For the one-dimensional foundations — contiguous storage and $O(1)$ indexing — go back to the
+        <a href="{{ url_for('views.arrays') }}">Arrays</a> page, or continue to
+        <a href="{{ url_for('views.linear_search') }}">Linear Search</a> to see an algorithm that walks an array from
+        <code>index 0</code> upward.
+    </p>
 </div>
 
 {% endblock %}

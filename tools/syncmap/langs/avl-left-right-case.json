@@ -1,0 +1,141 @@
+{
+    "python": {
+        "code": [
+            "# Left-Right case: balance > 1 and the deep path goes LEFT then RIGHT",
+            "# -> rotate LEFT on the left child, then RIGHT on the node",
+            "",
+            "# inside insert, when balance > 1 and key > root.left.key:",
+            "#   root.left = left_rotate(root.left)   step 1",
+            "#   return right_rotate(root)            step 2",
+            "",
+            "def left_rotate(z):",
+            "    y = z.right             # z right child - the new subtree root",
+            "    T2 = y.left             # y left subtree detaches",
+            "    y.left = z              # z drops down to become y left child",
+            "    z.right = T2            # z adopts y old left subtree",
+            "    z.height = 1 + max(height(z.left), height(z.right))",
+            "    y.height = 1 + max(height(y.left), height(y.right))",
+            "    return y               # y is the new subtree root",
+            "",
+            "def right_rotate(z):",
+            "    y = z.left              # z left child - the new subtree root",
+            "    T3 = y.right            # y right subtree detaches",
+            "    y.right = z             # z drops down to become y right child",
+            "    z.left = T3             # z adopts y old right subtree",
+            "    z.height = 1 + max(height(z.left), height(z.right))",
+            "    y.height = 1 + max(height(y.left), height(y.right))",
+            "    return y               # y is the new subtree root"
+        ],
+        "steps": {
+            "case": "1-6",
+            "step1": "8-15",
+            "step2": "17-24"
+        }
+    },
+    "c": {
+        "code": [
+            "/* Left-Right case: balance > 1, deep path goes LEFT then RIGHT */",
+            "/* -> rotate LEFT on the left child, then RIGHT on the node */",
+            "",
+            "/* inside insert, when balance > 1 and key > root->left->key:",
+            "   root->left = left_rotate(root->left);   step 1",
+            "   return right_rotate(root);              step 2",
+            "*/",
+            "",
+            "struct Node *left_rotate(struct Node *z) {",
+            "    struct Node *y = z->right;     /* the new subtree root */",
+            "    struct Node *T2 = y->left;     /* detaches */",
+            "    y->left = z;                   /* z drops down */",
+            "    z->right = T2;                 /* z adopts T2 */",
+            "    z->height = 1 + max(height(z->left), height(z->right));",
+            "    y->height = 1 + max(height(y->left), height(y->right));",
+            "    return y;",
+            "}",
+            "",
+            "struct Node *right_rotate(struct Node *z) {",
+            "    struct Node *y = z->left;      /* the new subtree root */",
+            "    struct Node *T3 = y->right;    /* detaches */",
+            "    y->right = z;                  /* z drops down */",
+            "    z->left = T3;                  /* z adopts T3 */",
+            "    z->height = 1 + max(height(z->left), height(z->right));",
+            "    y->height = 1 + max(height(y->left), height(y->right));",
+            "    return y;",
+            "}"
+        ],
+        "steps": {
+            "case": "1-7",
+            "step1": "9-17",
+            "step2": "19-27"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// Left-Right case: balance > 1, deep path goes LEFT then RIGHT",
+            "// -> rotate LEFT on the left child, then RIGHT on the node",
+            "",
+            "// inside insert, when balance > 1 and key > root->left->key:",
+            "//   root->left = left_rotate(root->left);   step 1",
+            "//   return right_rotate(root);              step 2",
+            "",
+            "Node *left_rotate(Node *z) {",
+            "    Node *y = z->right;      // the new subtree root",
+            "    Node *T2 = y->left;      // detaches",
+            "    y->left = z;             // z drops down",
+            "    z->right = T2;           // z adopts T2",
+            "    z->height = 1 + std::max(height(z->left), height(z->right));",
+            "    y->height = 1 + std::max(height(y->left), height(y->right));",
+            "    return y;",
+            "}",
+            "",
+            "Node *right_rotate(Node *z) {",
+            "    Node *y = z->left;       // the new subtree root",
+            "    Node *T3 = y->right;     // detaches",
+            "    y->right = z;            // z drops down",
+            "    z->left = T3;            // z adopts T3",
+            "    z->height = 1 + std::max(height(z->left), height(z->right));",
+            "    y->height = 1 + std::max(height(y->left), height(y->right));",
+            "    return y;",
+            "}"
+        ],
+        "steps": {
+            "case": "1-6",
+            "step1": "8-16",
+            "step2": "18-26"
+        }
+    },
+    "java": {
+        "code": [
+            "// Left-Right case: balance > 1, deep path goes LEFT then RIGHT",
+            "// -> rotate LEFT on the left child, then RIGHT on the node",
+            "",
+            "// inside insert, when balance > 1 and key > root.left.key:",
+            "//   root.left = leftRotate(root.left);   step 1",
+            "//   return rightRotate(root);            step 2",
+            "",
+            "Node leftRotate(Node z) {",
+            "    Node y = z.right;        // the new subtree root",
+            "    Node T2 = y.left;        // detaches",
+            "    y.left = z;              // z drops down",
+            "    z.right = T2;            // z adopts T2",
+            "    z.height = 1 + Math.max(height(z.left), height(z.right));",
+            "    y.height = 1 + Math.max(height(y.left), height(y.right));",
+            "    return y;",
+            "}",
+            "",
+            "Node rightRotate(Node z) {",
+            "    Node y = z.left;         // the new subtree root",
+            "    Node T3 = y.right;       // detaches",
+            "    y.right = z;             // z drops down",
+            "    z.left = T3;             // z adopts T3",
+            "    z.height = 1 + Math.max(height(z.left), height(z.right));",
+            "    y.height = 1 + Math.max(height(y.left), height(y.right));",
+            "    return y;",
+            "}"
+        ],
+        "steps": {
+            "case": "1-6",
+            "step1": "8-16",
+            "step2": "18-26"
+        }
+    }
+}

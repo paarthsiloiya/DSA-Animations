@@ -1,0 +1,162 @@
+{% extends "content.html" %} {% block title %} Prim's Algorithm {% endblock %} {% block main_content %}
+<h1>Prim's Algorithm</h1>
+<p>
+    <strong>Prim's algorithm</strong> builds a <strong>minimum spanning tree (MST)</strong> of a
+    connected, undirected, weighted graph: a subset of $V-1$ edges that connects all
+    $V$ vertices with the smallest possible total weight. It grows one tree outward from a
+    start vertex, and each round it commits the single cheapest edge that reaches a new
+    vertex — a greedy choice justified by the <strong>cut property</strong> below.
+</p>
+
+<div class="subcontent">
+    <h3>The Cut Property</h3>
+    <p>
+        Split the vertices into two sets: the <strong>tree</strong> (visited) and everything
+        else. The edges between them form a <em>cut</em>. The minimum-weight edge across any
+        cut is always safe to add: some spanning tree must contain it, because exchanging it
+        for any other crossing edge in that tree cannot increase the total weight. Prim's
+        applies this with the cut <em>tree vs. rest</em> every round:
+    </p>
+    <ol>
+        <li><strong>Scan</strong> every edge leaving the tree (the cut edges).</li>
+        <li><strong>Select</strong> the one with minimum weight.</li>
+        <li><strong>Add</strong> it — the tree gains exactly one vertex, never a cycle.</li>
+    </ol>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/prims-mcst.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"/>
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-4">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Graphs/PrimsMCST.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the demo graph on seven vertices
+        <code>0&ndash;6</code> with undirected edges <code>0&ndash;1 (10), 0&ndash;2 (80),
+        1&ndash;2 (6), 1&ndash;4 (20), 2&ndash;3 (70), 4&ndash;5 (50), 4&ndash;6 (5),
+        5&ndash;6 (10)</code>, starting from vertex <strong>0</strong>. Each round the cut
+        edges flash one by one (the <em>scan</em> in the code), then the winner is announced
+        (<em>"Selected Edge: (0, 1), weight: 10"</em>) and the running
+        <em>"Minimum Cost"</em> ticks up. Watch round two: the direct edge
+        <code>0&ndash;2 (80)</code> is a cut edge, but <code>1&ndash;2 (6)</code> wins &mdash;
+        reaching a vertex <em>through the tree</em> beats reaching it from the start.
+    </p>
+    <p>
+        <strong>Selected edges (verified against the reference implementation on this exact
+        graph):</strong>
+        <code>(0, 1) w10 &rarr; (1, 2) w6 &rarr; (1, 4) w20 &rarr; (4, 6) w5 &rarr; (6, 5) w10
+        &rarr; (2, 3) w70</code>, for a total MST cost of <strong>121</strong>. The two
+        heaviest edges, <code>0&ndash;2 (80)</code> and <code>4&ndash;5 (50)</code>, are never
+        used — the tree found cheaper routes around them.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>This scan-as-written: $O(V \cdot E)$</strong> — the code does $V-1$
+            rounds, and each round rescans the full adjacency of every visited vertex,
+            i.e. $O(E)$ work per round.
+        </li>
+        <li>
+            <strong>Standard array variant: $O(V^2)$</strong> — instead of rescanning,
+            keep a <code>key[v]</code> array ("cheapest edge reaching $v$ so far").
+            Each round scans $V$ keys for the minimum ($V$ rounds $\Rightarrow$ $V^2$
+            key comparisons) and each edge relaxes a key at most twice, adding $O(E)$.
+        </li>
+        <li>
+            <strong>Binary-heap variant: $O(E \log V)$</strong> — the minimum search
+            becomes a heap extract ($\log V$), and each of the $E$ edge relaxations
+            updates the heap at $\log V$ cost. This is the version in the reference
+            implementation; the animation shows the simpler scan because the flash of
+            each cut edge <em>is</em> the algorithm's work.
+        </li>
+        <li>
+            <strong>Space: $O(V)$</strong> beyond the graph itself — the visited set,
+            the running total, and (in the array/heap variants) one key per vertex.
+        </li>
+    </ul>
+    <p>
+        Best case = worst case here: the scan is unconditional, so $O(V \cdot E)$ as
+        written and $O(V^2)$ for the array variant regardless of edge weights. With a
+        Fibonacci heap the bound improves to $O(E + V \log V)$ — worth knowing, rarely
+        worth implementing.
+    </p>
+    <p>
+        <strong>Must know:</strong> Prim's needs a <em>connected</em> graph to span
+        everything (disconnected input leaves some vertices unreached); the cut property
+        is the proof behind the greed; ties make the MST <em>not necessarily unique</em>,
+        but the minimum total is; the graph must be <em>undirected</em> — for directed
+        shortest paths see
+        <a href="{{ url_for('views.dijkstra_algorithm') }}">Dijkstra</a> instead.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Applications</h3>
+    <ul>
+        <li><strong>Network design:</strong> cheapest layout of cables, pipelines, or grid lines connecting all nodes.</li>
+        <li><strong>Approximation:</strong> MSTs underpin the 2-approximation for the metric travelling salesperson problem.</li>
+        <li><strong>Clustering:</strong> removing the largest MST edges splits data into natural groups.</li>
+        <li><strong>Image segmentation:</strong> region growing treats pixels as a weighted graph — Prim's is literally a region grower.</li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Prim's vs. Kruskal's</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid currentColor;">
+                <th style="text-align: left; padding: 0.4em;"></th>
+                <th style="text-align: left; padding: 0.4em;">Prim's</th>
+                <th style="text-align: left; padding: 0.4em;">Kruskal's</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Grows</td>
+                <td style="padding: 0.4em;">one tree outward from a start vertex</td>
+                <td style="padding: 0.4em;">a forest that merges until it is one tree</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Chooses</td>
+                <td style="padding: 0.4em;">cheapest edge <em>leaving the tree</em></td>
+                <td style="padding: 0.4em;">globally cheapest edge that creates no cycle</td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(128,128,128,0.3);">
+                <td style="padding: 0.4em;">Needs</td>
+                <td style="padding: 0.4em;">connected graph (to span all vertices)</td>
+                <td style="padding: 0.4em;">any graph — produces a spanning <em>forest</em></td>
+            </tr>
+            <tr>
+                <td style="padding: 0.4em;">Best for</td>
+                <td style="padding: 0.4em;">dense graphs ($O(V^2)$ array variant)</td>
+                <td style="padding: 0.4em;">sparse graphs ($O(E \log E)$ sort)</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Both are greedy, both rely on the cut property, and both end with the same total
+        weight. Continue with
+        <a href="{{ url_for('views.kruskal_algorithm') }}">Kruskal's Algorithm</a> to see
+        the other strategy on the identical demo graph, or jump to
+        <a href="{{ url_for('views.topological_sort') }}">Topological Sort</a> for a
+        different use of graph orderings.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

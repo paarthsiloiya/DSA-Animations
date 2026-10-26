@@ -1,8 +1,10 @@
 import random
+from typing import ClassVar
 
 from common import Node as NodeVisual
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(32)
 
@@ -133,7 +135,38 @@ class AVLNode(VGroup):
         )
 
 
-class AVLTreeInsertion(Scene):
+class AVLTreeInsertion(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:                       # an AVL node carries its height",
+        "    def __init__(self, key):",
+        "        self.key = key",
+        "        self.left = None",
+        "        self.right = None",
+        "        self.height = 1",
+        "",
+        "def insert(root, key):",
+        "    if root is None:",
+        "        return Node(key)",
+        "    if key < root.key:",
+        "        root.left = insert(root.left, key)",
+        "    else:",
+        "        root.right = insert(root.right, key)",
+        "",
+        "    root.height = 1 + max(height(root.left), height(root.right))",
+        "    balance = height(root.left) - height(root.right)",
+        "",
+        "    if balance > 1 and key < root.left.key:      # Left-Left",
+        "        return right_rotate(root)",
+        "    if balance < -1 and key > root.right.key:    # Right-Right",
+        "        return left_rotate(root)",
+        "    if balance > 1 and key > root.left.key:      # Left-Right",
+        "        root.left = left_rotate(root.left)",
+        "        return right_rotate(root)",
+        "    if balance < -1 and key < root.right.key:    # Right-Left",
+        "        root.right = right_rotate(root.right)",
+        "        return left_rotate(root)",
+        "    return root",
+    ]
     def height(self, node: AVLNode):
         if node is None:
             return 0
@@ -239,6 +272,7 @@ class AVLTreeInsertion(Scene):
                 else:
                     avlnode.move_to(parent_node.rightPos.get_center() + RIGHT)
             
+            self.code_step("create")
             self.play(Create(avlnode), run_time=0.5)
             self.nodeGroup.add(avlnode.node)
             self.AVLnodeGroup.append(avlnode)
@@ -246,10 +280,12 @@ class AVLTreeInsertion(Scene):
             return avlnode
 
         if value < node.value:
+            self.code_step("go-left")
             node.left = self.insert(node.left, value, True, node)
             node.set_left()
             self.wait(0.52)
         elif value > node.value:
+            self.code_step("go-right")
             node.right = self.insert(node.right, value, False, node)
             node.set_right()
             self.wait(0.52)
@@ -261,25 +297,32 @@ class AVLTreeInsertion(Scene):
         old_balance = node.balanceFactor.get_value()
         new_balance = balance
         if abs(old_balance - new_balance) > 0.001:
+            self.code_step("balance")
             self.play(Indicate(node.balanceFactorText, color=SELCOL), run_time=0.3)
             self.wait(0.1)
             node.balanceFactor.set_value(new_balance)
             self.wait(0.2)
 
         if balance > 1 and value < node.left.value:
+            self.code_step("rotate-right-single")
             return self.right_rotate(node)
 
         if balance < -1 and value > node.right.value:
+            self.code_step("rotate-left-single")
             return self.left_rotate(node)
 
         if balance > 1 and value > node.left.value:
+            self.code_step("lr-step1")
             node.left = self.left_rotate(node.left)
             self.wait(1)
+            self.code_step("lr-step2")
             return self.right_rotate(node)
 
         if balance < -1 and value < node.right.value:
+            self.code_step("rl-step1")
             node.right = self.right_rotate(node.right)
             self.wait(1)
+            self.code_step("rl-step2")
             return self.left_rotate(node)
         
         return node
@@ -293,6 +336,7 @@ class AVLTreeInsertion(Scene):
             new_balance = self.get_balance(avl_node)
             
             if abs(old_balance - new_balance) > 0.001:  # Use abs for better floating point comparison
+                self.code_step("balance")
                 self.play(Indicate(avl_node.balanceFactorText, color=SELCOL), run_time=0.5)
                 self.wait(0.1)
                 avl_node.balanceFactor.set_value(new_balance)
@@ -356,12 +400,30 @@ class AVLTreeInsertion(Scene):
         self.wait(2)
 
 
-class RightRightCase(Scene):
+class RightRightCase(SyncedScene):
     """Right-Right case: balance factor < -1, needs left rotation"""
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# Right-Right case: balance < -1 and the deep path goes RIGHT then RIGHT",
+        "# -> a single LEFT rotation restores balance",
+        "",
+        "# when it fires (inside insert):",
+        "#   if balance < -1 and key > root.right.key:",
+        "#       return left_rotate(root)",
+        "",
+        "def left_rotate(z):",
+        "    y = z.right             # z right child - the new subtree root",
+        "    T2 = y.left             # y left subtree detaches",
+        "    y.left = z              # z drops down to become y left child",
+        "    z.right = T2            # z adopts y old left subtree",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y               # y is the new subtree root",
+    ]
     def construct(self):
         # Create nodes step by step to show the problem
         explanation = Text("Insert 3", font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL)
         explanation.to_edge(UP, buff=0.5)
+        self.code_step("case")
         self.play(Write(explanation))
 
         node3 = AVLNode(3)
@@ -465,6 +527,7 @@ class RightRightCase(Scene):
         arrow_label = Text("Left Rotation", font_size=SWAP_FONT_SIZE, color=RED)
         arrow_label.next_to(explanation, DOWN, buff=0.2)
         
+        self.code_step("rotate")
         self.play(Create(arrow), Write(arrow_label))
         self.wait(1)
         self.play(FadeOut(arrow))
@@ -505,17 +568,36 @@ class RightRightCase(Scene):
         
         result_text = Text("Tree is now balanced!", font_size=EXPLANATORY_FONT_SIZE, color=GREEN)
         result_text.to_edge(UP, buff=0.5)
+        self.code_step("balanced")
         self.play(Write(result_text))
         self.wait(2)
 
 
-class LeftLeftCase(Scene):
+class LeftLeftCase(SyncedScene):
     """Left-Left case: balance factor > 1, needs right rotation"""
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# Left-Left case: balance > 1 and the deep path goes LEFT then LEFT",
+        "# -> a single RIGHT rotation restores balance",
+        "",
+        "# when it fires (inside insert):",
+        "#   if balance > 1 and key < root.left.key:",
+        "#       return right_rotate(root)",
+        "",
+        "def right_rotate(z):",
+        "    y = z.left              # z left child - the new subtree root",
+        "    T3 = y.right            # y right subtree detaches",
+        "    y.right = z             # z drops down to become y right child",
+        "    z.left = T3             # z adopts y old right subtree",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y               # y is the new subtree root",
+    ]
     
     def construct(self):
         # Create nodes step by step to show the problem
         explanation = Text("Insert 5", font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL)
         explanation.to_edge(UP, buff=0.5)
+        self.code_step("case")
         self.play(Write(explanation))
 
         node5 = AVLNode(5)
@@ -618,6 +700,7 @@ class LeftLeftCase(Scene):
         arrow_label = Text("Right Rotation", font_size=SWAP_FONT_SIZE, color=RED)
         arrow_label.next_to(explanation, DOWN, buff=0.2)
         
+        self.code_step("rotate")
         self.play(Create(arrow), Write(arrow_label))
         self.wait(1)
         self.play(FadeOut(arrow))
@@ -658,17 +741,45 @@ class LeftLeftCase(Scene):
         
         result_text = Text("Tree is now balanced!", font_size=EXPLANATORY_FONT_SIZE, color=GREEN)
         result_text.to_edge(UP, buff=0.5)
+        self.code_step("balanced")
         self.play(Write(result_text))
         self.wait(2)
 
 
-class LeftRightCase(Scene):
+class LeftRightCase(SyncedScene):
     """Left-Right case: balance factor > 1, needs left-right rotation"""
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# Left-Right case: balance > 1 and the deep path goes LEFT then RIGHT",
+        "# -> rotate LEFT on the left child, then RIGHT on the node",
+        "",
+        "# inside insert, when balance > 1 and key > root.left.key:",
+        "root.left = left_rotate(root.left)   # step 1: left-rotate the left child",
+        "return right_rotate(root)            # step 2: right-rotate the node",
+        "",
+        "def left_rotate(z):",
+        "    y = z.right",
+        "    T2 = y.left",
+        "    y.left = z",
+        "    z.right = T2",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y",
+        "",
+        "def right_rotate(z):",
+        "    y = z.left",
+        "    T3 = y.right",
+        "    y.right = z",
+        "    z.left = T3",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y",
+    ]
     
     def construct(self):
         # Create nodes step by step to show the problem
         explanation = Text("Insert 5", font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL)
         explanation.to_edge(UP, buff=0.5)
+        self.code_step("case")
         self.play(Write(explanation))
 
         node5 = AVLNode(5)
@@ -763,6 +874,7 @@ class LeftRightCase(Scene):
         # Step 1: Left rotation on left subtree
         step1_label = Text("Step 1: Left rotation (3-4)", font_size=SWAP_FONT_SIZE, color=RED)
         step1_label.next_to(explanation, DOWN, buff=0.2)
+        self.code_step("step1")
         self.play(Write(step1_label))
         
         # Show curved arrow for first rotation
@@ -810,6 +922,7 @@ class LeftRightCase(Scene):
         # Step 2: Right rotation on root
         step2_label = Text("Step 2: Right rotation (5-4)", font_size=SWAP_FONT_SIZE, color=RED)
         step2_label.next_to(step1_label, DOWN, buff=0.2)
+        self.code_step("step2")
         self.play(Write(step2_label))
         
         # Show curved arrow for second rotation
@@ -862,13 +975,40 @@ class LeftRightCase(Scene):
         self.wait(2)
 
 
-class RightLeftCase(Scene):
+class RightLeftCase(SyncedScene):
     """Right-Left case: balance factor < -1, needs right-left rotation"""
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# Right-Left case: balance < -1 and the deep path goes RIGHT then LEFT",
+        "# -> rotate RIGHT on the right child, then LEFT on the node",
+        "",
+        "# inside insert, when balance < -1 and key < root.right.key:",
+        "root.right = right_rotate(root.right)  # step 1: right-rotate the right child",
+        "return left_rotate(root)              # step 2: left-rotate the node",
+        "",
+        "def right_rotate(z):",
+        "    y = z.left",
+        "    T3 = y.right",
+        "    y.right = z",
+        "    z.left = T3",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y",
+        "",
+        "def left_rotate(z):",
+        "    y = z.right",
+        "    T2 = y.left",
+        "    y.left = z",
+        "    z.right = T2",
+        "    z.height = 1 + max(height(z.left), height(z.right))",
+        "    y.height = 1 + max(height(y.left), height(y.right))",
+        "    return y",
+    ]
     
     def construct(self):
         # Create nodes step by step to show the problem
         explanation = Text("Insert 3", font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL)
         explanation.to_edge(UP, buff=0.5)
+        self.code_step("case")
         self.play(Write(explanation))
 
         node3 = AVLNode(3)
@@ -963,6 +1103,7 @@ class RightLeftCase(Scene):
         # Step 1: Right rotation on right subtree
         step1_label = Text("Step 1: Right rotation (5-4)", font_size=SWAP_FONT_SIZE, color=RED)
         step1_label.next_to(explanation, DOWN, buff=0.2)
+        self.code_step("step1")
         self.play(Write(step1_label))
         
         # Show curved arrow for first rotation
@@ -1011,6 +1152,7 @@ class RightLeftCase(Scene):
         # Step 2: Left rotation on root
         step2_label = Text("Step 2: Left rotation (3-4)", font_size=SWAP_FONT_SIZE, color=RED)
         step2_label.next_to(step1_label, DOWN, buff=0.2)
+        self.code_step("step2")
         self.play(Write(step2_label))
         
         # Show curved arrow for second rotation
@@ -1063,7 +1205,39 @@ class RightLeftCase(Scene):
         self.wait(2)
 
 
-class AVLTreeDeletion(Scene):
+class AVLTreeDeletion(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "def delete(root, key):",
+        "    if root is None:",
+        "        return root",
+        "    if key < root.key:",
+        "        root.left = delete(root.left, key)",
+        "    elif key > root.key:",
+        "        root.right = delete(root.right, key)",
+        "    else:                                  # found the node",
+        "        if root.left is None:              # case: no left child",
+        "            return root.right",
+        "        if root.right is None:            # case: no right child",
+        "            return root.left",
+        "        successor = min_value_node(root.right)   # in-order successor",
+        "        root.key = successor.key",
+        "        root.right = delete(root.right, successor.key)",
+        "",
+        "    root.height = 1 + max(height(root.left), height(root.right))",
+        "    balance = height(root.left) - height(root.right)",
+        "",
+        "    if balance > 1 and get_balance(root.left) >= 0:   # Left-Left",
+        "        return right_rotate(root)",
+        "    if balance > 1 and get_balance(root.left) < 0:    # Left-Right",
+        "        root.left = left_rotate(root.left)",
+        "        return right_rotate(root)",
+        "    if balance < -1 and get_balance(root.right) <= 0: # Right-Right",
+        "        return left_rotate(root)",
+        "    if balance < -1 and get_balance(root.right) > 0:  # Right-Left",
+        "        root.right = right_rotate(root.right)",
+        "        return left_rotate(root)",
+        "    return root",
+    ]
     def construct(self):
         self.nodeGroup = VGroup()
         self.AVLnodeGroup: list[AVLNode] = []
@@ -1234,6 +1408,7 @@ class AVLTreeDeletion(Scene):
         successor_search_surr.set_z_index(3)
         
         sub_explanatory_text = Text(f"Finding successor: go right to {current.value}", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).to_edge(DOWN, buff=1.3)
+        self.code_step("successor")
         self.play(Create(successor_search_surr), Write(sub_explanatory_text), run_time=0.5)
         self.wait(0.3)
         
@@ -1265,6 +1440,7 @@ class AVLTreeDeletion(Scene):
 
     def delete_avl(self, root: AVLNode, value):
         explanatory_text = Text(f"Deleting {value}", font=FONT, color=TEXTCOL, font_size=FSIZE).to_edge(DOWN, buff=1.9)
+        self.code_step("call")
         self.play(Write(explanatory_text), run_time=0.5)
         self.wait(0.3)
 
@@ -1282,6 +1458,7 @@ class AVLTreeDeletion(Scene):
         search_surr.set_z_index(3)
         
         search_explanatory_text = Text(f"Searching for {value}", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+        self.code_step("search")
         self.play(Create(search_surr), Write(search_explanatory_text), run_time=0.5)
         self.wait(0.3)
         
@@ -1290,9 +1467,11 @@ class AVLTreeDeletion(Scene):
             if value < current.value:
                 direction_text = f"{value} < {current.value}, go left"
                 next_node = current.left
+                self.code_step("go-left")
             else:
                 direction_text = f"{value} >= {current.value}, go right"
                 next_node = current.right
+                self.code_step("go-right")
             
             if next_node is None:
                 break
@@ -1321,6 +1500,7 @@ class AVLTreeDeletion(Scene):
         # Found the node
         self.play(Unwrite(search_explanatory_text), run_time=0.3)
         search_explanatory_text = Text(f"Found {value}!", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).next_to(explanatory_text, DOWN, buff=0.2)
+        self.code_step("found")
         self.play(Write(search_explanatory_text), run_time=0.5)
         self.wait(0.5)
         
@@ -1365,6 +1545,7 @@ class AVLTreeDeletion(Scene):
             if not has_left and not has_right:
                 # Case 1: Leaf node
                 sub_explanatory_text = Text(f"{value} is a leaf node - simply remove it", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).to_edge(UP, buff=0.2)
+                self.code_step("case-leaf")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1383,6 +1564,7 @@ class AVLTreeDeletion(Scene):
                 left_child = root.left
                 
                 sub_explanatory_text = Text(f"{value} has only left child - replace with {left_child.value}", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).to_edge(UP, buff=0.2)
+                self.code_step("case-left")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1405,6 +1587,7 @@ class AVLTreeDeletion(Scene):
                 right_child = root.right
                 
                 sub_explanatory_text = Text(f"{value} has only right child - replace with {right_child.value}", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).to_edge(UP, buff=0.2)
+                self.code_step("case-right")
                 self.play(Write(sub_explanatory_text), run_time=0.5)
                 self.wait(1)
                 
@@ -1436,6 +1619,7 @@ class AVLTreeDeletion(Scene):
                 sub_explanatory_text1 = Text(f"{value} has two children", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).to_edge(UP, buff=0.2)
                 sub_explanatory_text2 = Text(f"Replace with successor {successor.value}", font=FONT, color=TEXTCOL, font_size=SWAP_FONT_SIZE).next_to(sub_explanatory_text1, DOWN, buff=0.2)
                 
+                self.code_step("replace")
                 self.play(Write(sub_explanatory_text1), Write(sub_explanatory_text2), run_time=0.5)
                 
                 # Highlight successor
@@ -1463,6 +1647,7 @@ class AVLTreeDeletion(Scene):
                 self.play(Unwrite(sub_explanatory_text1), Unwrite(sub_explanatory_text2), run_time=0.3)
                 
                 # Delete the successor
+                self.code_step("remove-successor")
                 root.right = self._delete_node_recursive(root.right, successor.value)
                 
                 self.play(FadeOut(successor_surr), run_time=0.5)
@@ -1478,14 +1663,17 @@ class AVLTreeDeletion(Scene):
             # Left heavy
             if self.get_balance(root.left) >= 0:
                 # Left-Left case
+                self.code_step("rotate-right-single")
                 new_root = self.right_rotate(root)
                 return new_root
             else:
                 # Left-Right case
+                self.code_step("lr-step1")
                 root.left = self.left_rotate(root.left)
                 # Reconnect left child after first rotation
                 if root.left is not None:
                     root.set_left()
+                self.code_step("lr-step2")
                 new_root = self.right_rotate(root)
                 return new_root
         
@@ -1493,14 +1681,17 @@ class AVLTreeDeletion(Scene):
             # Right heavy
             if self.get_balance(root.right) <= 0:
                 # Right-Right case
+                self.code_step("rotate-left-single")
                 new_root = self.left_rotate(root)
                 return new_root
             else:
                 # Right-Left case
+                self.code_step("rl-step1")
                 root.right = self.right_rotate(root.right)
                 # Reconnect right child after first rotation
                 if root.right is not None:
                     root.set_right()
+                self.code_step("rl-step2")
                 new_root = self.left_rotate(root)
                 return new_root
         

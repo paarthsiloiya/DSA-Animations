@@ -1,0 +1,78 @@
+{
+    "python": {
+        "code": [
+            "matrix = [",
+            "    [5, 2, 8],",
+            "    [6, 3, 1],",
+            "    [4, 7, 9],",
+            "]",
+            "",
+            "for i in range(3):            # rows",
+            "    for j in range(3):        # columns",
+            "        print(matrix[i][j])   # row-major visit"
+        ],
+        "steps": {
+            "declare": "1-5",
+            "loops": "7-8",
+            "set": "7-8",
+            "visit": "9"
+        }
+    },
+    "c": {
+        "code": [
+            "int matrix[3][3] = {",
+            "    {5, 2, 8},",
+            "    {6, 3, 1},",
+            "    {4, 7, 9}",
+            "};",
+            "",
+            "for (int i = 0; i < 3; i++)           /* rows */",
+            "    for (int j = 0; j < 3; j++)       /* columns */",
+            "        printf(\"%d \", matrix[i][j]); /* row-major visit */"
+        ],
+        "steps": {
+            "declare": "1-5",
+            "loops": "7-8",
+            "set": "7-8",
+            "visit": "9"
+        }
+    },
+    "cpp": {
+        "code": [
+            "int matrix[3][3] = {",
+            "    {5, 2, 8},",
+            "    {6, 3, 1},",
+            "    {4, 7, 9}",
+            "};",
+            "",
+            "for (int i = 0; i < 3; i++)               // rows",
+            "    for (int j = 0; j < 3; j++)           // columns",
+            "        std::cout << matrix[i][j] << \" \"; // row-major visit"
+        ],
+        "steps": {
+            "declare": "1-5",
+            "loops": "7-8",
+            "set": "7-8",
+            "visit": "9"
+        }
+    },
+    "java": {
+        "code": [
+            "int[][] matrix = {",
+            "    {5, 2, 8},",
+            "    {6, 3, 1},",
+            "    {4, 7, 9}",
+            "};",
+            "",
+            "for (int i = 0; i < 3; i++)                 // rows",
+            "    for (int j = 0; j < 3; j++)             // columns",
+            "        System.out.print(matrix[i][j] + \" \"); // row-major visit"
+        ],
+        "steps": {
+            "declare": "1-5",
+            "loops": "7-8",
+            "set": "7-8",
+            "visit": "9"
+        }
+    }
+}

@@ -1,0 +1,205 @@
+{% extends "content.html" %} {% block title %} B-Trees {% endblock %} {% block main_content %}
+<h1>B-Trees</h1>
+<p>
+    A <strong>B-Tree</strong> is a self-balancing search tree designed for data that lives on
+    <strong>disk</strong>. Binary search trees put one key per node, so a million-key tree is ~20 levels deep —
+    and every level is a disk seek. A B-Tree node holds <strong>up to hundreds of keys</strong> in one
+    disk block, so one read compares against many keys at once and the tree stays only a handful of
+    levels tall. That is why databases (indexes) and file systems (directories, ext4, NTFS, Btrfs) are
+    built on B-Trees and their variants (B+, B*).
+</p>
+
+<div class="subcontent">
+    <h3>Structure and Properties</h3>
+    <p>
+        A B-Tree of <strong>minimum degree</strong> <strong>$t$</strong> orders every node with three
+        invariants (CLRS):
+    </p>
+    <ul>
+        <li>
+            <strong>Node shape</strong>: every node holds $n$ keys and (if internal) $n+1$ children
+            pointers. The keys within a node are <strong>sorted</strong>, and the children interleave
+            them — child $i$ holds exactly the keys between key $i$ and key $i+1$.
+        </li>
+        <li>
+            <strong>Key count bounds</strong>: every node except the root holds between
+            <strong>$t-1$</strong> and <strong>$2t-1$</strong> keys; the root may hold as few as 1.
+            Nodes are therefore always at least half full — the space is never wasted the way a
+            badly split BST can waste it.
+        </li>
+        <li>
+            <strong>Perfect balance</strong>: <strong>all leaves sit at the same depth</strong>. A
+            B-Tree never becomes a chain — it only ever grows <em>upward</em>, one level at a time,
+            when the root splits.
+        </li>
+    </ul>
+    <p>
+        Searching is the obvious descent: binary-search the node's sorted keys, take the child whose
+        key range covers the target, repeat. Inserting is where the structure shines: the animation
+        below steps through it key by key with <strong>$t = 2$</strong> (so each node holds 1 to 3
+        keys — small enough to watch).
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/b-tree.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="1-5">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/BTrees/BTreeScene.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        The animation inserts the keys <strong>1 through 10</strong> into an empty B-Tree with
+        $t=2$, one key per two-second beat. Each node shows its sorted keys; watch the tree grow
+        <em>outward</em> first (a leaf filling up) and then <em>upward</em> (a split promoting a key
+        to a new level).
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Worked Example — the Animation's Own Splits</h3>
+    <p>With $t=2$ each node tops out at $2t-1 = 3$ keys. Beat by beat:</p>
+    <ul>
+        <li>
+            <strong>Insert 1, 2, 3</strong> — the root is a leaf and simply fills to
+            <code>[1, 2, 3]</code>. Each landing is the sorted place step of
+            <code>insert_non_full</code>.
+        </li>
+        <li>
+            <strong>Insert 4</strong> — the root is a <em>full leaf</em>: a new root is created
+            above it, the middle key <strong>2 is promoted</strong> to the new root, and the old
+            root splits into <code>[1]</code> and <code>[3]</code>. Key 4 then lands right:
+            tree <code>[2]</code> over <code>[1]</code>, <code>[3, 4]</code>. The tree has grown
+            one level — the only way a B-Tree ever gets taller.
+        </li>
+        <li>
+            <strong>Insert 5</strong> — plain descent to the right leaf: <code>[3, 4, 5]</code>.
+        </li>
+        <li>
+            <strong>Insert 6</strong> — that leaf is full, so it is <em>split on the way down</em>:
+            <strong>4 is promoted</strong> to the root (<code>[2, 4]</code>) and the leaf splits
+            into <code>[3]</code> and <code>[5]</code>; 6 lands in <code>[5, 6]</code>. Splitting
+            on the way <em>down</em> guarantees the parent always has room for the promoted key —
+            no upward ripples, ever.
+        </li>
+        <li>
+            <strong>Insert 7</strong> — plain descent: <code>[5, 6, 7]</code>.
+        </li>
+        <li>
+            <strong>Insert 8</strong> — that leaf splits, <strong>6 is promoted</strong> to the root
+            (<code>[2, 4, 6]</code>, which is now itself full); 8 lands in <code>[7, 8]</code>.
+        </li>
+        <li>
+            <strong>Insert 9</strong> — the root is full but the <em>target child</em>
+            (<code>[7, 8]</code>) has room, so the animation takes its optimization path: no root
+            split, just a plain descent to <code>[7, 8, 9]</code>.
+        </li>
+        <li>
+            <strong>Insert 10</strong> — now the full root and the full target child force a
+            <strong>double split</strong>: the root splits first (<strong>4 promoted</strong> to a
+            new root <code>[4]</code>, over <code>[2]</code> and <code>[6]</code>), then inside the
+            descent <code>[7, 8, 9]</code> splits (<strong>8 promoted</strong>, making
+            <code>[6, 8]</code>) and 10 lands in <code>[9, 10]</code>.
+        </li>
+    </ul>
+    <p>
+        <strong>Final tree</strong> — three levels, every leaf at the same depth:
+    </p>
+    <p style="font-family: monospace; text-align: center;">
+        [4]<br />
+        &nbsp;&nbsp;[2] &nbsp;&nbsp;&nbsp; [6, 8]<br />
+        [1] [3] &nbsp;&nbsp; [5] [7] [9, 10]
+    </p>
+    <p>
+        Count the splits: five of them, and every one happened <em>before</em> the key landed —
+        the B-Tree never has to repair anything after the fact.
+    </p>
+    <p><em>A standalone B-Tree explanation video is coming soon.</em></p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity</h3>
+    <ul>
+        <li>
+            <strong>Search / Insert / Delete: $O(t \cdot \log_t n)$</strong> — the standard CLRS
+            bound. The height is $O(\log_t n)$ because every internal node has at least $t$
+            children (so the tree holds $\ge t^h$ keys at height $h$), and each level visited
+            does $O(t)$ work: one $O(\log t)$ binary search plus $O(t)$ pointer/key bookkeeping.
+            With $t$ in the hundreds, $\log_t n$ is tiny — the whole point of the structure.
+        </li>
+        <li>
+            <strong>Best = Worst = Average</strong> for the shape: all leaves are always at the
+            same depth, so there is no pathological input order — sorted input builds the same
+            tree as random input (contrast a <a href="{{ url_for('views.binary_search_tree') }}">BST</a>,
+            which sorted input degrades to a chain, and an <a href="{{ url_for('views.avl_tree') }}">AVL tree</a>,
+            which repairs after the fact).
+        </li>
+        <li>
+            <strong>Space: $\Theta(n)$</strong> — every node except the root is at least half
+            full, so the total node storage is a constant factor of the keys stored.
+        </li>
+    </ul>
+</div>
+
+<div class="subcontent">
+    <h3>Must-Know Points</h3>
+    <ul>
+        <li>
+            <strong>Splits happen on the way down</strong> (insert) — the parent is guaranteed to
+            have room for the promoted key, which is why B-Tree insertion is a single top-to-bottom
+            pass with no rebalancing on the way back up.
+        </li>
+        <li>
+            <strong>Growth is always upward</strong> — the tree gets taller only when the root
+            itself splits; a new root of one key is created above the old one.
+        </li>
+        <li>
+            <strong>High $t$ = shallow tree</strong> — $t$ is tuned to the disk block size so one
+            node = one block; a height-3 B-Tree with $t=256$ can index 16 billion keys.
+        </li>
+        <li>
+            <strong>Children interleave the keys</strong> — child $i$ holds exactly the keys
+            between keys $i$ and $i{+}1$, which is what makes the descent a plain range check.
+        </li>
+    </ul>
+    <p>
+        <strong>vs. BST / AVL:</strong> a B-Tree is the multiway generalization of a BST (a
+        B-Tree with $t=2$ and 1-key nodes degenerates to one), and it shares the AVL property that
+        all leaves are equidistant from the root — but a B-Tree maintains it <em>by construction</em>
+        (split on the way down) rather than by repair (rotate after the fact).
+        <strong>Applications:</strong> database indexes (B+Trees), file-system directories,
+        key-value stores.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        See the binary specializations — <a href="{{ url_for('views.binary_search_tree') }}">Binary
+        Search Trees</a> and self-balancing <a href="{{ url_for('views.avl_tree') }}">AVL Trees</a>
+        — or the general tree vocabulary on the
+        <a href="{{ url_for('views.types_of_trees') }}">Types of Trees</a> page.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}

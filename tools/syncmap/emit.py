@@ -1,4 +1,4 @@
-"""Map emission: recorder events + DISPLAY_CODE -> website sync JSON (plan card T5).
+"""Combined four-language map emission (C0M v2).
 
 The website map must match the *video* timeline, not the raw run_time sums, so
 every map time is frame-quantized per DESIGN.md §4.2:
@@ -8,10 +8,13 @@ every map time is frame-quantized per DESIGN.md §4.2:
 - everything else contributes ``np.arange(0, duration, 1/fps).size`` frames
   (arange rule, mirrors ``Scene.play_internal``'s frame loop).
 
-``code_step`` events consume no frames; their map time is the video time at the
-moment they fired. Map entries are deduped on consecutive identical ``lines``,
-and a final sentinel at the video's end is appended when the last code_step
-differs from the first (lines reused from the last step — dedupe, no invention).
+``code_step`` events carry semantic step keys (language-agnostic slugs). Each
+language's line numbers live in ``tools/syncmap/langs/<slug>.json``; the emitted
+combined JSON shares one frame-quantized time sequence across all four
+languages, and only the ``lines`` values (and their per-language consecutive
+dedupe) differ. A final sentinel at the video's end is appended per language
+when that language's last step differs from its first (lines reused from the
+last step — dedupe, no invention).
 """
 
 from __future__ import annotations
@@ -21,6 +24,13 @@ import re
 import numpy as np
 
 _LINE_SPEC_RE = re.compile(r"^\d+(\s*-\s*\d+)?(\s*,\s*\d+(\s*-\s*\d+)?)*$")
+
+LANGS = ("python", "c", "cpp", "java")
+
+LANGS_SCHEMA_HINT = (
+    '{"python": {"code": ["...lines..."], "steps": {"<key>": "4-8"}}, '
+    '"c": {"code": [...], "steps": {...}}, "cpp": {...}, "java": {...}}'
+)
 
 
 class MapEmissionError(ValueError):
@@ -52,22 +62,22 @@ def validate_lines(lines: str, code: list[str]) -> None:
     for start, end in parse_line_spec(lines):
         if start < 1 or end < start or end > n_lines:
             raise MapEmissionError(
-                f'lines {lines!r} out of range: must reference lines 1..{n_lines} of DISPLAY_CODE'
+                f'lines {lines!r} out of range: must reference lines 1..{n_lines} of the code list'
             )
 
 
 def quantized_code_steps(events: list[dict], fps: int = 15) -> tuple[list[tuple[str, float]], int]:
-    """Frame-quantized ``(lines, time)`` pairs for code_step events, plus total video frames.
+    """Frame-quantized ``(key, time)`` pairs for code_step events, plus total video frames.
 
     No validation and no dedupe: this is also the raw material for the informational
-    legacy-map comparison, where hand-written ``lines`` values must not raise.
+    legacy-map comparison, where hand-written step values must not raise.
     """
     steps: list[tuple[str, float]] = []
     frames = 0
     step = 1 / fps
     for event in events:
         if event["type"] == "code_step":
-            steps.append((event["lines"], round(frames / fps, 4)))
+            steps.append((event["key"], round(frames / fps, 4)))
         elif event.get("frozen"):
             frames += int(event["run_time"] / step)
         else:
@@ -75,13 +85,59 @@ def quantized_code_steps(events: list[dict], fps: int = 15) -> tuple[list[tuple[
     return steps, frames
 
 
-def build_map(events: list[dict], code: list[str], fps: int = 15) -> list[dict]:
-    """Build ``[{time, lines}]`` from code_step events, frame-quantized at ``fps``."""
-    steps, frames = quantized_code_steps(events, fps)
-    for lines, _ in steps:
-        validate_lines(lines, code)
+def validate_langs(langs: dict, emitted_keys: list[str], scene: str, slug: str) -> None:
+    """Fail loudly unless every language can resolve every emitted key to real lines.
+
+    Errors name the scene, slug, language and key so a bad langs file is
+    immediately actionable. No partial emission can happen past this gate.
+    """
+    if not isinstance(langs, dict):
+        raise MapEmissionError(
+            f"{scene} (slug {slug!r}): langs file must be an object: {LANGS_SCHEMA_HINT}"
+        )
+    if "" in emitted_keys:
+        raise MapEmissionError(
+            f"{scene} (slug {slug!r}): code_step was called with an empty key — "
+            f"every code_step needs a semantic key (e.g. 'partition-loop')"
+        )
+    for lang in LANGS:
+        entry = langs.get(lang)
+        if not isinstance(entry, dict):
+            raise MapEmissionError(
+                f"{scene} (slug {slug!r}): language {lang!r} missing from langs file; "
+                f"expected schema: {LANGS_SCHEMA_HINT}"
+            )
+        code = entry.get("code")
+        if not isinstance(code, list) or not code:
+            raise MapEmissionError(
+                f"{scene} (slug {slug!r}): language {lang!r} has an empty code list"
+            )
+        steps = entry.get("steps")
+        if not isinstance(steps, dict):
+            raise MapEmissionError(
+                f"{scene} (slug {slug!r}): language {lang!r} has no steps object; "
+                f"expected schema: {LANGS_SCHEMA_HINT}"
+            )
+        for key in emitted_keys:
+            if key not in steps:
+                raise MapEmissionError(
+                    f"{scene} (slug {slug!r}): language {lang!r} has no step {key!r} "
+                    f"(key emitted by code_step but absent from this language's steps)"
+                )
+        for key, lines in steps.items():
+            try:
+                validate_lines(lines, code)
+            except MapEmissionError as e:
+                raise MapEmissionError(
+                    f"{scene} (slug {slug!r}): language {lang!r} step {key!r}: {e}"
+                ) from e
+
+
+def build_lang_map(steps: list[tuple[str, float]], frames: int, lang: dict, fps: int) -> list[dict]:
+    """One language's ``[{time, lines}]``: keys resolved to lines, consecutive dedupe, sentinel."""
     entries: list[dict] = []
-    for lines, time in steps:
+    for key, time in steps:
+        lines = lang["steps"][key]
         if not entries or entries[-1]["lines"] != lines:
             entries.append({"time": time, "lines": lines})
     if (
@@ -93,20 +149,39 @@ def build_map(events: list[dict], code: list[str], fps: int = 15) -> list[dict]:
     return entries
 
 
-def build_payload(result: dict, scene_cls: type, category: str, fps: int = 15) -> dict:
-    """Assemble the website map JSON payload for a recorded SyncedScene."""
-    code = list(scene_cls.DISPLAY_CODE)
-    if not code:
+def build_combined_map(
+    events: list[dict], langs: dict, fps: int = 15
+) -> dict[str, list[dict]]:
+    """Per-language maps sharing one frame-quantized time sequence.
+
+    Times are identical across languages; only ``lines`` (and their per-language
+    consecutive dedupe) differ.
+    """
+    steps, frames = quantized_code_steps(events, fps)
+    return {lang: build_lang_map(steps, frames, langs[lang], fps) for lang in LANGS}
+
+
+def build_combined_payload(
+    result: dict,
+    scene_cls: type,
+    category: str,
+    langs: dict,
+    slug: str,
+    fps: int = 15,
+) -> dict:
+    """Assemble the combined four-language website map JSON for a recorded SyncedScene."""
+    scene = result["scene"]
+    emitted_keys = [event["key"] for event in result["events"] if event["type"] == "code_step"]
+    if not emitted_keys:
         raise MapEmissionError(
-            f"{result['scene']}.DISPLAY_CODE is empty: declare the code the page displays"
+            f"{scene} recorded no code_step events: call code_step(key) in construct()"
         )
-    entries = build_map(result["events"], code, fps)
-    if not entries:
-        raise MapEmissionError(
-            f"{result['scene']} recorded no code_step events: call code_step(...) in construct()"
-        )
+    validate_langs(langs, emitted_keys, scene, slug)
+    maps = build_combined_map(result["events"], langs, fps)
     return {
-        "video": f"Videos/{category}/{result['scene']}.webm",
-        "code": code,
-        "map": entries,
+        "video": f"Videos/{category}/{scene}.webm",
+        "default": "python",
+        "langs": {
+            lang: {"code": list(langs[lang]["code"]), "map": maps[lang]} for lang in LANGS
+        },
     }

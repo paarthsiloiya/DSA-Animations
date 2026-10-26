@@ -1,0 +1,109 @@
+{
+    "python": {
+        "code": [
+            "# the demo graph's adjacency (built from the edges)",
+            "adjacency_list = {1: [2, 4], 2: [1, 4, 3, 5], 3: [2, 6],",
+            "                  4: [1, 2], 5: [2, 6, 7], 6: [3, 5, 7],",
+            "                  7: [5, 6]}",
+            "",
+            "s = 1                                  # the start vertex",
+            "",
+            "visited = {s}                          # discovered vertices",
+            "stack = [s]                            # LIFO: newest is processed first",
+            "while stack:",
+            "    current = stack.pop()              # take the newest",
+            "    for neighbor in reversed(adjacency_list[current]):",
+            "        if neighbor not in visited:",
+            "            visited.add(neighbor)",
+            "            stack.append(neighbor)     # dives deeper first"
+        ],
+        "steps": {
+            "declare": "1-4",
+            "start": "6",
+            "visit": "11",
+            "discover": "13-15"
+        }
+    },
+    "c": {
+        "code": [
+            "/* 1: [2,4] 2: [1,4,3,5] 3: [2,6] 4: [1,2] 5: [2,6,7] 6: [3,5,7] 7: [5,6] */",
+            "",
+            "int s = 1;                          /* the start vertex */",
+            "",
+            "int visited[8] = {0}; visited[s] = 1;/* discovered vertices */",
+            "int stack[8]; int top = 0;          /* LIFO: newest processed first */",
+            "stack[top++] = s;",
+            "while (top > 0) {",
+            "    int current = stack[--top];      /* take the newest */",
+            "    for (int k = adj_count[current] - 1; k >= 0; k--) {  /* reversed: dive first */",
+            "        int neighbor = adjacency[current][k];",
+            "        if (!visited[neighbor]) {",
+            "            visited[neighbor] = 1;",
+            "            stack[top++] = neighbor;  /* dives deeper first */",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "declare": "1",
+            "start": "3",
+            "visit": "9",
+            "discover": "12-14"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// 1: [2,4] 2: [1,4,3,5] 3: [2,6] 4: [1,2] 5: [2,6,7] 6: [3,5,7] 7: [5,6] ",
+            "",
+            "int s = 1;                          // the start vertex ",
+            "",
+            "std::vector<int> visited(8, 0); visited[s] = 1; // discovered vertices ",
+            "int stack[8]; int top = 0;          // LIFO: newest processed first ",
+            "stack[top++] = s;",
+            "while (top > 0) {",
+            "    int current = stack[--top];      // take the newest ",
+            "    for (int k = adj_count[current] - 1; k >= 0; k--) {  // reversed: dive first ",
+            "        int neighbor = adjacency[current][k];",
+            "        if (!visited[neighbor]) {",
+            "            visited[neighbor] = 1;",
+            "            stack[top++] = neighbor;  // dives deeper first ",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "declare": "1",
+            "start": "3",
+            "visit": "9",
+            "discover": "12-14"
+        }
+    },
+    "java": {
+        "code": [
+            "// 1: [2,4] 2: [1,4,3,5] 3: [2,6] 4: [1,2] 5: [2,6,7] 6: [3,5,7] 7: [5,6]",
+            "",
+            "int s = 1;                          // the start vertex",
+            "",
+            "boolean[] visited = new boolean[8]; // discovered vertices",
+            "Deque<Integer> stack = new ArrayDeque<>(); // LIFO: newest first",
+            "stack.push(s); visited[s] = true;",
+            "while (!stack.isEmpty()) {",
+            "    int current = stack.pop();       // take the newest",
+            "    List<Integer> nbs = new ArrayList<>(adj[current]);",
+            "    java.util.Collections.reverse(nbs);   // reversed: dive first",
+            "    for (int neighbor : nbs) {",
+            "        if (!visited[neighbor]) {",
+            "            visited[neighbor] = true;",
+            "            stack.push(neighbor);    // dives deeper first",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "steps": {
+            "declare": "1",
+            "start": "3",
+            "visit": "9",
+            "discover": "13-15"
+        }
+    }
+}

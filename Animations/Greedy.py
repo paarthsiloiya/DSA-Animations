@@ -1,19 +1,41 @@
 import random
+from typing import ClassVar
 
 import networkx as nx
 from common import WeightedLine
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(32)
 
 
-class IntervalScheduling(Scene):
+class IntervalScheduling(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "# demo intervals: (id, start, finish)",
+        "intervals = [(0, 1, 2), (1, 3, 6), (2, 1, 5), (3, 4, 7), (4, 2, 5),",
+        "             (5, 5, 8), (6, 7, 10), (7, 10, 13), (8, 9, 12)]",
+        "",
+        "by_finish = sorted(intervals, key=lambda x: x[2])",
+        "",
+        "accepted = [by_finish[0]]              # earliest finish is always safe",
+        "last_finish = by_finish[0][2]",
+        "",
+        "for i, s, f in by_finish[1:]:          # scan earliest finish first",
+        "    if s >= last_finish:               # fits after the last accepted?",
+        "        accepted.append((i, s, f))      # take it",
+        "        last_finish = f",
+        "    # else: overlaps the last accepted - skip it",
+        "",
+        "print([i for i, s, f in accepted])",
+    ]
+
     def intervalschedule(self, L, intervals):
         sortedL = sorted(L, key=lambda x: x[2])
         accepted = [0]
         # Explanatory text: First interval always accepted
         first_text = Text(f"Processing interval {sortedL[0][0]}: Always accept first interval", font=FONT, font_size=EXPLANATORY_FONT_SIZE-4, color=TEXTCOL).to_edge(UP, buff=0.2)
+        self.code_step("accept")
         self.play(Write(first_text), run_time=0.7)
         self.play(
             intervals[0][0].animate.set_fill(color=SELCOL),
@@ -24,6 +46,7 @@ class IntervalScheduling(Scene):
         for idx, (i, s, f) in enumerate(sortedL[1:], 1):
             # Explanatory text: Processing interval
             proc_text = Text(f"Processing interval {i}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-4, color=TEXTCOL).to_edge(UP, buff=0.2)
+            self.code_step("compare")
             self.play(Write(proc_text), run_time=0.5)
             self.play(
                 intervals[idx][0].animate.set_stroke(color=SORTCOL, width=2)
@@ -31,6 +54,7 @@ class IntervalScheduling(Scene):
             # Overlap check
             if s >= sortedL[accepted[-1]][2]:
                 overlap_text = Text(f"No overlap with last accepted ({sortedL[accepted[-1]][0]})", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(proc_text, DOWN, 0.3)
+                self.code_step("take")
                 self.play(Write(overlap_text), run_time=0.4)
                 accepted.append(idx)
                 self.play(
@@ -41,6 +65,7 @@ class IntervalScheduling(Scene):
                 self.play(FadeOut(overlap_text), run_time=0.3)
             else:
                 overlap_text = Text(f"Overlaps with last accepted ({sortedL[accepted[-1]][0]})", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(proc_text, DOWN, 0.3)
+                self.code_step("skip")
                 self.play(Write(overlap_text), run_time=0.4)
                 self.play(
                     Indicate(intervals[accepted[-1]], color=SORTCOL, scale_factor=1.1)
@@ -68,6 +93,7 @@ class IntervalScheduling(Scene):
 
         intervals.set_z_index(2)
         intervals.shift(DOWN * 1.6)
+        self.code_step("build")
         self.add(intervals)
 
         interval_time = VGroup()
@@ -99,6 +125,7 @@ class IntervalScheduling(Scene):
         
         # Explanatory text: Sorting
         sort_text = Text("Sort intervals by finish time", font=FONT, font_size=EXPLANATORY_FONT_SIZE, color=TEXTCOL).to_edge(UP, buff=0.2)
+        self.code_step("sort")
         self.play(Write(sort_text), run_time=0.8)
         self.wait(0.7)
         self.play(intervals.animate.become(intervals_sorted))
@@ -113,6 +140,7 @@ class IntervalScheduling(Scene):
             if i not in accepted_indices:
                 non_accepted_intervals.append(intervals[i])
         
+        self.code_step("done")
         if non_accepted_intervals:
             self.play(
                 *[FadeOut(interval) for interval in non_accepted_intervals]
@@ -175,7 +203,28 @@ class HuffmanNode(VGroup):
     def Reset(self):
         return self.circle.animate.set_fill(color=NODE_COL).set_stroke(color=NODE_COL, width=0)
 
-class HuffmanEncoding(Scene):
+class HuffmanEncoding(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "s = \"abbcaaaabbcdddeee\"                     # the demo string",
+        "",
+        "freq = {}                                   # count each character",
+        "for ch in s:",
+        "    freq[ch] = freq.get(ch, 0) + 1",
+        "",
+        "items = sorted((f, ch) for ch, f in freq.items())   # (frequency, symbol)",
+        "",
+        "merge_steps = []",
+        "while len(items) > 1:",
+        "    left = items.pop(0)                     # the two smallest, ties broken",
+        "    right = items.pop(0)                    # deterministically by (freq, symbol)",
+        "    merged = (left[0] + right[0], left[1] + right[1])  # parent: left edge 0, right edge 1",
+        "    merge_steps.append((left, right, merged))",
+        "    items.append(merged)",
+        "    items.sort()",
+        "",
+        "print(merge_steps)",
+    ]
+
     def huffman_steps(self, s):
         """Compute the Huffman merge sequence once: the single source of truth
         consumed by both the graph pre-pass and the animation replay."""
@@ -287,6 +336,7 @@ class HuffmanEncoding(Scene):
 
         # Step 1: Show initial frequency counting
         freq_text = Text(f"Character frequencies in\n  '{s}':", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0, aligned_edge=UP)
+        self.code_step("count")
         self.play(Write(freq_text), run_time=1)
         self.wait(0.5)
         
@@ -296,6 +346,7 @@ class HuffmanEncoding(Scene):
             leaf_nodes.append(huffman_tree.vertices[symbol])
         
         create_text = Text("Create leaf nodes\n with frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(freq_text, DOWN, buff=0.6)
+        self.code_step("build")
         self.play(Write(create_text), run_time=0.8)
         
         self.play(
@@ -316,6 +367,7 @@ class HuffmanEncoding(Scene):
             select_text = Text("Select two nodes with\nsmallest frequencies", font=FONT, font_size=EXPLANATORY_FONT_SIZE-7, color=TEXTCOL).next_to(huffman_tree, RIGHT, buff=0.5, aligned_edge=UP)
             detail_text = Text(f"{spaces}Combining\n{comb_text}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(select_text, DOWN, buff=0.6)
 
+            self.code_step("select")
             self.play(Write(select_text), run_time=0.8)
             self.play(Write(detail_text), run_time=0.6)
             
@@ -334,6 +386,7 @@ class HuffmanEncoding(Scene):
             parent_node = huffman_tree.vertices[internal_node_id]
             
             parent_text = Text(f"Create parent node\nwith frequency {combined_freq}", font=FONT, font_size=EXPLANATORY_FONT_SIZE-10, color=BLACK).next_to(detail_text, DOWN, buff=0.5)
+            self.code_step("merge")
             self.play(Write(parent_text), run_time=0.6)
             
             self.play(FadeIn(parent_node), run_time=1)
@@ -352,6 +405,7 @@ class HuffmanEncoding(Scene):
             edges_to_show = [e for e in [left_edge, right_edge] if e is not None]
             
             edge_text = Text("Connect with weighted\nedges (0=left, 1=right)", font=FONT, font_size=EXPLANATORY_FONT_SIZE-13, color=BLACK).next_to(parent_text, DOWN, buff=0.6)
+            self.code_step("connect")
             self.play(Write(edge_text), run_time=0.5)
             
             if edges_to_show:

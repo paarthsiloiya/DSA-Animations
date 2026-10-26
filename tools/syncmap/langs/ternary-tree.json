@@ -1,0 +1,118 @@
+{
+    "python": {
+        "code": [
+            "# a ternary tree: every node holds at most three children",
+            "",
+            "class Node:",
+            "    def __init__(self, data):",
+            "        self.data = data",
+            "        self.children = []     # up to three children",
+            "",
+            "# complete ternary tree on 11 nodes, stored as a flat list",
+            "tree = [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\", \"H\", \"I\", \"J\", \"K\"]",
+            "",
+            "# node i's children sit at index 3*i + 1, 3*i + 2 and 3*i + 3",
+            "def child(i, k):",
+            "    return 3 * i + k            # k = 1, 2 or 3",
+            "",
+            "root = tree[0]                 # the root: index 0",
+            "",
+            "# every node roots its own subtree - e.g. B's subtree:",
+            "subtree_of_B = [\"B\", \"E\", \"F\", \"G\"]"
+        ],
+        "steps": {
+            "declare": "8-9",
+            "node": "3-6",
+            "root": "15",
+            "subtree": "18"
+        }
+    },
+    "c": {
+        "code": [
+            "/* a ternary tree: every node holds at most three children */",
+            "",
+            "struct Node {",
+            "    int data;",
+            "    struct Node *children[3];   /* up to three children */",
+            "};",
+            "",
+            "/* complete ternary tree on 11 nodes, stored as a flat array */",
+            "char tree[11] = {'A','B','C','D','E','F','G','H','I','J','K'};",
+            "",
+            "/* node i's children sit at index 3*i + 1, 3*i + 2 and 3*i + 3 */",
+            "int child(int i, int k) {",
+            "    return 3 * i + k;           /* k = 1, 2 or 3 */",
+            "}",
+            "",
+            "char root_of(void) { return tree[0]; }   /* the root: index 0 */",
+            "",
+            "/* every node roots its own subtree - e.g. B's: B, E, F, G */"
+        ],
+        "steps": {
+            "declare": "8-9",
+            "node": "3-6",
+            "root": "18",
+            "subtree": "18"
+        }
+    },
+    "cpp": {
+        "code": [
+            "// a ternary tree: every node holds at most three children",
+            "",
+            "struct Node {",
+            "    int data;",
+            "    Node *children[3];       // up to three children",
+            "",
+            "    Node(int d) : data(d) {}",
+            "};",
+            "",
+            "// complete ternary tree on 11 nodes, stored as a flat array",
+            "char tree[11] = {'A','B','C','D','E','F','G','H','I','J','K'};",
+            "",
+            "// node i's children sit at index 3*i + 1, 3*i + 2 and 3*i + 3",
+            "int child(int i, int k) {",
+            "    return 3 * i + k;       // k = 1, 2 or 3",
+            "}",
+            "",
+            "char root_of() { return tree[0]; }   // the root: index 0",
+            "",
+            "// every node roots its own subtree - e.g. B's: B, E, F, G"
+        ],
+        "steps": {
+            "declare": "10-11",
+            "node": "3-8",
+            "root": "18",
+            "subtree": "20"
+        }
+    },
+    "java": {
+        "code": [
+            "// a ternary tree: every node holds at most three children",
+            "",
+            "class Node {",
+            "    int data;",
+            "    Node[] children = new Node[3];   // up to three children",
+            "",
+            "    Node(int data) { this.data = data; }",
+            "}",
+            "",
+            "// complete ternary tree on 11 nodes, stored as a flat array",
+            "char[] tree = {'A','B','C','D','E','F','G','H','I','J','K'};",
+            "",
+            "// node i's children sit at index 3*i + 1, 3*i + 2 and 3*i + 3",
+            "int child(int i, int k) {",
+            "    return 3 * i + k;               // k = 1, 2 or 3",
+            "}",
+            "",
+            "char root = tree[0];               // the root: index 0",
+            "",
+            "// every node roots its own subtree - e.g. B's: B, E, F, G"
+        ],
+        "steps": {
+            "declare": "10-11",
+            "node": "3-8",
+            "root": "18",
+            "subtree": "20"
+        }
+    }
+}

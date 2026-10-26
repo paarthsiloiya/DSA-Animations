@@ -1,8 +1,10 @@
 import random
+from typing import ClassVar
 
 from common import make_arrowhead_updater, make_dynamic_bezier_updater
 from env_config import *
 from manim import *
+from synced import SyncedScene
 
 random.seed(32)
 
@@ -62,17 +64,34 @@ class Node(VGroup):
         return self.nextAddressText.animate.become(new_next_address_text)
  
 
-class NodeExplanation(Scene):
+class NodeExplanation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.data = data    # value of this node",
+        "        self.next = None    # address of the next node",
+        "",
+        "# a node also lives at its own memory address",
+        "# (the \"Address of this node\" box, e.g. 0x2268)",
+        "",
+        "node1 = Node(4)",
+        "node2 = Node(1)",
+        "",
+        "node1.next = node2   # link node1 -> node2",
+    ]
+
     def construct(self):
         node1 = Node(4)
         node2 = Node(1)
 
         node1.setValues()
 
+        self.code_step("create")
         self.play(Create(node1))
         self.wait(0.4)
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(node1, buff=0.4, corner_radius=0.2, color=SORTCOL), num_dashes=30)
+        self.code_step("node")
         self.play(Create(surroundingRectangleNode))
         explanatoryText = Text("NODE", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
         explanatoryText = VGroup(
@@ -80,6 +99,7 @@ class NodeExplanation(Scene):
             Arrow(start=explanatoryText.get_right(), end=surroundingRectangleNode.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=4, max_tip_length_to_length_ratio=0.2)
         )
 
+        self.code_step("node")
         self.play(Write(explanatoryText))
         self.wait(0.7)
         self.play(Unwrite(explanatoryText), FadeOut(surroundingRectangleNode))
@@ -92,6 +112,7 @@ class NodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.selfAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("address")
         self.play(Write(explanatoryText))
         explanatoryTextGroup.add(explanatoryText)
 
@@ -101,6 +122,7 @@ class NodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.valueTextGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("value")
         self.play(Write(explanatoryText))
         explanatoryTextGroup.add(explanatoryText)
 
@@ -110,6 +132,7 @@ class NodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.nextAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("next")
         self.play(Write(explanatoryText))
         explanatoryTextGroup.add(explanatoryText)
 
@@ -124,6 +147,7 @@ class NodeExplanation(Scene):
         node2.setValues()
 
         node2.shift(RIGHT * 1.5)
+        self.code_step("create2")
         self.play(Create(node2))
 
 
@@ -135,7 +159,9 @@ class NodeExplanation(Scene):
         arrowhead.rotate(angle_of_vector(RIGHT))
 
         arrow = VGroup(arrowCurve, arrowhead)
+        self.code_step("link")
         self.play(Create(arrow))
+        self.code_step("link")
         self.play(node1.updateNext(node2))
 
         self.wait(1)
@@ -203,7 +229,27 @@ class CreateLinkedList(Scene):
         self.wait(1)
 
 
-class TraverseLinkedList(Scene):
+class TraverseLinkedList(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.data = data",
+        "        self.next = None",
+        "",
+        "# list: 5 -> 2 -> 4 -> 6 -> 3 -> 1 -> None",
+        "head = Node(5)",
+        "head.next = Node(2)",
+        "head.next.next = Node(4)",
+        "head.next.next.next = Node(6)",
+        "head.next.next.next.next = Node(3)",
+        "head.next.next.next.next.next = Node(1)",
+        "",
+        "current = head              # traversal starts at the head",
+        "while current is not None:  # until we pass the tail",
+        "    print(current.data)      # visit the node",
+        "    current = current.next  # follow the next address",
+    ]
+
     def construct(self):
         values = [5, 2, 4, 6, 3, 1]
         nodes : list[Node] = []
@@ -219,6 +265,7 @@ class TraverseLinkedList(Scene):
             nodeGroup.add(newNode)
 
         nodeGroup.arrange(RIGHT, 1)
+        self.code_step("declare")
         self.play(FadeIn(nodeGroup))
 
         for i, node in enumerate(nodes[:-1]):
@@ -235,6 +282,7 @@ class TraverseLinkedList(Scene):
             curves.add(arrowCurve)
             arrow = VGroup(arrowCurve, arrowhead)
             arrows.add(arrow)
+            self.code_step("link")
             self.play(Create(arrow), run_time=0.6)
 
             self.play(node.updateNext(nodes[i + 1]), run_time=0.1)
@@ -242,6 +290,7 @@ class TraverseLinkedList(Scene):
         self.wait(0.7)
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(nodes[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+        self.code_step("start")
         self.play(Create(surroundingRectangleNode))
         self.wait(0.5)
 
@@ -249,6 +298,7 @@ class TraverseLinkedList(Scene):
             pulse_dot = Dot(radius=0.15, color=WHITE)
             self.add(pulse_dot)
 
+            self.code_step("advance")
             self.play(
                 MoveAlongPath(pulse_dot, arrow),
                 run_time=1.2,
@@ -257,6 +307,7 @@ class TraverseLinkedList(Scene):
 
             self.remove(pulse_dot)
             self.wait(0.1)
+            self.code_step("visit")
             self.play(surroundingRectangleNode.animate.move_to(node), run_time=0.3)
             self.wait(0.3)
 
@@ -538,7 +589,30 @@ class Deletion(Scene):
         self.wait(1)
 
 
-class ListRotation(Scene):
+class ListRotation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.data = data",
+        "        self.next = None",
+        "",
+        "# list: 5 -> 2 -> 6 -> 3 -> 1 -> None",
+        "head = build_list([5, 2, 6, 3, 1])",
+        "",
+        "k = 2   # rotate the head pointer k times",
+        "",
+        "for _ in range(k):",
+        "    old = head            # current head",
+        "    head = head.next      # new head is the second node",
+        "",
+        "    tail = old            # walk from the old head to the tail",
+        "    while tail.next is not None:",
+        "        tail = tail.next",
+        "",
+        "    old.next = None       # detach the old head",
+        "    tail.next = old       # reattach it at the end",
+    ]
+
     def construct(self):
         values = [5, 2, 6, 3, 1]
         nodes : list[Node] = []
@@ -561,11 +635,12 @@ class ListRotation(Scene):
 
         for i in range(num_objects):
             nodes[i].move_to(arc.point_from_proportion(i / (num_objects - 1)))
-        
+
+        self.code_step("declare")
         self.play(FadeIn(nodeGroup))
 
         arrows = VGroup()
-        for i in range(len(nodes) - 1): 
+        for i in range(len(nodes) - 1):
             start = nodes[i].nextAddressGroup.get_right()
             end = nodes[i + 1].selfAddressGroup.get_left() + (LEFT * 0.1)
             arrowCurve = CubicBezier(start, start + RIGHT, end + LEFT, end, color=SORTCOL)
@@ -577,6 +652,7 @@ class ListRotation(Scene):
 
             arrow = VGroup(arrowCurve, arrowhead)
             arrows.add(arrow)
+            self.code_step("link")
             self.play(Create(arrow), run_time=0.6)
             self.play(nodes[i].updateNext(nodes[i + 1]), run_time=0.1)
 
@@ -587,11 +663,13 @@ class ListRotation(Scene):
 
         for i in range(k):
             itterRectangle = DashedVMobject(SurroundingRectangle(nodes[0], color=TEXTCOL, buff=0.2, corner_radius=0.2), 30)
+            self.code_step("mark-head")
             self.play(Create(itterRectangle))
             self.wait(0.2)
 
             headRectangle = DashedVMobject(SurroundingRectangle(nodes[0], color=SORTCOL, buff=0.2, corner_radius=0.2), 30)
             headLabel = Text("Head", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(headRectangle, DOWN, buff=0.2)
+            self.code_step("head")
             self.play(Create(headRectangle), Write(headLabel))
 
             temphead = nodes[0]
@@ -601,6 +679,7 @@ class ListRotation(Scene):
 
             newHeadRectangle = DashedVMobject(SurroundingRectangle(nodes[1], color=SORTCOL, buff=0.2, corner_radius=0.2), 30)
             newHeadLabel = Text("New Head", color=SWAP_FONT_COLOR, font=FONT, font_size=SWAP_FONT_SIZE).next_to(newHeadRectangle, DOWN, buff=0.2)
+            self.code_step("new-head")
             self.play(Create(newHeadRectangle), Write(newHeadLabel))
 
             tempNewHead = nodes[1]
@@ -611,6 +690,7 @@ class ListRotation(Scene):
             current = nodes[0]
 
             while current.next is not None:
+                self.code_step("walk")
                 self.play(itterRectangle.animate.move_to(current), run_time=0.2)
                 current = current.next
                 self.wait(0.5)
@@ -620,6 +700,7 @@ class ListRotation(Scene):
             delNode = nodes.pop(0)
             delArrow = arrows.submobjects.pop(0)
 
+            self.code_step("detach")
             self.play(Uncreate(delArrow), run_time=0.3)
             self.play(delNode.updateNext(None), run_time=0.3)
             self.wait(0.1)
@@ -648,6 +729,7 @@ class ListRotation(Scene):
 
             arrow = VGroup(arrowCurve, arrowhead)
             arrows.add(arrow)
+            self.code_step("reattach")
             self.play(Create(arrow), run_time=0.6)
             self.play(nodes[-2].updateNext(delNode), run_time=0.1)
 
@@ -739,7 +821,24 @@ class DoubleNode(VGroup):
         return self.prevAddressText.animate.become(new_prev_address_text)
     
 
-class DoubleNodeExplanation(Scene):
+class DoubleNodeExplanation(SyncedScene):
+    DISPLAY_CODE: ClassVar[list[str]] = [
+        "class Node:",
+        "    def __init__(self, data):",
+        "        self.prev = None   # address of the previous node",
+        "        self.data = data   # value of this node",
+        "        self.next = None   # address of the next node",
+        "",
+        "# a node also lives at its own memory address",
+        "# (the \"Address of this node\" box, e.g. 0x2268)",
+        "",
+        "node1 = Node(4)",
+        "node2 = Node(1)",
+        "",
+        "node1.next = node2   # forward link",
+        "node2.prev = node1   # backward link",
+    ]
+
     def construct(self):
         node1 = DoubleNode(4)
         node2 = DoubleNode(1)
@@ -747,10 +846,12 @@ class DoubleNodeExplanation(Scene):
         node1.setValues()
         node2.setValues()
 
+        self.code_step("create")
         self.play(Create(node1))
         self.wait(0.4)
 
         surroundingRectangleNode = DashedVMobject(SurroundingRectangle(node1, buff=0.4, corner_radius=0.2, color=SORTCOL), num_dashes=30)
+        self.code_step("node")
         self.play(Create(surroundingRectangleNode))
         explanatoryText = Text("NODE", color=EXPLANATORY_FONT_COLOR, font=FONT, font_size=EXPLANATORY_FONT_SIZE).next_to(surroundingRectangleNode, LEFT).shift(LEFT * 1.2)
         explanatoryText = VGroup(
@@ -758,6 +859,7 @@ class DoubleNodeExplanation(Scene):
             Arrow(start=explanatoryText.get_right(), end=surroundingRectangleNode.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=4, max_tip_length_to_length_ratio=0.2)
         )
 
+        self.code_step("node")
         self.play(Write(explanatoryText), run_time=0.5)
         self.wait(0.7)
         self.play(Unwrite(explanatoryText), FadeOut(surroundingRectangleNode), run_time=0.5)
@@ -770,6 +872,7 @@ class DoubleNodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.prevAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("prev")
         self.play(Write(explanatoryText), run_time=0.5)
         explanatoryTextGroup.add(explanatoryText)
 
@@ -778,6 +881,7 @@ class DoubleNodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.selfAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("address")
         self.play(Write(explanatoryText), run_time=0.5)
         explanatoryTextGroup.add(explanatoryText)
 
@@ -787,6 +891,7 @@ class DoubleNodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.valueTextGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("value")
         self.play(Write(explanatoryText), run_time=0.5)
         explanatoryTextGroup.add(explanatoryText)
 
@@ -796,6 +901,7 @@ class DoubleNodeExplanation(Scene):
             explanatoryText,
             Arrow(start=explanatoryText.get_right(), end=node1.nextAddressGroup.get_left(), color=SORTCOL, tip_shape=StealthTip, max_stroke_width_to_length_ratio=2, max_tip_length_to_length_ratio=0.1)
         )
+        self.code_step("next")
         self.play(Write(explanatoryText), run_time=0.5)
         explanatoryTextGroup.add(explanatoryText)
 
@@ -807,6 +913,7 @@ class DoubleNodeExplanation(Scene):
 
 
         node2.shift(RIGHT * 1.5)
+        self.code_step("create2")
         self.play(Create(node2))
 
 
@@ -818,7 +925,9 @@ class DoubleNodeExplanation(Scene):
         arrowhead.rotate(angle_of_vector(RIGHT))
 
         arrow = VGroup(arrowCurve, arrowhead)
+        self.code_step("link")
         self.play(Create(arrow))
+        self.code_step("link")
         self.play(node1.updateNext(node2))
 
         self.wait(1)
@@ -831,7 +940,9 @@ class DoubleNodeExplanation(Scene):
         arrowhead.rotate(angle_of_vector(LEFT))
 
         arrow = VGroup(arrowCurve, arrowhead)
+        self.code_step("link-prev")
         self.play(Create(arrow))
+        self.code_step("link-prev")
         self.play(node2.updatePrev(node1))
 
         self.wait(1)

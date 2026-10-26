@@ -1,0 +1,154 @@
+{% extends "content.html" %} {% block title %} Types of Trees {% endblock %} {% block main_content %}
+<h1>Types of Trees</h1>
+<p>
+    A <strong>tree</strong> is a hierarchical structure of <strong>nodes</strong> connected by edges, where one node is
+    designated the <strong>root</strong> and every other node has exactly <strong>one parent</strong>. Trees have no
+    cycles and no node is unreachable from the root — which is why they model file systems, organisation charts,
+    parse trees, and the decision structures behind many algorithms.
+</p>
+
+<div class="subcontent" id="properties">
+    <h3>The Vocabulary of a Tree</h3>
+    <ul>
+        <li>
+            <strong>Root</strong>: the node with no parent — the single entry point of the tree. Every other node
+            can be reached from it by following edges downward.
+        </li>
+        <li>
+            <strong>Parent / Child</strong>: an edge connects a parent node to each of its children. Node
+            <code>D</code> is the parent of <code>I</code> and <code>J</code> in the animation below.
+        </li>
+        <li>
+            <strong>Siblings</strong>: nodes that share the same parent — <code>F</code>, <code>G</code> and
+            <code>H</code> are siblings because they are all children of <code>C</code>.
+        </li>
+        <li><strong>Leaf</strong>: a node with no children.</li>
+        <li>
+            <strong>Subtree</strong>: any node together with all of its descendants — every tree node is the root
+            of its own subtree.
+        </li>
+        <li>
+            <strong>Depth / Height</strong>: the depth of a node counts edges from the root down to it; the height
+            of a tree is the maximum depth over all nodes. A one-node tree (just a root) has height 0.
+        </li>
+    </ul>
+    <p>
+        The animation below builds an 11-node tree and labels each of these roles, then shows the two operations
+        that change a tree's shape — insertion and deletion — and what happens when a whole subtree is cut loose.
+    </p>
+    <div class="visualization-container" data-sync="{{ url_for('static', filename='sync/tree-explanation.json') }}">
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#e3e3e3"
+                >
+                    <path
+                        d="M120-220v-80h80v80h-80Zm0-140v-80h80v80h-80Zm0-140v-80h80v80h-80ZM260-80v-80h80v80h-80Zm100-160q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480Zm40 240v-80h80v80h-80Zm-200 0q-33 0-56.5-23.5T120-160h80v80Zm340 0v-80h80q0 33-23.5 56.5T540-80ZM120-640q0-33 23.5-56.5T200-720v80h-80Zm420 80Z"
+                    />
+                </svg>
+            </button>
+            <pre class="line-numbers line-highlight" data-from-sync data-line="13-16">
+                <code class="language-python"></code>
+            </pre>
+        </div>
+        <div class="video-container">
+            <video controls>
+                <source
+                    src="{{ url_for('static', filename='Videos/Trees/TreeExplanation.webm') }}"
+                    type="video/webm"
+                />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <p>
+        <strong>What the animation shows:</strong> the tree
+        <code>A&ndash;(B, C)</code>, <code>B&ndash;(D, E)</code>, <code>C&ndash;(F, G, H)</code>,
+        <code>D&ndash;(I, J)</code>, <code>E&ndash;(K)</code> is drawn in one pass, then each role is labelled in
+        turn: <em>B</em> as a <strong>Node</strong>, <em>A</em> as the <strong>Root Node</strong>, <em>D</em> as a
+        <strong>Parent Node</strong> and <em>I</em> as its <strong>Child Node</strong>, <em>F, G, H</em> together as
+        <strong>Siblings</strong>, <em>D, I, J</em> together as a <strong>Subtree</strong>, and
+        <em>F, G, H, I, J, K</em> as the <strong>Leaf Nodes</strong>. A new node <code>L</code> is then inserted
+        under <code>G</code> (one new edge — that is the entire insert), leaf <code>K</code> is deleted (removing
+        its single edge), and finally the edge <code>A&ndash;B</code> is cut, splitting the structure into
+        <strong>two trees — a forest</strong>.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Tree Taxonomy — How Many Children per Node?</h3>
+    <p>The demo tree above is a <strong>general tree</strong>: a node may hold any number of children — node
+        <code>C</code> has three. Restricting that freedom gives the families most algorithms use:</p>
+    <ul>
+        <li>
+            <strong>General tree</strong> — no limit on children per node. File-system directories and
+            organisational charts are general trees.
+        </li>
+        <li>
+            <strong>Binary tree</strong> — every node has <strong>at most two children</strong>, a left and a right
+            child. This is the workhorse family: heaps, binary search trees, expression trees and the recursion
+            trees of divide-and-conquer algorithms are all binary. The
+            <a href="{{ url_for('views.tree_traversals') }}#inorder">in-order / pre-order / post-order</a>
+            animations run on a binary tree.
+        </li>
+        <li>
+            <strong>Ternary tree</strong> — at most three children per node, for example a ternary search trie with
+            low / equal / high branches.
+        </li>
+        <li>
+            <strong>Ordered tree</strong> — children of each node have a defined order (left before right), which is
+            what makes traversal orders and binary search trees meaningful.
+        </li>
+    </ul>
+    <p>
+        Two special shapes appear again and again: a <strong>complete</strong> tree fills every level except
+        possibly the last, left to right — the shape heaps and the
+        <a href="{{ url_for('views.tree_list_correlation') }}">list representation</a> rely on — and a
+        <strong>balanced</strong> tree keeps the height of the two sides of every node close, the property
+        self-balancing search trees such as AVL trees maintain to guarantee $O(\log n)$ operations.
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Complexity of the Basic Operations</h3>
+    <ul>
+        <li>
+            <strong>Insert a child</strong>: writing one new edge — <strong>$O(1)$</strong> when you hold the
+            parent node, as the animation shows with node <code>L</code>. Best, worst and average agree: it is a
+            single pointer write.
+        </li>
+        <li>
+            <strong>Delete a node</strong>: detaching a leaf costs <strong>$O(1)$</strong>; detaching an interior
+            node removes its whole subtree, costing <strong>$\Theta(s)$</strong> where $s$ is the subtree size
+            (every descendant is affected). Deleting the root orphans the entire rest of the tree.
+        </li>
+        <li><strong>Find / reach a node</strong>: no index exists — reaching a node means walking from the root,
+            costing <strong>$O(h)$</strong>, where $h$ is the tree height: $O(1)$ best (the root),
+            $O(n)$ worst (a degenerate chain), $O(\log n)$ when the tree is balanced.</li>
+        <li><strong>Space</strong>: a tree of $n$ nodes stores $n$ nodes and exactly $n-1$ edges — every node
+            except the root is pointed to once — so the structure costs <strong>$\Theta(n)$</strong>.</li>
+    </ul>
+    <p>
+        <strong>Must know:</strong> a tree with $n$ nodes always has <strong>$n-1$ edges</strong> — count the edges
+        in the animation as nodes appear. Removing one edge never leaves a node stranded; it produces exactly one
+        more tree (that is the forest at the end of the video).
+    </p>
+</div>
+
+<div class="subcontent">
+    <h3>Where to Next?</h3>
+    <p>
+        With the vocabulary in place, continue with
+        <a href="{{ url_for('views.tree_traversals') }}">Tree Traversals</a> — the systematic ways to visit every
+        node — or see how a complete binary tree hides inside a plain list on the
+        <a href="{{ url_for('views.tree_list_correlation') }}">List-Tree Correlation</a> page. For the
+        set-merging structure that tracks which tree each element belongs to, see
+        <a href="{{ url_for('views.union_find') }}">Union-Find</a>.
+    </p>
+</div>
+
+{% endblock %} {% block scripts %} {% endblock %}
