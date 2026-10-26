@@ -70,12 +70,13 @@ Done when: <checklist>
 |---|---|---|
 | D1 | New routes kebab-case; legacy space-routes survive as **stacked aliases** on the same view function | Zero broken bookmarks; no redirects needed |
 | D2 | Rename `SortingAlgoritms` → `SortingAlgorithms` (source, converter, `git mv` media dir) | Scalability goal; one-time cost, website paths unaffected (webm names don't embed category typo… category folder does — handled in card) |
-| D3 | Content stays public (no `@login_required`); `subscribed` column kept but untouched | "Without compromising functionality"; newsletter = future work |
+| D3 | Content stays public (no `@login_required`); `subscribed` column kept but untouched | "Without compromising functionality"; newsletter = future work — the auth/DB half is now superseded by D9 (whole feature removed) |
 | D4 | New pages load sync maps from JSON (`static/sync/`); legacy inline maps stay until optional W10 migration | No big-bang rewrite of working pages |
 | D5 | Behavior-preservation oracle = syncmap timeline snapshots (byte-identical) + spot renders | Cheap, machine-checkable, stronger than eyeballing |
 | D6 | Sync tool built **before** refactor | D5 requires it |
 | D7 | No new media committed >1 MB without explicit user approval | Repo already ~1 GiB; webm conversions for P4 (~56 small files) to be confirmed with user |
 | D8 | Website render standard = 480p15 (`-ql`) | Matches existing webms + fast renders |
+| D9 | Remove the DB + auth feature wholesale (PROMPT 044A, card W0); the site ships as public content with no accounts | DB had zero consumers: no gated/personalized content, `subscribed` never read; simplifies deploy and removes the schema/instance-path surface |
 
 ## Project definition of done
 

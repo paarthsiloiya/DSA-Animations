@@ -4,28 +4,28 @@
 **Preconditions:** Phase 4 (nav is real; polish targets stable markup). **Parallelizable:** W1–W5 touch mostly disjoint areas (CSS / base.html head / home / new pages) — coordinate via TASKBOARD notes; W6+ sequential.
 
 ### W1 — Responsive design
-Agent: dsa-page-builder · Depends: — · Size: L
+Agent: dsa-designer · Depends: — · Size: L
 **Problem** (audit 02 §5): zero `@media` queries; fixed 310px cards; carousel is mouse-events-only (no touch).
 **Do:** Breakpoints (≥1024 / 768–1023 / <768): fluid grid for home cards + sidebar, `details` sidebar collapses to hamburger or inline sections on mobile, topic carousel switches to Pointer Events (pointerdown/move/up with `touch-action: pan-y`), code blocks scroll horizontally, tables get overflow wrappers. Test at 390px/768px/1440px widths.
 **Verify:** dsa-verify + manual widths; carousel drags via touch emulation.
 **Done when:** no horizontal scrollbars at 390px on any page.
 
 ### W2 — Dark mode toggle
-Agent: dsa-page-builder · Depends: — · Size: M
+Agent: dsa-designer · Depends: — · Size: M
 **Problem** (audit 03 §4): `styles.css:73-79` has a complete dark theme but `data-theme` is hardcoded `"light"` with no toggle.
 **Do:** Toggle button in navbar (sun/moon); JS: `document.documentElement.dataset.theme` + `localStorage` persistence + respect `prefers-color-scheme` on first visit; swap Prism to a dark code theme when dark (load both themes, toggle class); ensure MathJax/inline colors don't break (audit which elements hardcode colors).
 **Verify:** toggle persists across reloads; no unreadable text in dark on content pages (check 4 pages incl. a code+video page).
 **Done when:** theme switch works site-wide.
 
 ### W3 — Fonts decision & load
-Agent: dsa-page-builder · Depends: — · Size: S
+Agent: dsa-designer · Depends: — · Size: S
 **Problem** (audit 02 §5): `Roboto`, `JetBrains Mono`, `Arial` referenced, never loaded.
 **Do:** Decide with the user: self-host (no external requests) vs Google Fonts. Default: self-host woff2 subsets under `static/fonts/` + `@font-face`, full font stack fallbacks.
 **Verify:** computed styles show the real font; Lighthouse no longer flags fallback-only.
 **Done when:** fonts actually render.
 
 ### W4 — Favicon, titles, meta
-Agent: dsa-page-builder · Depends: — · Size: S
+Agent: dsa-designer · Depends: — · Size: S
 **Problem** (audit 02 §5): no favicon, generic titles ("DSA" on algorithms page), no meta description.
 **Do:** Favicon (reuse `static/images/logo-icon.png` — finally referenced!); per-page `<title>{Topic} — DSA-Animations</title>` via the title block; meta description per page; og: tags on home.
 **Verify:** dsa-verify; tab titles correct on 5 pages.
@@ -44,6 +44,7 @@ Agent: dsa-page-builder · Depends: C14 · Size: S
 **Done when:** home is 100% honest + wired.
 
 ### W7 — Account/legal pages
+**Note (2026-10-26): the signup page no longer exists (DB + auth removed in PROMPT 044A) — the footer pending spans are the only remaining promise; follow PROMPT 049's text.**
 Agent: dsa-page-builder · Depends: — · Size: S
 **Problem:** signup page promises "Terms of Service and Privacy Policy" that don't exist; footer wants About/Contact.
 **Do:** Simple, truthful static pages: `/privacy`, `/terms` (plain honest text — no invented legal entities), `/about` describing the project; link from footer + signup text. Contact → GitHub issues link (README already says contributions welcome).
@@ -51,6 +52,7 @@ Agent: dsa-page-builder · Depends: — · Size: S
 **Done when:** no promised-but-missing pages.
 
 ### W8 — Auth polish (scoped)
+**CANCELLED (2026-10-26): superseded by decision D9 / card W0 (PROMPT 044A) — the DB + auth feature was removed wholesale; there is no signup form or `subscribed` flag anymore.**
 Agent: dsa-page-builder · Depends: — · Size: S
 **Do:** Keep content public (D3). Add flash-message styling polish; wire the `subscribed` checkbox honestly: label it clearly on signup and either store silently (current) or remove — **ask the user**, default = keep + label "we'll never email you until a newsletter exists".
 **Verify:** signup flow works; no dead ends.
@@ -67,6 +69,13 @@ Agent: general · Depends: C15 · Size: M
 **Do:** Annotate the ~10 legacy-page scenes (searches, sorts, linked lists, stack), emit JSON maps, delete inline `highlightMap` arrays from templates. Pure win once maps are machine-verified; skip any scene whose timings were hand-tuned in the notebook harness (report those).
 **Verify:** `tools/syncmap check --legacy` green before deleting each inline map.
 **Done when:** inline maps gone or consciously kept with reasons.
+
+### W12 — Design critique sweep
+Agent: dsa-design-critic · Depends: W1–W4, W6 · Size: M · (PROMPT 050A)
+**Problem:** the polish prompts (W1–W4, W6) are self-graded — no independent design eyes have walked the result.
+**Do:** independent critic sweeps home + one page per topic family + the legal pages at 390/768/1440 in both themes against the `impeccable` + `design-taste-frontend` + `web-design-guidelines` rubrics (skills installed 2026-10-26 in `.agents/skills/`); fixes small defects (contrast, spacing, focus states, dark-mode breakage) directly; escalates structural findings with recommended follow-up cards.
+**Verify:** findings table + dsa-verify stack green; no unresolved critical/high escalations.
+**Done when:** escalations documented; sweep report written.
 
 ### W11 — Final audit & DoD
 Agent: dsa-auditor · Depends: all · Size: M

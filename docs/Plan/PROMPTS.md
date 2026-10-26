@@ -7,7 +7,7 @@
 
 ## How to use
 
-1. Work through the prompts **strictly in numerical order** (001 → 052). Each prompt assumes every earlier one has completed.
+1. Work through the prompts **strictly in numerical order** (001 → 052, with 030A running between 030 and 031, 044A between 044 and 045, and 050A between 050 and 051). Each prompt assumes every earlier one has completed.
 2. Copy the **entire fenced block** of ONE prompt and paste it into opencode as a single message. Never merge multiple prompts into one message.
 3. If the prompt header names an agent (e.g. `Agent: dsa-bugfixer`), prefix your message with: `Run this with the <agent-name> agent:` and then paste the block. If no agent is named, paste it directly to the main agent. If the custom agents/skills are not visible, restart opencode (config loads at startup).
 4. Wait for the agent's completion report with verification evidence. **If verification fails, re-paste the SAME prompt** and add: "Verification failed at step N. Fix it and re-run verification." Only move on when green.
@@ -57,7 +57,8 @@
 | 028 | Render batch RB2 (8 adjacency scenes) | RB2 | general | 024 |
 | 029 | Phase 3 gate: oracle must be byte-identical | G3 | dsa-auditor | 021–028 |
 | 030 | Bulk webm conversion (~56 videos) | C0 | general | 004, 012, 028 |
-| 031 | Arrays pages get videos + maps | C1 | dsa-page-builder | 030 |
+| 030A | Sync tool upgrade: multi-language maps + loader | C0M | general | 020, 030 |
+| 031 | Arrays pages get videos + maps | C1 | dsa-page-builder | 030, 030A |
 | 032 | LinkedList completion + Queue page | C2, C3 | dsa-page-builder | 030 |
 | 033 | Trees I: types, traversals, correlation, union-find | C4 | dsa-page-builder | 030 |
 | 034 | Trees II: BST, ternary, heaps | C5 | dsa-page-builder | 030 |
@@ -71,12 +72,14 @@
 | 042 | Greedy section (2 pages) | C13 | dsa-page-builder | 030 |
 | 043 | Navigation sweep: un-hide + footer + home | C14 | dsa-page-builder | 031–042 |
 | 044 | Phase 4 gate | G4 | dsa-auditor | 043 |
-| 045 | Responsive design | W1 | dsa-page-builder | 044 |
-| 046 | Dark mode toggle | W2 | dsa-page-builder | 044 |
-| 047 | Fonts + favicon + meta/OG | W3, W4 | dsa-page-builder | 044 |
+| 044A | Remove database + auth, clean up remnants | W0 | dsa-bugfixer | 044 |
+| 045 | Responsive design | W1 | dsa-designer | 044 |
+| 046 | Dark mode toggle | W2 | dsa-designer | 044 |
+| 047 | Fonts + favicon + meta/OG | W3, W4 | dsa-designer | 044 |
 | 048 | Site search | W5 | dsa-page-builder | 043 |
 | 049 | Home honesty + legal pages | W6, W7 | dsa-page-builder | 044 |
-| 050 | Auth polish + performance | W8, W9 | dsa-page-builder | 045 |
+| 050 | Page performance pass | W9 | dsa-page-builder | 045 |
+| 050A | Design critique sweep | W12 | dsa-design-critic | 045, 046, 047, 049 |
 | 051 | OPTIONAL: legacy inline-map migration | W10 | general | 044 |
 | 052 | Final audit + DoD sign-off | G5 | dsa-auditor | all |
 
@@ -1852,11 +1855,13 @@ REPORT
 
 ## Phase 4 — Website Content (all animations on the site)
 
-> PROMPTs 031-042 are all page-building prompts executed by the `dsa-page-builder` agent. Each
+> PROMPT 030A upgrades the sync tool for four-language synced code (semantic step keys, per-language maps, language-switching loader) — page cards 031–042 consume it. PROMPTs 031-042 are the page-building prompts executed by the `dsa-page-builder` agent. Each
 > one follows the `dsa-add-page` + `dsa-highlightmap` skills: annotate the scenes, generate the
 > maps, convert the webm, write the pages, wire the nav, run the checklist. The per-prompt text
 > below supplies only the TOPIC-SPECIFIC facts (routes, videos, notebook grounding); the recipe
-> itself lives in the skills — load them, do not improvise.
+> itself lives in the skills — load them, do not improvise. Every page builds to the Phase-4 page
+> standard: explanation, video + code in C/C++/Java/Python with per-language sync, recurrence-based
+> Best/Worst/Average + Space derivations, Must-Know points, Applications, and relevant Comparisons.
 
 ### PROMPT 030 — Bulk webm conversion
 
@@ -1909,6 +1914,7 @@ CONSTRAINTS
 - Do not commit until the user approves the size delta (they approved running this prompt =
    approval to convert; still show the final numbers before saying "ready to commit").
 - Exact-case paths; no manual edits inside static/Videos.
+- Treat these conversions as the first pass: page cards 031–042 may re-render videos after pacing edits and regenerate these webms in place.
 
 VERIFICATION (all must pass)
 1. The inventory shows every scene from the 11 categories has a webm (expect ~56 new files;
@@ -1924,12 +1930,62 @@ REPORT
 - Tick TASKBOARD row C0.
 `````
 
+### PROMPT 030A — Sync tool upgrade: multi-language synced code + language-switching loader
+
+Plan card(s): C0M (new TASKBOARD row under Phase 4) · Agent: general (load skills: dsa-highlightmap, dsa-render) · Depends on: 020, 030 · Tick TASKBOARD rows: C0M
+
+`````text
+PROMPT 030A — SYNC TOOL UPGRADE: FOUR-LANGUAGE SYNCED CODE, SEMANTIC STEP KEYS, LANGUAGE-SWITCHING LOADER
+
+CONTEXT
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-highlightmap" skill (already updated for this convention) and follow it. Phase-4 pages must ship every video with code in FOUR languages (C, C++, Java, Python), each precisely synced to the same video. Today's tool supports ONE code listing per scene with line-number code_steps — line numbers differ per language, so this prompt upgrades the tool BEFORE any page is built (PROMPTs 031–042 consume it).
+Tool state: recorder (NullRenderer injection), snapshot/map/check CLIs, timeline baselines committed for all 72 scenes (PROMPT 019), LinearSearch annotated with line-number code_steps (PROMPT 017 proof). The `map` command requires --category; committed maps live in Website/website/static/sync/ (currently empty — scratch artifacts were removed).
+
+TASK
+1. Convention change in Animations/synced.py: code_step takes a SEMANTIC KEY, not line numbers:
+     def code_step(self, key: str) -> None: ...   # e.g. self.code_step("partition-loop")
+   DISPLAY_CODE stays as the Python reference implementation (ClassVar[list[str]]). Keys are short slugs naming algorithm steps ("init", "partition-loop", "swap", "recurse") — language-agnostic by design, since line numbers differ per language.
+2. Language library input: the `map` command auto-loads tools/syncmap/langs/<slug>.json (create the directory; put the schema in the missing-file error message):
+     {"python": {"code": [...lines...], "steps": {"partition-loop": "4-8", ...}},
+      "c": {"code": [...], "steps": {...}}, "cpp": {...}, "java": {...}}
+   - `steps` maps each semantic key → Prism data-line string in THAT language's code.
+   - The `map` command FAILS LOUDLY (non-zero exit, naming scene/slug/language/key) when: the langs file is missing, any emitted key is absent from any language's steps, any line ref is out of range, or any code list is empty. No partial emission.
+3. `map` output becomes the COMBINED JSON at Website/website/static/sync/<slug>.json:
+     {"video": "Videos/<Category>/<Scene>.webm", "default": "python",
+      "langs": {"python": {"code": [...], "map": [{"time":…, "lines":…}]}, "c": {...}, "cpp": {...}, "java": {...}}}
+   Map times are SHARED across languages (one video timeline, frame-quantized as today); only `lines` differ per language, deduped consecutively per language.
+4. `check` upgrade: for every committed combined map, re-derive ALL FOUR language maps in memory and byte-compare; drift messages name the offending language (e.g. "DRIFT map quick-sort: language 'java' differs (14 committed vs 13 live)"). Keep the existing out-of-scope skip rules.
+5. Loader upgrade (content.html): fetch the combined JSON; render LANGUAGE TABS (Python / C / C++ / Java, default Python, choice persisted in localStorage); switching tabs swaps the <code class="language-<x>"> content + class, re-runs Prism, and swaps the active map. Keep: fetch-failure → inline fallback; data-from-sync code fill; multi-video per-section slugs (each video section gets its own slug + tab set — document the pattern, reusing the singly_linked_list.html registry approach).
+6. Prism components: read base.html's current Prism includes; add prism-c, prism-cpp, prism-java components from the SAME CDN/version; verify token highlighting renders for all four languages via the proof page below.
+7. MIGRATE the one annotated scene: Animations/SearchingAlgorithms.py LinearSearch (DISPLAY_CODE stays = Python; convert its code_step calls to semantic keys; write tools/syncmap/langs/linear-search.json with all four CORRECT linear-search implementations — short; execute the Python, compile the others if toolchains exist). Re-run snapshot --scene for LinearSearch and COMMIT the updated timeline as expected-drift (code_step events now carry keys; the play/wait stream must be identical). This is the ONLY baseline that changes in this prompt — state the event delta explicitly.
+8. PROOF (temporary, then removed): recreate the PROMPT-017-style scratch route/template; wire one video + combined JSON; confirm code content comes from JSON, all four tabs switch, and highlighting tracks the video PRECISELY in Python and at least one more language (watch both fully). Then remove scratch route/template/JSON.
+9. Tests: extend the syncmap test suite — missing-key validation error (names scene/slug/language/key); per-language consecutive dedupe; combined JSON shape incl. default; check names the drifting language (inject drift into one language's steps only); langs-file-missing error. Keep every existing test green.
+10. Docs: update tools/syncmap/README.md (semantic keys, langs schema, combined JSON, loader v2, per-language drift messages).
+
+CONSTRAINTS
+- The oracle for the other 71 scenes must stay byte-identical: run full `check` before and after — only LinearSearch's timeline may change (documented expected-drift).
+- No other scene files touched. No rendering in this prompt (the loader proof reuses existing webms).
+- Python 3.11 typing; ruff-clean; internal docs only, no user-visible copy.
+
+VERIFICATION (all must pass)
+1. pytest -q fully green (old + new tests).
+2. Full `check` exit 0 with exactly ONE expected timeline change (LinearSearch — show the diff: identical play/wait events + code_step payload change, identical total duration).
+3. Proof-page evidence (four tabs, two watched languages, precise sync) + scratch removal confirmed via git status.
+4. README matches the new CLI reality (re-read it after editing).
+
+REPORT
+- Convention diff summary; LinearSearch migration details (keys chosen, event delta); proof evidence; test results; the LinearSearch timeline diff.
+- Tick TASKBOARD row C0M.
+`````
+
 ### PROMPT 031 — Arrays pages get videos + maps
 
-Plan card(s): C1 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C1
+Plan card(s): C1 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C1
 
 `````text
 PROMPT 031 — ARRAYS: GIVE THE EXISTING TEXT-ONLY PAGES THEIR 4 VIDEOS + SYNC MAPS
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -1984,10 +2040,12 @@ REPORT
 
 ### PROMPT 032 — LinkedList completion + Queue page
 
-Plan card(s): C2, C3 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C2, C3
+Plan card(s): C2, C3 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C2, C3
 
 `````text
 PROMPT 032 — LINKEDLIST LEFTOVERS (NODE/TRAVERSE/ROTATION) + QUEUE PAGE VIDEO
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2047,10 +2105,12 @@ REPORT
 
 ### PROMPT 033 — Trees I: types, traversals, correlation, union-find
 
-Plan card(s): C4 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C4
+Plan card(s): C4 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C4
 
 `````text
 PROMPT 033 — TREES PART 1: FOUR NEW PAGES (TYPES, TRAVERSALS, LIST-CORRELATION, UNION-FIND)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2116,10 +2176,12 @@ REPORT
 
 ### PROMPT 034 — Trees II: BST, ternary, heaps
 
-Plan card(s): C5 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C5
+Plan card(s): C5 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C5
 
 `````text
 PROMPT 034 — TREES PART 2: BINARY SEARCH TREE, TERNARY TREE, HEAPS
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2182,10 +2244,12 @@ REPORT
 
 ### PROMPT 035 — AVL tree page (6 videos)
 
-Plan card(s): C6 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C6
+Plan card(s): C6 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C6
 
 `````text
 PROMPT 035 — AVL TREES: ONE HUB PAGE WITH SIX ANCHORED VIDEO SECTIONS
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2236,10 +2300,12 @@ REPORT
 
 ### PROMPT 036 — B-Tree page
 
-Plan card(s): C7 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C7
+Plan card(s): C7 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C7
 
 `````text
 PROMPT 036 — B-TREES: PAGE FOR THE BTreeScene VIDEO (LOST BTree.mp4 HANDLED HONESTLY)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2286,10 +2352,12 @@ REPORT
 
 ### PROMPT 037 — Graphs I: types + representations (12 videos)
 
-Plan card(s): C8 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C8
+Plan card(s): C8 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C8
 
 `````text
 PROMPT 037 — GRAPHS PART 1: TYPES-OF-GRAPHS + GRAPH-REPRESENTATION (12 VIDEOS)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2347,10 +2415,12 @@ REPORT
 
 ### PROMPT 038 — Graphs II: traversals (4 videos)
 
-Plan card(s): C9 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C9
+Plan card(s): C9 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C9
 
 `````text
 PROMPT 038 — GRAPHS PART 2: GRAPH TRAVERSALS (BFS/DFS, DIRECTED + UNDIRECTED)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2393,10 +2463,12 @@ REPORT
 
 ### PROMPT 039 — Graphs III: shortest paths (3 pages)
 
-Plan card(s): C10 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C10
+Plan card(s): C10 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C10
 
 `````text
 PROMPT 039 — GRAPHS PART 3: DIJKSTRA, BELLMAN-FORD, FLOYD-WARSHALL (3 PAGES)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2457,10 +2529,12 @@ REPORT
 
 ### PROMPT 040 — Graphs IV: Prim's, Kruskal's, topological sort
 
-Plan card(s): C11 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C11
+Plan card(s): C11 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C11
 
 `````text
 PROMPT 040 — GRAPHS PART 4: PRIM'S, KRUSKAL'S, TOPOLOGICAL SORT (3 PAGES)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2511,10 +2585,12 @@ REPORT
 
 ### PROMPT 041 — Divide & Conquer section (4 pages)
 
-Plan card(s): C12 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C12
+Plan card(s): C12 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C12
 
 `````text
 PROMPT 041 — DIVIDE & CONQUER: COUNT INVERSIONS, CLOSEST PAIR, LCS, MEDIAN OF MEDIANS
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2571,10 +2647,12 @@ REPORT
 
 ### PROMPT 042 — Greedy section (2 pages)
 
-Plan card(s): C13 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030 · Tick TASKBOARD rows: C13
+Plan card(s): C13 (`docs/Plan/05-Website-Content.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-highlightmap) · Depends on: 030, 030A · Tick TASKBOARD rows: C13
 
 `````text
 PROMPT 042 — GREEDY: INTERVAL SCHEDULING + HUFFMAN ENCODING (2 PAGES)
+
+0. PHASE-4 STANDARD — READ FIRST (supersedes conflicting lines below): this card builds to PROMPT 030A + the updated dsa-add-page skill — explanation, video + code in four languages (C/C++/Java/Python) with a language switcher, ONE combined sync JSON per video below ("N maps" below means N combined 4-language JSONs), Best/Worst/Average time with full recurrence-based derivations + Space complexity, Must-Know points, Applications, and relevant Comparisons. Annotate with semantic code_step keys (Python in DISPLAY_CODE, C/C++/Java in the langs/<slug>.json file); annotating ADDS code_step events, so re-snapshot and commit each annotated scene's timeline — the play/wait event stream and total duration must match baseline. Pacing edits are explicitly allowed (extra waits / slower run_times for breathability): document each with before/after durations, re-snapshot, regenerate maps, re-render + convert the video(s); paced scenes are expected-drift, listed in your report.
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
@@ -2671,7 +2749,8 @@ VERIFICATION (all must pass)
 2. pytest -q green.
 3. Manual nav pass: dev server; walk the sidebar on 5 pages, the footer on 3, and the home
    cards — every clickable link lands somewhere real; pending items visibly gray and
-   non-clickable; no console errors.
+   non-clickable; no console errors. On 3 Phase-4 pages, confirm the language tabs render,
+   default to Python, switch all four languages, and persist the choice across reloads.
 
 REPORT
 - The span->link mapping table; footer decisions; home card counts; remaining-future list;
@@ -2705,15 +2784,21 @@ TASK
 4. Sync integrity: python -m tools.syncmap check -> exit 0; then spot-watch 6 videos across
    topics (one Trees, one Graphs, one AVL, one D&C, one Greedy, one LinkedList) against their
    highlighting — confirm the highlighted line numbers match what the video is doing at those
-   moments; report any drift.
+   moments; report any drift. On each watched page, verify the language tabs switch all four
+   languages AND highlighting tracks the video in Python plus at least one more language
+   (watch both fully). Confirm every combined JSON carries all four languages with valid maps.
 5. Content accuracy sampling: pick 4 of the new pages at random (at least one Graphs, one
    Trees) and verify EVERY complexity claim and every published number (demo outputs, MCST
    cost, distances, traversal orders) against Understanding/*.ipynb or by running your own
-   throwaway scripts on the same inputs. Report per-claim verdicts.
+   throwaway scripts on the same inputs. Re-derive the Best/Worst/Average recurrences yourself
+   (recurrence + solution steps) and confirm the page's math, not just its final bounds; spot-run
+   one non-Python language sample per sampled page (or confirm the "reviewed, not executed"
+   marking is present and honest). Review each sampled page's paced-scene baselines: only
+   documented pacing edits may differ from the Phase-3 oracle. Report per-claim verdicts.
 6. Honesty sweep: grep all templates for "the sources", "given sources", ratings patterns
    ("4.", "k reviews"), "coming soon" (only the intentional Hash Tables/legal pendings from
    PROMPT 043 may match — enumerate them and confirm each is intentional).
-7. TASKBOARD hygiene: C0-C14 ticked.
+7. TASKBOARD hygiene: C0, C0M, C1-C14 ticked.
 
 REPORT
 - The coverage table summary (complete count / exceptions), route count, checker outputs,
@@ -2724,15 +2809,121 @@ REPORT
 
 ## Phase 5 — Website Polish
 
+### PROMPT 044A — Remove the database + auth
+
+Plan card(s): W0 (docs/Plan/TASKBOARD.md; supersedes card W8 of docs/Plan/06-Website-Polish.md) · Agent: dsa-bugfixer (load skill: dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W0
+
+`````text
+PROMPT 044A — REMOVE THE DATABASE + AUTH: THE SITE IS PUBLIC CONTENT, NOTHING USES ACCOUNTS
+
+CONTEXT
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill
+and use it at the end. DECISION (user, 2026-10-26, logged as D9 in docs/Plan/00-Overview.md):
+the SQLite DB + the auth feature serve no purpose — no page is gated, personalized, or
+DB-driven; the `subscribed` flag is never read; the site is public educational content end to
+end. Remove the DB + auth WHOLESALE and clean up every remnant. What exists today:
+- Website/website/models.py (User model) + auth.py (login/signup/logout blueprint) +
+  templates/auth/login.html + signup.html (also the ONLY users of
+  static/images/LoginImg.png ~1.8 MB and SigninImg.png ~2.2 MB).
+- Website/website/__init__.py: SQLAlchemy + LoginManager + instance-path DB bootstrap.
+- Website/website/views.py: every render_template passes user=current_user (46 call sites);
+  NO template except base.html ever reads `user`.
+- base.html: navbar Log In/Sign In/Log Out block (~:79-98) + flash-message block (~:101-114;
+  only auth.py ever calls flash()).
+- home.html: hero copy "Sign up for AlgoViz" (~:17) + a "Sign In" button pointing at
+  auth.signup (~:21).
+- static/styles/styles.css: .navbar-user-container, .log-in-button, .flashes,
+  .login-container, .login-form rules. CAUTION: .sign-in-button is STILL USED by the home
+  hero — do not prune that one.
+- requirements.txt (flask-sqlalchemy + flask-login pins), tests/test_routes.py ("/login",
+  "/signup" in ROUTES_200 + test_logout_redirects_anonymous), and a gitignored
+  Website/instance/database.db on disk.
+DATA SAFETY FIRST: before deleting anything, open the on-disk DB and count rows per table —
+if any table holds more than a couple of test rows, STOP and ASK THE USER before continuing
+(default assumption: disposable test data; B1 recorded exactly 1 test row).
+
+TASK
+1. Remove the auth + DB code with git rm (tracked files, history preserved):
+      git rm Website/website/models.py Website/website/auth.py
+      git rm Website/website/templates/auth/login.html Website/website/templates/auth/signup.html
+      git rm Website/website/static/images/LoginImg.png Website/website/static/images/SigninImg.png
+   (first re-verify by grep that the two images are referenced nowhere else), then remove the
+   now-empty templates/auth/ directory from disk.
+2. Website/website/__init__.py: delete db = SQLAlchemy(), DB_NAME, the SQLALCHEMY_DATABASE_URI
+   config, db.init_app, the auth blueprint import + registration, the User import,
+   create_database() + its call, the LoginManager setup + user_loader, and the instance-path
+   bootstrap (the os.makedirs line + the pathlib import; os stays — SECRET_KEY uses
+   os.environ). KEEP the SECRET_KEY line as-is (Flask session convention per AGENTS.md;
+   env-driven, zero risk).
+3. Website/website/views.py: delete `from flask_login import current_user` and every
+   `user=current_user` kwarg (all 46 render_template calls shrink; no template reads it once
+   step 4 lands).
+4. Templates + CSS cleanup (deletions only, no restyling):
+   a. base.html: delete the navbar-user-container block AND the get_flashed_messages block
+      (nothing calls flash() after auth removal).
+   b. home.html: delete the hero "Sign In" button; reword the hero copy to drop
+      "Sign up for AlgoViz" (honest: watch the animations — no account needed). Keep the
+      Explore button and its .sign-in-button class.
+   c. static/styles/styles.css: prune rules whose selectors are now orphaned — expected:
+      .navbar-user-container, .log-in-button (+ :hover), .flashes (3 rules),
+      .login-container, .login-form (3 rules). Prove orphan status per selector with a
+      template grep BEFORE pruning; KEEP .sign-in-button (home hero still uses it). List
+      every pruned rule in the report.
+5. Tests + deps:
+   a. tests/test_routes.py: remove "/login" and "/signup" from ROUTES_200; delete
+      test_logout_redirects_anonymous.
+   b. requirements.txt: remove the flask-sqlalchemy and flask-login pins (leave the rest
+      untouched; CI installs the same file and simply installs less).
+   c. Delete Website/instance/database.db from disk and the instance dir if now empty
+      (gitignored — no git action needed; confirm nothing else lives there).
+   d. .gitignore: keep the *.db / instance rules as belt-and-braces, but refresh the stale
+      SQLite comment block (~:221-229) to record that the DB was removed entirely
+      (PROMPT 044A).
+6. Remnant sweep (report the grep outputs): grep live code — Website/, tests/, tools/ — for
+   "flask_login", "flask_sqlalchemy", "SQLAlchemy", "current_user", "UserMixin", "auth.login",
+   "auth.signup", "login_manager": expect ZERO hits (docs/Audit + docs/Plan historical
+   mentions are fine and stay). Grep templates for "login", "signup", "sign in", "sign up":
+   zero hits expected. utils/TreeView.txt is a stale dev snapshot — leave it alone.
+
+CONSTRAINTS
+- No behavior change for any content page: same routes, same markup except the deleted
+  auth/flash/hero-signup bits; no restyling.
+- python -m tools.syncmap check must exit 0 BEFORE and AFTER (formality — no scene is
+  touched; prove it stayed clean).
+- SECRET_KEY stays (AGENTS.md Flask convention; session machinery, harmless without auth).
+- No new dependencies; no route additions; no deletions beyond this list.
+- Do not commit unless the user explicitly says "commit".
+
+VERIFICATION (all must pass)
+1. pytest -q green (the 3 auth tests are gone); python tools/link_check.py --strict exit 0.
+2. Test client: /login and /signup now 404; every remaining route 200 (both spellings).
+3. Fresh-cwd proof: from a scratch temp directory, run python -c "import sys;
+   sys.path.insert(0, r'D:\Git-Projects\DSA-Animations\Website'); import website;
+   app = website.create_app(); print('OK')" — then confirm NO *.db file and no instance/
+   dir was created in the scratch cwd (nor anywhere under Website/).
+4. Dev-server smoke: /, /avl-tree, /huffman-encoding render 200 with NO login buttons and NO
+   flash markup in the served HTML (grep the responses); home hero has only the Explore CTA.
+5. git status shows exactly the expected deletions staged as deletions (D) and nothing else
+   unexpected.
+
+REPORT
+- Files-deleted table (incl. the two image sizes), the DB row-count check result, the
+  pruned-CSS list, route count before/after, grep evidence per remnant pattern.
+- Tick TASKBOARD row W0. (W8 was already cancelled when this prompt was authored.)
+`````
+
 ### PROMPT 045 — Responsive design
 
-Plan card(s): W1 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W1
+Plan card(s): W1 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-designer (skills: emil-design-eng, mobile-native, design-taste-frontend, web-design-guidelines, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W1
 
 `````text
 PROMPT 045 — RESPONSIVE DESIGN: BREAKPOINTS + TOUCH-FRIENDLY CAROUSEL
 
 CONTEXT
-Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill.
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill
+and your agent's design skills (emil-design-eng, mobile-native, design-taste-frontend,
+web-design-guidelines) — they are the craft bar for this work; the rules below always win
+over any skill suggestion. mobile-native governs the carousel and all touch details.
 Facts: Website/website/static/styles.css (808 lines) has ZERO @media queries; home-page
 topic cards are fixed ~310px; the topic carousel drag handler (home.html ~542-571) uses
 mouse events only (no touch). The site must work at 390px (phone), 768px (tablet), 1440px
@@ -2780,20 +2971,24 @@ REPORT
 
 ### PROMPT 046 — Dark mode toggle
 
-Plan card(s): W2 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W2
+Plan card(s): W2 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-designer (skills: emil-design-eng, design-taste-frontend, web-design-guidelines, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W2
 
 `````text
 PROMPT 046 — DARK MODE: WIRE THE EXISTING DARK CSS TO A REAL TOGGLE
 
 CONTEXT
-Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill.
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill
+and your agent's design skills (emil-design-eng, design-taste-frontend,
+web-design-guidelines) — they are the craft bar for this work; the rules below always win
+over any skill suggestion.
 Facts: styles.css ~73-79 already contains a complete :root[data-theme="dark"] variable set,
 but base.html hardcodes <html lang="en" data-theme="light"> and NO toggle exists. Prism and
 MathJax color usage may hardcode some colors (audit item 2.5/4 said fonts/colors are
 inconsistent) — you must make dark mode fully readable, not just flip variables.
 
 TASK
-1. Toggle in the navbar (base.html, near the auth links): a button with sun/moon SVG
+1. Toggle in the navbar (base.html — put it at the navbar's right end, where the auth buttons
+   sat before PROMPT 044A removed them): a button with sun/moon SVG
    (inline SVG, no icon library) that calls a small JS function.
 2. JS (inline in base.html, vanilla):
    - On load: theme = localStorage.getItem("theme") ?? (prefers-color-scheme: dark ?
@@ -2835,13 +3030,16 @@ REPORT
 
 ### PROMPT 047 — Fonts + favicon + meta/OG
 
-Plan card(s): W3, W4 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W3, W4
+Plan card(s): W3, W4 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-designer (skills: frontend-design, emil-design-eng, design-taste-frontend, web-design-guidelines, dsa-verify) · Depends on: 044 · Tick TASKBOARD rows: W3, W4
 
 `````text
 PROMPT 047 — FONTS, FAVICON, PAGE TITLES, META DESCRIPTIONS, OG TAGS
 
 CONTEXT
-Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill.
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill
+and your agent's design skills (frontend-design, emil-design-eng, design-taste-frontend,
+web-design-guidelines) — frontend-design governs the typography/direction choices here;
+the rules below always win over any skill suggestion.
 Facts: styles.css references Roboto / "JetBrains Mono" / Arial but NO webfont is loaded
 (silent fallbacks today); there is no favicon; most pages have generic <title> and no meta
 description; static/images/logo-icon.png (112 KB) exists but is referenced nowhere.
@@ -2911,7 +3109,9 @@ TASK
 1. tools/build_search_index.py: a script that builds Website/website/static/search-index.json:
    - Start the app via the test client, iterate every route, GET it, and parse the RENDERED
      HTML with stdlib html.parser to extract: page URL, <title>, all <h1>/<h2>/<h3> texts,
-     and the meta description.
+     and the meta description. Extract at most one code block per page for keyword matching
+     (the Python block) — never index all four language copies, or the index and the result
+     lists quadruple with duplicates.
    - Output schema: [{"url": "/dijkstra-algorithm", "title": ..., "headings": [...],
      "description": ...}, ...] — deterministic (sort by url), compact separators.
    - CLI flag --check: re-run and diff against the committed index; exit 1 if stale (so CI
@@ -2958,33 +3158,40 @@ PROMPT 049 — HOME PAGE FINAL PASS + PRIVACY / TERMS / ABOUT PAGES
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-add-page" and
-"dsa-verify" skills. Facts: signup.html (~:31-33) promises "Terms of Service and Privacy
-Policy" as plain text with no pages behind them; the footer (wired in PROMPT 043) holds
-Privacy/Terms/Team as pending spans; home.html cards got honest copy in PROMPTs 007/043 —
+"dsa-verify" skills. Facts: the footer (wired in PROMPT 043/C14) holds Privacy Policy, Terms
+of Service, and Our Team as gray pending spans with an "arrive soon" note; there is NO signup
+page anymore — the auth feature and database were removed wholesale in PROMPT 044A, so the
+site has no accounts and stores nothing; home.html cards got honest copy in PROMPTs 007/043 —
 this prompt finishes the job and adds the missing pages. HONESTY RULE: these are legal-ish
 pages — plain, truthful, short. No invented company, address, or team bios.
 
 TASK
-1. THREE new routes + pages (templates auth/legal/ or legal/ — pick a sensible folder):
-   - /privacy: what the app stores (account: username, email, hashed password — read
-     Website/website/models.py and write EXACTLY what fields exist), that sessions use a
-     cookie, that the site is an educational project, contact via GitHub. Nothing more.
-   - /terms: use the site as-is, educational content provided "as is", don't abuse accounts,
-     contributions welcome via pull requests (mirrors the README). Nothing more.
+1. THREE new routes + pages (templates legal/):
+   - /privacy: state EXACTLY what the site is: a static educational site with no accounts,
+     no database, no user data collected, no tracking/analytics (true since PROMPT 044A —
+     verify by reading Website/website/: models.py and auth.py are gone and __init__.py has
+     no DB). Check the dev-server network tab: if any cookie is actually set, document it
+     plainly; if none is (expected), write "we do not use cookies". Contact via GitHub.
+     Nothing more.
+   - /terms: use the site as-is, educational content provided "as is", contributions
+     welcome via pull requests (mirrors the README). Nothing more.
    - /about: what the project is (Manim animations + this site), links to the repo, how to
      run it locally (mirror the README's steps), credit line consistent with the LICENSE
      (MIT, check the LICENSE file's copyright holder line and mirror it verbatim).
-   All three follow the standard template pattern minus video/code blocks (no videos here).
-2. Wire them: signup.html text becomes links (url_for) to /privacy and /terms; the footer
-   pending spans (Privacy Policy, Terms of Service; Our Team -> About) become real links.
+    All three follow the standard template pattern minus video/code blocks (no videos here).
+2. Wire them: the footer pending spans (Privacy Policy, Terms of Service; Our Team -> About)
+   become real links (url_for) and the "arrive soon" note under them is removed.
 3. Home final pass:
    - Verify every topic card's text matches reality (video counts from PROMPT 043; read
      them and confirm).
    - The "Feature Topics"/feature cards from PROMPT 007: confirm the "Concept-to-Code
      Connection" description is distinct and honest.
-   - Any remaining unverifiable/marketing phrase gets the honest rewording (grep for
-     superlatives like "best", "revolutionary", "ultimate" — report hits and fixes).
-   - The 6 Explore buttons work (PROMPT 043 wired them — click-test each).
+    - Any remaining unverifiable/marketing phrase gets the honest rewording (grep for
+      superlatives like "best", "revolutionary", "ultimate" — report hits and fixes).
+    - The 6 Explore buttons work (PROMPT 043 wired them — click-test each).
+    - No auth remnants: grep all templates for "sign in", "sign up", "signup", "login",
+      "account" — zero hits expected (PROMPT 044A removed the hero Sign In button; report
+      any survivor and fix it honestly).
 4. Rebuild the search index (PROMPT 048's tool) so the new pages are searchable;
    tests/test_search_index.py --check must pass.
 
@@ -2995,46 +3202,36 @@ CONSTRAINTS
   in the report as a checklist deviation, do not invent content to satisfy checkboxes).
 
 VERIFICATION (all must pass)
-1. 3 new routes 200; signup links resolve; footer pending spans now real links.
-2. Honesty grep clean (report the superlative grep before/after).
+1. 3 new routes 200; footer pending spans now real links (no "arrive soon" note remains).
+2. Honesty grep clean (report the superlative grep before/after); sign-in/sign-up/login
+   grep across templates: zero hits.
 3. Search index rebuilt; --check clean; pytest -q green; link checker --strict exit 0.
 
 REPORT
-- Pages added; field list you documented from models.py; home-pass diff summary; grep
-  results.
+- Pages added; the exact data-practice claims /privacy makes and why each is literally true;
+  home-pass diff summary; grep results.
 - Tick TASKBOARD rows W6, W7.
 `````
 
-### PROMPT 050 — Auth polish + performance
+### PROMPT 050 — Page performance pass
 
-Plan card(s): W8, W9 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-verify) · Depends on: 045 · Tick TASKBOARD rows: W8, W9
+Plan card(s): W9 (`docs/Plan/06-Website-Polish.md`) · Agent: dsa-page-builder (skills: dsa-add-page, dsa-verify) · Depends on: 045 · Tick TASKBOARD rows: W9
 
 `````text
-PROMPT 050 — AUTH POLISH (SUBSCRIBED DECISION) + PAGE PERFORMANCE PASS
+PROMPT 050 — PAGE PERFORMANCE PASS (VIDEO PRELOAD + DEFERRED CDN SCRIPTS)
 
 CONTEXT
 Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load the "dsa-verify" skill.
-Facts: signup.html has a "subscribed" checkbox storing a never-used flag (models.py column
-`subscribed`, never read after signup — audit docs/Audit/02 item 29); content has NO
-@login_required (a project decision: keep it public — DO NOT add login requirements).
-Videos currently load eagerly, which is the heaviest page cost. MathJax + Prism load from CDNs
-without defer/async. ASK THE USER at the start: (a) keep the `subscribed` column labeled
-honestly ("we don't send emails yet — this just saves a preference"), or (b) remove the
-checkbox + column (simplest DB: leave the column in place but remove the checkbox — schema
-untouched). Default: (b) remove the checkbox from the form ONLY (column stays; zero schema
-risk). Honor the user's answer.
+Facts: videos currently load eagerly, which is the heaviest page cost. MathJax + Prism load
+from CDNs without defer/async. (This prompt's former auth-polish half — the `subscribed`
+checkbox decision — was superseded by PROMPT 044A: accounts, the signup form, and the DB no
+longer exist. Content stays fully public; there is nothing to polish there.)
 
 TASK
-1. Auth polish per the user's decision:
-   - If (b): remove the subscribed checkbox from signup.html (keep the models.py column
-     untouched — note it as dormant in your report).
-   - If (a): relabel the checkbox + add the honest one-line explanation.
-   - Also: style check the auth pages (login/signup) for dark-mode + responsive (PROMPTs
-     045/046 landed — verify they render right there too; fix small issues).
-2. Performance pass (no functionality change):
-   - Videos: add loading="none"-equivalent: since these are <video> tags, set
-     preload="metadata" on ALL below-the-fold videos and preload="auto" for the FIRST
-     video on multi-video pages (search templates for <video and sweep).
+1. Performance pass (no functionality change):
+   - Videos: since these are <video> tags, set preload="metadata" on ALL below-the-fold
+     videos and preload="auto" for the FIRST video on multi-video pages (search templates
+     for <video and sweep).
    - MathJax/Prism CDN script tags in base.html: add defer (and async where safe — MathJax
      docs recommend a specific pattern; follow its standard defer pattern; Prism needs
      to run before the sync loader runs — verify the load order still works! The
@@ -3042,26 +3239,82 @@ TASK
      Prism synchronous and only defer MathJax — report what you chose and why).
    - Images: loading="lazy" on non-hero <img> tags (grep templates).
    - Nothing else: no bundlers, no code splitting, no image sprites.
-3. Verify no visual/functional regressions: the sync highlighting still runs (Prism order!),
+2. Verify no visual/functional regressions: the sync highlighting still runs (Prism order!),
    videos still play on click, dark mode still fine.
 
 CONSTRAINTS
-- No @login_required anywhere (decision D3 in docs/Plan/00-Overview.md).
-- No schema migration this prompt (either option keeps the DB schema untouched).
+- No functionality change; content stays fully public (decision D3 in
+  docs/Plan/00-Overview.md — trivially true since PROMPT 044A).
 - Devtools performance: measure home page + one content page before/after (report the
   numbers: transferred bytes, DOMContentLoaded, Load).
 
 VERIFICATION (all must pass)
-1. Signup flow works (register/login/logout) with the checkbox change.
-2. Sync-highlighting still works on 2 pages (watch briefly) — proof the Prism/defer change
+1. Sync-highlighting still works on 2 pages (watch briefly) — proof the Prism/defer change
    is safe.
-3. Performance report: numbers before/after; network tab shows videos not downloading full
+2. Performance report: numbers before/after; network tab shows videos not downloading full
    data on page load (preload="metadata").
-4. pytest -q green; link checker --strict exit 0.
+3. pytest -q green; link checker --strict exit 0.
 
 REPORT
-- The user's (a)/(b) decision and its implementation; defer/ordering decision; perf table.
-- Tick TASKBOARD rows W8, W9.
+- Defer/ordering decision; perf table before/after.
+- Tick TASKBOARD row W9.
+`````
+
+### PROMPT 050A — Design critique sweep
+
+Plan card(s): W12 (docs/Plan/06-Website-Polish.md) · Agent: dsa-design-critic (skills: impeccable, design-taste-frontend, web-design-guidelines, webapp-testing) · Depends on: 045, 046, 047, 049 · Tick TASKBOARD rows: W12
+
+`````text
+PROMPT 050A — DESIGN CRITIQUE SWEEP: INDEPENDENT EYES ON THE POLISHED SITE
+
+CONTEXT
+Repo: D:\Git-Projects\DSA-Animations. Read AGENTS.md first, then load your agent's rubric
+skills (impeccable = the primary rubric + critique playbook; design-taste-frontend = the
+anti-slop pass; web-design-guidelines = the UI compliance check; webapp-testing = the
+Playwright toolkit for screenshots/console checks). PROMPTs 045-047 + 049 delivered the
+responsive breakpoints, dark mode, fonts/favicon/meta, and the honest home; PROMPT 044A
+removed the auth chrome. This sweep is the design-quality gate before the final audit:
+an independent critic walking the site like a designer — the builder never grades their
+own homework.
+
+TASK
+1. Sweep home + one content page per topic family (Arrays, Sorting, Trees/AVL, Graphs,
+   D&C or Greedy) + the legal pages + the multi-video /avl-tree page:
+   - At 390px / 768px / 1440px, both themes, light-first-visit AND persisted-dark reload.
+   - impeccable rubric: hierarchy, spacing rhythm, typography, color contrast (WCAG AA),
+     motion, UX copy, responsive behavior, edge cases (long topic names, the deepest
+     sidebar, the widest code block).
+   - design-taste-frontend rubric: does anything read templated/sloppy/generic? The hero,
+     topic cards, and section headers get the closest look.
+   - web-design-guidelines: accessibility + semantics pass (focus states, alt text, hit
+     target sizes, prefers-reduced-motion for any motion Phase 5 added).
+2. Fix small unambiguous defects DIRECTLY (contrast, alignment, spacing at one width, a
+   missing focus ring, an overflow, a hardcoded color breaking dark mode): minimal diffs
+   in styles.css/templates, one concern per change, before/after noted. Structural or
+   design-direction findings (hero rework, palette change, layout restructure): report
+   only — never implement.
+3. Honesty rules still bind: no marketing copy, no invented content, no route changes.
+   Never touch scene code, sync maps, or timings: python -m tools.syncmap check must exit
+   0 before and after your fixes.
+4. Re-run the dsa-verify stack after the fixes: pytest -q green, link checker --strict
+   exit 0.
+
+CONSTRAINTS
+- A "fix" is SMALL by definition: if a change would alter layout structure or the
+  palette, escalate it instead.
+- No new dependencies, no frameworks, no CDN additions.
+- Desktop (>=1025px) parity still holds for anything PROMPT 045 left untouched.
+
+VERIFICATION (all must pass)
+1. Findings table produced: severity, page, element, verdict (fixed/escalated), with
+   before/after for every fix.
+2. pytest -q green; link checker --strict exit 0; python -m tools.syncmap check exit 0.
+3. Console sweep: zero errors on every swept page (report per page).
+
+REPORT
+- The findings table; fixes applied; escalations (each with a recommended follow-up
+  card); console sweep evidence.
+- Tick TASKBOARD row W12.
 `````
 
 ### PROMPT 051 — OPTIONAL: legacy inline-map migration
@@ -3079,10 +3332,13 @@ inline highlightMap JS arrays. This prompt replaces them with machine-generated 
 consistency win; safe to skip if time is short.
 
 TASK
-1. For each legacy page: annotate its scene(s) (SyncedScene + DISPLAY_CODE mirroring the
-   code the page ALREADY displays — read the template's current code block; code_step
-   placement by watching the video and reading the scene), emit the map JSON, and switch
-   the page's video container to data-sync (the loader from PROMPT 017 falls back safely).
+1. For each legacy page: upgrade it to the full Phase-4 page standard — annotate its scene(s)
+   with semantic code_step keys (DISPLAY_CODE mirrors the Python the page ALREADY displays —
+   read the template's current code block; key placement by watching the video and reading
+   the scene), write the langs/<slug>.json file with all four CORRECT implementations
+   (C/C++/Java grounded in the same demo the video shows), emit the combined JSON, and switch
+   the page's video container to data-sync with language tabs (the loader falls back safely).
+   (LinearSearch's key-migration was already done in PROMPT 030A — reuse it.)
 2. BEFORE deleting any inline array: python -m tools.syncmap check --legacy and compare
    the generated map against the inline one — report per page whether the eyeballed one was
    wrong (expected: some drift) and by how much (max seconds difference at any step).
@@ -3093,7 +3349,7 @@ TASK
    and see >0.5s constant offset — e.g. the video was edited post-render), DO NOT delete
    that page's inline map; report it as a video/map mismatch needing a re-render decision
    (future card).
-5. Oracle rule applies to annotations (timelines byte-identical).
+5. Annotation rule: annotating ADDS code_step events — re-snapshot and commit each annotated scene's timeline (play/wait stream + total duration must match baseline); paced scenes are expected-drift with before/after durations documented.
 
 VERIFICATION (all must pass)
 1. Every migrated page: watch once — highlighting tracks the video at least as well as
@@ -3127,25 +3383,39 @@ Done in docs/Plan/00-Overview.md.
 TASK
 1. Full verification stack:
    - pytest -q (all tests) and python tools/link_check.py --strict (empty allowlist)
-   - Route sweep: every route, both spellings, all 200/302
+   - Route sweep: every route, both spellings, all 200 (no 302s remain — auth was removed
+     in PROMPT 044A)
    - python -m tools.syncmap check -> exit 0; search index --check clean
    - ruff check Animations Website tools mp4_to_gif_converter.py -> exit 0
+   - DB-removal proof (PROMPT 044A held): grep flask_login / flask_sqlalchemy / UserMixin /
+     current_user across live code -> zero hits; models.py, auth.py, templates/auth/ absent;
+     creating the app from a scratch cwd writes no DB file anywhere.
    - Confirm the CI workflow's ruff --exit-zero can be dropped now (report; do not edit).
 2. Re-audit against the five original reports, by section:
-   - 04-Bugs: EVERY row re-derived; state FIXED/STILL PRESENT for each.
+   - 04-Bugs: EVERY row re-derived; state FIXED/STILL PRESENT for each. (Section 2's DB-path
+     row B1: mark SUPERSEDED — the whole DB was removed in PROMPT 044A, so the DB-path rules
+     no longer apply; SECRET_KEY-from-env still holds.)
    - 02-Improvements: which of the 40 items landed (P3 refactor, aliases, fonts, etc.).
    - 03-Dead code: the remaining intentional pendings ONLY (enumerate).
    - 05-Gaps: every gap closed or honestly documented (BTree.mp4, Huffman codes,
      Bellman-Ford cycle-check animation, Hash Tables).
    - 01-Implemented: confirm the crown jewels still work (spot-render check via syncmap on
      3 scenes; watch 2 site videos).
+   - Phase-4 page standard: on 4 sampled Phase-4 pages, confirm language tabs work in all
+     four languages with sync tracking in Python + one more (watch both), every combined
+     JSON carries four valid maps, and every Best/Worst/Average figure re-derives from its
+     shown recurrence (re-do the math yourself); spot-run one non-Python sample per page
+     (or confirm honest "reviewed, not executed" marking); confirm Must-Know, Applications,
+     and Comparison sections exist and are factual.
 3. Website quality sweep: responsive spot at 3 widths, dark mode toggle, search works,
    titles/meta present, footer/sidebar fully wired, honesty greps (sources/ratings/
-   superlatives), no console errors on 5 pages.
+   superlatives), no console errors on 5 pages. The design critique (PROMPT 050A / W12)
+   must be ticked with no unresolved escalations — list any that remain.
 4. Git hygiene: git status (nothing untracked that should be tracked; no media committed
    beyond what the user approved in PROMPTs 012/028/030); repo size report; note the Git
    LFS migration as the known follow-up.
-5. TASKBOARD: every card ticked or explicitly cancelled with reason (R9, W10 optional).
+5. TASKBOARD: every card ticked or explicitly cancelled with reason (W8 cancelled by
+   PROMPT 044A; R9, W10 optional).
    Verify the Definition of Done checklist in docs/Plan/00-Overview.md item by item.
 6. Write the addenda: append "## Post-fix status (2026-09)" to each of docs/Audit/01..05:
    a short table (finding -> status) per report. Keep it factual, with file:line evidence
